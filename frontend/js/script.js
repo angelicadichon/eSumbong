@@ -1,4 +1,4 @@
-const backendURL = "http://localhost:5000";
+const backendURL = "";
 
 // Handle Registration
 const registerForm = document.getElementById("registerForm");

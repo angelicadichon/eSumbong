@@ -1,47 +1,63 @@
-// backend/server.js
 import express from "express";
 import cors from "cors";
 import path from "path";
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
 import { fileURLToPath } from "url";
-import { openDb } from "./database.js"; // or your database logic
 
+const app = express();
+const port = process.env.PORT || 5000;
+
+// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend (static files)
-app.use(express.static(path.join(__dirname, "../frontend")));
-
-// Example endpoints
-app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
-  const db = await openDb();
-  await db.run("INSERT INTO users (username, password) VALUES (?, ?)", [username, password]);
-  res.json({ message: "User registered successfully!" });
+// Connect to SQLite
+const dbPromise = open({
+  filename: path.join(__dirname, "eSumbong.db"),
+  driver: sqlite3.Database,
 });
 
-app.post("/login", async (req, res) => {
+// Routes
+app.post("/register", async (req, res) => {
+  const db = await dbPromise;
   const { username, password } = req.body;
-  const db = await openDb();
-  const user = await db.get("SELECT * FROM users WHERE username=? AND password=?", [username, password]);
-  
-  if (user) {
-    res.json({ message: "Login successful!" });
-  } else {
-    res.status(401).json({ error: "Invalid credentials" });
+
+  try {
+    await db.run(
+      "INSERT INTO users (username, password) VALUES (?, ?)",
+      [username, password]
+    );
+    res.json({ message: "Registration successful!" });
+  } catch (err) {
+    res.status(400).json({ error: "Username already exists!" });
   }
 });
 
-// Redirect to frontend
+app.post("/login", async (req, res) => {
+  const db = await dbPromise;
+  const { username, password } = req.body;
+
+  const user = await db.get(
+    "SELECT * FROM users WHERE username = ? AND password = ?",
+    [username, password]
+  );
+
+  if (user) res.json({ message: "Login successful!" });
+  else res.status(401).json({ error: "Invalid username or password" });
+});
+
+// 🧠 Serve frontend (important)
+app.use(express.static(path.join(__dirname, "../frontend")));
+
+// For any route not handled by the API, return index.html
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
+// Start server
+app.listen(port, () => console.log(`✅ Server running on port ${port}`));
