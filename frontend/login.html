@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - eSumbong</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label>Username:</label>
+      <input type="text" id="loginUsername" required>
+      <label>Password:</label>
+      <input type="password" id="loginPassword" required>
+      <button type="submit">Login</button>
+    </form>
+    <p>Don’t have an account? <a href="index.html">Register here</a></p>
+    <p id="loginMessage"></p>
+  </div>
+
+  <script>
+    const backendURL = "http://localhost:5000";
+
+    // Handle Login
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("loginUsername").value;
+        const password = document.getElementById("loginPassword").value;
+
+        const response = await fetch(`${backendURL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+        const messageElement = document.getElementById("loginMessage");
+
+        if (response.ok) {
+          messageElement.textContent = "✅ " + data.message;
+
+          // Redirect to dashboard after short delay
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1000);
+        } else {
+          messageElement.textContent = "❌ " + data.error;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

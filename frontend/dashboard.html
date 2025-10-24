@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resident Dashboard | eSumbong</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>eSumbong</h2>
+      <ul>
+        <li><a href="#" class="active">🏠 Dashboard</a></li>
+        <li><a href="#">📋 My Complaints</a></li>
+        <li><a href="#">➕ Submit Report</a></li>
+        <li><a href="#">🔔 Notifications</a></li>
+        <li><a href="#">💬 Feedback</a></li>
+        <li><a href="#">❓ Help & Support</a></li>
+        <li><a href="login.html" id="logout">🚪 Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <header>
+        <div class="welcome">
+          <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" />
+          <div>
+            <h2>Welcome, <span id="residentName">Resident</span>!</h2>
+            <p>You have submitted <span id="reportCount">0</span> reports.</p>
+          </div>
+        </div>
+        <button id="newReportBtn">+ Submit Report</button>
+      </header>
+
+      <section class="complaints">
+        <h3>My Complaints</h3>
+        <input type="text" id="searchBar" placeholder="🔍 Search by category or status..." />
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Assigned Officer</th>
+            </tr>
+          </thead>
+          <tbody id="complaintsList">
+            <tr><td colspan="5">No complaints yet.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="notifications">
+        <h3>Notifications</h3>
+        <ul id="notificationsList">
+          <li>No notifications yet.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal for new report -->
+  <div id="reportModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Submit New Report</h3>
+      <form id="reportForm">
+        <label>Category</label>
+        <input type="text" name="category" required />
+
+        <label>Description</label>
+        <textarea name="description" rows="4" required></textarea>
+
+        <label>Photo</label>
+        <input type="file" name="photo" accept="image/*" />
+
+        <label>Location</label>
+        <input type="text" name="location" required />
+
+        <button type="submit">Submit</button>
+        <button type="button" id="closeModal">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
