@@ -6,7 +6,7 @@ import { open } from "sqlite";
 import { fileURLToPath } from "url";
 
 const app = express();
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 // Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -51,13 +51,11 @@ app.post("/login", async (req, res) => {
   else res.status(401).json({ error: "Invalid username or password" });
 });
 
-// 🧠 Serve frontend (important)
-app.use(express.static(path.join(__dirname, "../frontend")));
+const frontendPath = path.join(__dirname, "../frontend");
+app.use(express.static(frontendPath));
 
-// For any route not handled by the API, return index.html
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-// Start server
-app.listen(port, () => console.log(`✅ Server running on port ${port}`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
