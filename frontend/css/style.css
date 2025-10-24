@@ -11,7 +11,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #3a7bd5, #3a6073);
+    background: linear-gradient(135deg, pink, #3a6073);
   }
   
   .container {
