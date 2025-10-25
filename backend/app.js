@@ -16,10 +16,24 @@ app.use(express.json());
 
 app.use("/api/users", userRoutes);
 
-app.use(express.static(path.join(__dirname, "views")));
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "login.html"));
+});
+
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "index.html"));
+});
+
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "dashboard.html"));
+});
+
 
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, "views", "index.html"));
 });
+
 
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
