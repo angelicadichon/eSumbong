@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import authRouter from './routes/authroute.js';
+import authRouter from './routes/authRoutes.js';
 import { initializeDatabase } from './models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
