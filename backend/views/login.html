@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>eSumbong | Login</title>
 
-  <!-- Use a relative path that matches where your CSS file actually lives.
-       If your CSS is at public/css/style.css (relative to this HTML file), use that.
-       If this file is served from a subpath (e.g. GitHub Pages /eSumbong/), avoid leading slashes. -->
-  <link rel="stylesheet" href="public/css/style.css">
+  <!-- Use root-absolute paths so assets load correctly on any route -->
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <div class="login-container">
@@ -33,14 +31,13 @@
 
     <div class="register-link">
       <p>Don’t have an account?
-        <!-- Relative link to the register page -->
-        <a href="views/index.html">Register here</a>
+        <!-- Point to the route, not a file name -->
+        <a href="/register">Register here</a>
       </p>
     </div>
   </div>
 
-  <!-- Use a relative path that matches where your JS file actually lives.
-       If your JS is in public/js/auth.js, reference it like this (no leading slash). -->
-  <script src="public/js/auth.js" defer></script>
+  <!-- Root-absolute path for JS as well -->
+  <script src="/js/auth.js" defer></script>
 </body>
 </html>
