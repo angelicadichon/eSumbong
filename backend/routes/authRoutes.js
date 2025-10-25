@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path'; // Needed for serving static files
 import { fileURLToPath } from 'url';
-import authRouter from './routes/authroute.js'; // Adjust the path as necessary
+import authRouter from './routes/authRoute.js'; // Adjust the path as necessary
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
