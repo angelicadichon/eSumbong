@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eSumbong | Login</title>
+
+  <!-- Link to your existing CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div class="login-container">
+    <h2>Welcome to eSumbong</h2>
+    <p>Login to access your dashboard and report barangay concerns.</p>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" name="username" placeholder="Enter username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" placeholder="Enter password" required>
+      </div>
+
+      <button type="submit" class="btn-login">Login</button>
+    </form>
+
+    <!-- MESSAGE OUTPUT -->
+    <p id="loginMessage" class="message"></p>
+
+    <!-- LINK TO REGISTER -->
+    <div class="register-link">
+      <p>Don’t have an account? 
+        <a href="/register.html">Register here</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- JS for login/register logic -->
+  <script src="/js/auth.js" defer></script>
+</body>
+</html>
