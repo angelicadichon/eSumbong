@@ -79,9 +79,6 @@ registerForm.addEventListener('submit', async (e) => {
     }
 });
 
-// =======================================================================
-// ===== LOGIN HANDLER (Redirect path has been updated) ====================
-// =======================================================================
 const loginForm = document.getElementById("loginForm");
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
