@@ -1,12 +1,11 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// Assuming routes is also inside backend: ./routes/authRoutes.js
-import authRouter from './routes/authRoutes.js'; 
+import authRouter from './routes/authRoutes.js';
 import { initializeDatabase } from './models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(__filename); // __dirname is now /backend
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -21,10 +20,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 2. Serve static files (CSS, frontend JS, etc.)
-// FIX: Go up one level (..) to find the 'public' folder
-app.use(express.static(path.join(__dirname, '..', 'public'))); 
+// FIX: Remove '..' (Look for 'public' folder directly inside 'backend')
+app.use(express.static(path.join(__dirname, 'public'))); 
 
-// 3. Mount the API router (No change needed if authRoutes is inside backend)
+// 3. Mount the API router
 app.use('/api/auth', authRouter); 
 
 // 4. Frontend Routes (Serving the View HTML files)
@@ -36,20 +35,20 @@ app.get('/', (req, res) => {
 
 // Register Page Route
 app.get('/register', (req, res) => {
-    // FIX: Go up one level (..) to find the 'view' folder
-    res.sendFile(path.join(__dirname, '..', 'view', 'register.html'));
+    // FIX: Remove '..' (Look for 'view' folder directly inside 'backend')
+    res.sendFile(path.join(__dirname, 'view', 'register.html'));
 });
 
 // Login Page Route
 app.get('/login', (req, res) => {
-    // FIX: Go up one level (..) to find the 'view' folder
-    res.sendFile(path.join(__dirname, '..', 'view', 'login.html'));
+    // FIX: Remove '..'
+    res.sendFile(path.join(__dirname, 'view', 'login.html'));
 });
 
 // Dashboard Page Route
 app.get('/dashboard', (req, res) => {
-    // FIX: Go up one level (..) to find the 'view' folder
-    res.sendFile(path.join(__dirname, '..', 'view', 'dashboard.html'));
+    // FIX: Remove '..'
+    res.sendFile(path.join(__dirname, 'view', 'dashboard.html'));
 });
 
 
