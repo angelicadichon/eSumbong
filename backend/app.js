@@ -8,24 +8,18 @@ import userRoutes from "./routes/authRoutes.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
 app.use("/api/users", userRoutes);
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, "frontend")));
+app.use(express.static(path.join(__dirname, "views")));
 
-// Fallback: use middleware without a path so path-to-regexp is not invoked
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "index.html"));
+  res.sendFile(path.join(__dirname, "views", "index.html"));
 });
 
-// Start server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
