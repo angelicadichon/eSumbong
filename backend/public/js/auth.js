@@ -2,7 +2,7 @@
 const backendURL = ""; // Leave empty if frontend & backend are served together (Render)
 // Otherwise, set e.g. "https://esumbong.onrender.com"
 
-// ===== REGISTER HANDLER =====
+// ===== REGISTER HANDLER (No changes needed here for the login redirection) =====
 // Get the form and message elements from the HTML
 const registerForm = document.getElementById('registerForm');
 const registerMessage = document.getElementById('registerMessage');
@@ -79,42 +79,55 @@ registerForm.addEventListener('submit', async (e) => {
     }
 });
 
-// ===== LOGIN HANDLER =====
+// =======================================================================
+// ===== LOGIN HANDLER (Redirect path has been updated) ====================
+// =======================================================================
 const loginForm = document.getElementById("loginForm");
 if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    const username = document.getElementById("loginUsername").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-    const message = document.getElementById("loginMessage");
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+    const message = document.getElementById("loginMessage");
 
-    try {
-      const response = await fetch(`${backendURL}/api/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+    try {
+      // IMPORTANT: Change fetch URL to match your server's route setup.
+      // Based on your authroute.js, the login route should be '/api/auth/login' (if mounted under /api/auth)
+      const response = await fetch(`${backendURL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // IMPORTANT: Change body to match API's expected 'email' and 'password'
+        // Assuming 'username' input is actually the 'email' for login.
+        body: JSON.stringify({ email: username, password }), 
+      });
 
-      const data = await response.json();
+      const data = await response.json();
 
-      if (response.ok) {
-        message.textContent = "✅ " + data.message;
-        message.style.color = "green";
+      if (response.ok) {
+        message.textContent = "✅ Login successful!";
+        message.style.color = "green";
 
-        // Store user info if needed
-        localStorage.setItem("username", username);
+        // Store the JWT token from the response
+        if (data.token) {
+            localStorage.setItem("authToken", data.token);
+        }
 
-        // Redirect to the dashboard route (handled by app.get('/dashboard'))
-        setTimeout(() => (window.location.href = "/dashboard"), 1000);
-      } else {
-        message.textContent = "❌ " + (data.error || data.message || "Login failed");
-        message.style.color = "red";
-      }
-    } catch (err) {
-      message.textContent = "❌ Network error. Please try again.";
-      message.style.color = "red";
-      console.error("Login error:", err);
-    }
-  });
+        // Store user info if needed
+        // localStorage.setItem("username", username);
+
+        // Redirect to the dashboard ROUTE.
+        // This assumes your Express server has a route like app.get('/dashboard', ...) 
+        // that renders the view/dashboard.html file.
+        setTimeout(() => (window.location.href = "/dashboard"), 1000); 
+      } else {
+        message.textContent = "❌ " + (data.message || "Login failed");
+        message.style.color = "red";
+      }
+    } catch (err) {
+      message.textContent = "❌ Network error. Please try again.";
+      message.style.color = "red";
+      console.error("Login error:", err);
+    }
+  });
 }
