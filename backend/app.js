@@ -21,10 +21,11 @@ app.use("/api/users", userRoutes);
 
 // Serve frontend
 app.use(express.static(path.join(__dirname, "frontend")));
-app.get("*", (req, res) => {
+
+// Fallback: use middleware without a path so path-to-regexp is not invoked
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
-
 
 // Start server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
