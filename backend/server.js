@@ -51,11 +51,11 @@ app.post("/login", async (req, res) => {
   else res.status(401).json({ error: "Invalid username or password" });
 });
 
-const frontendPath = path.join(__dirname, "../frontend");
+const frontendPath = path.join(__dirname, "frontend");
 app.use(express.static(frontendPath));
 
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 
