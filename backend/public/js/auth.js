@@ -1,130 +1,147 @@
-// ===== CONFIGURATION =====
-const backendURL = ""; // Leave empty if frontend & backend are served together (Render)
-// Otherwise, set e.g. "https://esumbong.onrender.com"
+// ===== CONFIGURATION (Use the base path) =====
+const backendURL = ""; // Empty string for same-origin requests
 
-// ===== REGISTER HANDLER (No changes needed here for the login redirection) =====
-// Get the form and message elements from the HTML
+// ===== REGISTER HANDLER =====
 const registerForm = document.getElementById('registerForm');
 const registerMessage = document.getElementById('registerMessage');
 
-// Event listener for form submission
-registerForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Prevent the default form submission
+if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // Clear previous messages
-    registerMessage.textContent = '';
-    registerMessage.classList.remove('success', 'error');
+        registerMessage.textContent = '';
+        registerMessage.classList.remove('success', 'error');
 
-    // Get input values (Note: your HTML has 'username', but your backend API uses 'name' and 'email'.
-    // I'm using the 'username' from your HTML for the 'name' field in the API request, and will
-    // assume the user is also expected to enter an 'email' for the registration to work with your API)
-    const usernameInput = document.getElementById('regUsername');
-    const passwordInput = document.getElementById('regPassword');
-    
-    // *** IMPORTANT: Your backend API requires 'name', 'email', and 'password'.
-    // Your HTML only provides 'username' and 'password'.
-    // To make this work, I'll assume 'username' is the 'name' for the API, 
-    // AND that we need to add an 'email' input to the HTML or use a dummy email for testing. 
-    // I'll add a temporary placeholder for email here. You should update your HTML.
-    
-    const name = usernameInput.value.trim();
-    const password = passwordInput.value;
-    
-    // --- TEMPORARY WORKAROUND ---
-    // Since your HTML lacks an 'email' input, I'll construct an email from the username 
-    // for this example. YOU MUST ADD AN EMAIL FIELD TO YOUR HTML for production use.
-    const email = `${name.toLowerCase().replace(/\s/g, '')}@esumbong.com`; 
-    // --- END WORKAROUND ---
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
 
-    if (!name || !password) {
-        registerMessage.textContent = 'Please fill out all fields.';
-        registerMessage.classList.add('error');
-        return;
-    }
+        if (!name || !email || !password) {
+            registerMessage.textContent = 'Please fill out all fields.';
+            registerMessage.classList.add('error');
+            return;
+        }
 
-    try {
-        const response = await fetch('/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            // The body must match the structure expected by your backend 'register' function: { name, email, password }
-            body: JSON.stringify({ name, email, password }),
-        });
+        try {
+            const response = await fetch(`${backendURL}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password }),
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok) {
-            // Success response (HTTP 200)
-            registerMessage.textContent = data.message || 'Registration successful!';
-            registerMessage.classList.add('success');
-            // Optionally redirect user after a short delay:
-            // setTimeout(() => { window.location.href = '/login'; }, 2000);
-            
-            // Clear the form fields on successful registration
-            usernameInput.value = '';
-            passwordInput.value = '';
-            
-        } else {
-            // Error response (HTTP 400 or other error status)
-            registerMessage.textContent = data.message || 'Registration failed. Please try again.';
+            if (response.ok) {
+                registerMessage.textContent = data.message || 'Registration successful!';
+                registerMessage.classList.add('success');
+                // Redirect to login page after successful registration
+                setTimeout(() => { window.location.href = '/login'; }, 1500);
+            } else {
+                registerMessage.textContent = data.message || 'Registration failed.';
+                registerMessage.classList.add('error');
+            }
+
+        } catch (error) {
+            console.error('Registration error:', error);
+            registerMessage.textContent = 'A network error occurred. Please try again later.';
             registerMessage.classList.add('error');
         }
+    });
+}
 
-    } catch (error) {
-        // Network or other unexpected error
-        console.error('Registration error:', error);
-        registerMessage.textContent = 'A network error occurred. Please try again later.';
-        registerMessage.classList.add('error');
-    }
-});
-
+// ===== LOGIN HANDLER =====
 const loginForm = document.getElementById("loginForm");
+const loginMessage = document.getElementById("loginMessage");
+
 if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const username = document.getElementById("loginUsername").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-    const message = document.getElementById("loginMessage");
+        loginMessage.textContent = '';
+        loginMessage.classList.remove('success', 'error');
 
-    try {
-      // IMPORTANT: Change fetch URL to match your server's route setup.
-      // Based on your authroute.js, the login route should be '/api/auth/login' (if mounted under /api/auth)
-      const response = await fetch(`${backendURL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // IMPORTANT: Change body to match API's expected 'email' and 'password'
-        // Assuming 'username' input is actually the 'email' for login.
-        body: JSON.stringify({ email: username, password }), 
-      });
+        // Note: The input IDs are now 'loginEmail' and 'loginPassword'
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
 
-      const data = await response.json();
+        try {
+            // Correct API route: /api/auth/login
+            const response = await fetch(`${backendURL}/api/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
 
-      if (response.ok) {
-        message.textContent = "✅ Login successful!";
-        message.style.color = "green";
+            const data = await response.json();
 
-        // Store the JWT token from the response
-        if (data.token) {
-            localStorage.setItem("authToken", data.token);
+            if (response.ok) {
+                loginMessage.textContent = data.message || "Login successful!";
+                loginMessage.classList.add('success');
+
+                // Store the JWT token for authenticated requests
+                if (data.token) {
+                    localStorage.setItem("authToken", data.token);
+                }
+
+                // Redirect to the dashboard ROUTE, which is handled by server.js
+                setTimeout(() => (window.location.href = "/dashboard"), 1000); 
+            } else {
+                loginMessage.textContent = data.message || "Login failed.";
+                loginMessage.classList.add('error');
+            }
+        } catch (err) {
+            console.error("Login error:", err);
+            loginMessage.textContent = "A network error occurred. Please try again.";
+            loginMessage.classList.add('error');
         }
+    });
+}
 
-        // Store user info if needed
-        // localStorage.setItem("username", username);
+// ===== DASHBOARD/AUTH CHECK (Simple Example) =====
+// Runs on dashboard.html load
+const userNameDisplay = document.getElementById('userNameDisplay');
+const logoutButton = document.getElementById('logoutButton');
 
-        // Redirect to the dashboard ROUTE.
-        // This assumes your Express server has a route like app.get('/dashboard', ...) 
-        // that renders the view/dashboard.html file.
-        setTimeout(() => (window.location.href = "/dashboard"), 1000); 
-      } else {
-        message.textContent = "❌ " + (data.message || "Login failed");
-        message.style.color = "red";
-      }
-    } catch (err) {
-      message.textContent = "❌ Network error. Please try again.";
-      message.style.color = "red";
-      console.error("Login error:", err);
-    }
-  });
+if (userNameDisplay) {
+    // Basic check to ensure the user has a token
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+        // If no token, redirect to login
+        alert("You must be logged in to view the dashboard.");
+        window.location.href = '/login';
+        return;
+    }
+    
+    // Attempt to fetch user data using the token
+    fetch(`${backendURL}/api/auth/user`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.name) {
+            userNameDisplay.textContent = data.name; // Display the user's name
+        } else {
+            // Token was invalid/expired but present; log out user
+            localStorage.removeItem("authToken");
+            alert(data.message || "Session expired. Please log in again.");
+            window.location.href = '/login';
+        }
+    })
+    .catch(err => {
+        console.error("User fetch error:", err);
+        userNameDisplay.textContent = "Error fetching user data";
+        // Optionally redirect on network error
+    });
+}
+
+if (logoutButton) {
+    logoutButton.addEventListener('click', () => {
+        localStorage.removeItem("authToken");
+        alert("You have been logged out.");
+        window.location.href = '/login';
+    });
 }

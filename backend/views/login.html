@@ -1,43 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>eSumbong | Login</title>
-
-  <!-- Use root-absolute paths so assets load correctly on any route -->
-  <link rel="stylesheet" href="/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eSumbong | Login</title>
+    <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <div class="login-container">
-    <h2>Welcome to eSumbong</h2>
-    <p>Login to access your dashboard and report barangay concerns.</p>
+    <div class="login-container">
+        <h2>Welcome Back to eSumbong</h2>
+        <p>Log in to access your reports and dashboard.</p>
 
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="loginUsername">Username</label>
-        <input type="text" id="loginUsername" name="username" placeholder="Enter username" required>
-      </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" name="email" placeholder="Enter email address" required />
+            </div>
 
-      <div class="form-group">
-        <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" name="password" placeholder="Enter password" required>
-      </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" name="password" placeholder="Enter password" required />
+            </div>
 
-      <button type="submit" class="btn-login">Login</button>
-    </form>
+            <button type="submit" class="btn-login">Login</button>
+        </form>
 
-    <p id="loginMessage" class="message"></p>
+        <p id="loginMessage" class="message"></p>
 
-    <div class="register-link">
-      <p>Don’t have an account?
-        <!-- Point to the route, not a file name -->
-        <a href="/register">Register here</a>
-      </p>
+        <div class="register-link">
+            <p>Don't have an account?
+                <a href="/register">Register here</a>
+            </p>
+        </div>
     </div>
-  </div>
-
-  <!-- Root-absolute path for JS as well -->
-  <script src="/js/auth.js" defer></script>
+    <script src="/js/auth.js" defer></script>
 </body>
 </html>
