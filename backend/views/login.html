@@ -1,20 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>eSumbong | Login</title>
 
-  <!-- Link to your existing CSS -->
-  <link rel="stylesheet" href="/css/style.css">
+  <!-- Use a relative path that matches where your CSS file actually lives.
+       If your CSS is at public/css/style.css (relative to this HTML file), use that.
+       If this file is served from a subpath (e.g. GitHub Pages /eSumbong/), avoid leading slashes. -->
+  <link rel="stylesheet" href="public/css/style.css">
 </head>
-
 <body>
   <div class="login-container">
     <h2>Welcome to eSumbong</h2>
     <p>Login to access your dashboard and report barangay concerns.</p>
 
-    <!-- LOGIN FORM -->
     <form id="loginForm">
       <div class="form-group">
         <label for="loginUsername">Username</label>
@@ -29,18 +29,18 @@
       <button type="submit" class="btn-login">Login</button>
     </form>
 
-    <!-- MESSAGE OUTPUT -->
     <p id="loginMessage" class="message"></p>
 
-    <!-- LINK TO REGISTER -->
     <div class="register-link">
-      <p>Don’t have an account? 
-        <a href="/register.html">Register here</a>
+      <p>Don’t have an account?
+        <!-- Relative link to the register page -->
+        <a href="views/index.html">Register here</a>
       </p>
     </div>
   </div>
 
-  <!-- JS for login/register logic -->
-  <script src="/js/auth.js" defer></script>
+  <!-- Use a relative path that matches where your JS file actually lives.
+       If your JS is in public/js/auth.js, reference it like this (no leading slash). -->
+  <script src="public/js/auth.js" defer></script>
 </body>
 </html>
