@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Fix __dirname for ES modules
+// Fix __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -22,7 +22,9 @@ const dbPromise = open({
   driver: sqlite3.Database,
 });
 
-// Routes
+// --- API Routes ---
+
+// Register Route
 app.post("/register", async (req, res) => {
   const db = await dbPromise;
   const { username, password } = req.body;
@@ -38,6 +40,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
+// Login Route
 app.post("/login", async (req, res) => {
   const db = await dbPromise;
   const { username, password } = req.body;
@@ -47,16 +50,20 @@ app.post("/login", async (req, res) => {
     [username, password]
   );
 
-  if (user) res.json({ message: "Login successful!" });
-  else res.status(401).json({ error: "Invalid username or password" });
+  if (user) {
+    res.json({ message: "Login successful!" });
+  } else {
+    res.status(401).json({ error: "Invalid username or password" });
+  }
 });
 
+// --- Serve Frontend ---
 const frontendPath = path.join(__dirname, "frontend");
 app.use(express.static(frontendPath));
 
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`)); 
+// --- Start Server ---
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
