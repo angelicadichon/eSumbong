@@ -22,37 +22,44 @@
   </div>
 
   <script>
-    const backendURL = "";
-
+    const backendURL = ""; // e.g., "https://your-backend.onrender.com"
+  
     // Handle Login
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+  
         const username = document.getElementById("loginUsername").value;
         const password = document.getElementById("loginPassword").value;
-
-        const response = await fetch(`${backendURL}/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-        const messageElement = document.getElementById("loginMessage");
-
-        if (response.ok) {
-          messageElement.textContent = "✅ " + data.message;
-
-          // Redirect to dashboard after short delay
-          setTimeout(() => {
-            window.location.href = "dashboard.html";
-          }, 1000);
-        } else {
-          messageElement.textContent = "❌ " + data.error;
+  
+        try {
+          const response = await fetch(`${backendURL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+  
+          const data = await response.json();
+          const messageElement = document.getElementById("loginMessage");
+  
+          if (response.ok) {
+            messageElement.textContent = "✅ " + data.message;
+  
+            // Redirect after short delay
+            setTimeout(() => {
+              window.location.href = "dashboard.html";
+            }, 1000);
+          } else {
+            messageElement.textContent = "❌ " + (data.error || "Invalid credentials");
+          }
+        } catch (error) {
+          console.error("Login failed:", error);
+          document.getElementById("loginMessage").textContent = "⚠️ Server error. Please try again.";
         }
       });
     }
   </script>
+  
 </body>
 </html>
