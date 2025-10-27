@@ -8,7 +8,7 @@
 
 body {
   height: 100vh;
-  background: linear-gradient(180deg, #e0aaff, #aaf0ff);
+  background: linear-gradient(180deg, #d6a7ff, #a8e5ff);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,43 +16,77 @@ body {
 
 /* Container */
 .login-container {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  border-radius: 15px;
-  padding: 40px 50px;
-  width: 330px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 40px 45px;
+  width: 340px;
   text-align: center;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 /* Title */
 .login-container h2 {
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 25px;
-  letter-spacing: 1px;
+  font-weight: 700;
+  color: #000;
+  font-size: 22px;
+  margin-bottom: 8px;
 }
 
-/* Inputs */
-#loginForm input {
+.login-container h2 span {
+  color: #2d2d2d;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+/* Input group */
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.input-group i {
+  position: absolute;
+  left: 14px;
+  color: #555;
+  width: 20px;
+  height: 20px;
+}
+
+.input-group input {
   width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 20px;
+  padding: 12px 40px;
   border: none;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
-  background: transparent;
-  color: #fff;
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #333;
   font-size: 15px;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: box-shadow 0.3s ease;
 }
 
-#loginForm input::placeholder {
-  color: rgba(255, 255, 255, 0.8);
+.input-group input:focus {
+  box-shadow: 0 0 0 2px #274c77;
 }
 
-#loginForm input:focus {
-  border-bottom: 2px solid #fff;
+/* Eye icon */
+.eye-icon {
+  position: absolute;
+  right: 14px;
+  cursor: pointer;
+  color: #555;
+  width: 20px;
+  height: 20px;
+}
+
+.eye-icon:hover {
+  color: #000;
 }
 
 /* Button */
@@ -63,68 +97,21 @@ body {
   border-radius: 25px;
   background-color: #274c77;
   color: #fff;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 1px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 #loginForm button:hover {
-  background-color: #1e3c5a;
+  background-color: #1f3d5f;
 }
 
 /* Message */
 #message {
-  margin-top: 15px;
-  font-size: 14px;
-  color: #fff;
-}
-
-/* Input groups with icons */
-.input-group {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.input-group i {
-  position: absolute;
-  left: 10px;
-  color: rgba(255, 255, 255, 0.8);
-  width: 20px;
-  height: 20px;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 12px 15px 12px 40px;
-  border: none;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
-  background: transparent;
-  color: #fff;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-
-/* Eye icon for password */
-.eye-icon {
-  position: absolute;
-  right: 10px;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.eye-icon:hover {
-  color: #fff;
-}
-
-/* Message styling */
-#message {
   margin-bottom: 15px;
   font-size: 14px;
   font-weight: 500;
-  color: #fff;
+  color: #c0392b;
   text-align: center;
 }
