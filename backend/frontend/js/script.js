@@ -20,30 +20,3 @@ if (registerForm) {
 }
 
 // Handle Login
-const loginForm = document.getElementById("loginForm");
-if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const username = document.getElementById("loginUsername").value;
-    const password = document.getElementById("loginPassword").value;
-
-    const response = await fetch(`${backendURL}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-
-    const data = await response.json();
-    const messageElement = document.getElementById("loginMessage");
-
-    if (response.ok) {
-      messageElement.textContent = "✅ " + data.message;
-      setTimeout(() => {
-        window.location.href = data.redirect; // Redirect based on role
-      }, 1000);
-    } else {
-      messageElement.textContent = "❌ " + data.error;
-    }
-    
-  });
-}
