@@ -4,17 +4,40 @@
     <meta charset="UTF-8" />
     <title>eSumbong Login</title>
     <link rel="stylesheet" href="css/login.css" />
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
     <div class="login-container">
       <h2>eSumbong Login</h2>
+
+      <!-- Message appears here -->
+      <p id="message"></p>
+
       <form id="loginForm">
-        <input type="text" id="username" placeholder="Username" required />
-        <input type="password" id="password" placeholder="Password" required />
+        <div class="input-group">
+          <i data-lucide="user"></i>
+          <input type="text" id="username" placeholder="Username" required />
+        </div>
+
+        <div class="input-group password-group">
+          <i data-lucide="lock"></i>
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
+          <i data-lucide="eye" id="togglePassword" class="eye-icon"></i>
+        </div>
+
         <button type="submit">Login</button>
       </form>
-      <p id="message"></p>
     </div>
+
     <script src="js/login.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
   </body>
 </html>

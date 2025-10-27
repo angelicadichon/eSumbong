@@ -79,3 +79,52 @@ body {
   font-size: 14px;
   color: #fff;
 }
+
+/* Input groups with icons */
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.input-group i {
+  position: absolute;
+  left: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  width: 20px;
+  height: 20px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px 12px 40px;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+/* Eye icon for password */
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.eye-icon:hover {
+  color: #fff;
+}
+
+/* Message styling */
+#message {
+  margin-bottom: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+}
