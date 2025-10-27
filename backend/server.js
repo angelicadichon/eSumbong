@@ -25,47 +25,39 @@ const dbPromise = open({
 // --- API Routes ---
 
 // Register Route
-app.post("/register", async (req, res) => {
-  const db = await dbPromise;
-  const { username, password } = req.body;
-
-  try {
-    await db.run(
-      "INSERT INTO users (username, password) VALUES (?, ?)",
-      [username, password]
-    );
-    res.json({ message: "Registration successful!" });
-  } catch (err) {
-    res.status(400).json({ error: "Username already exists!" });
-  }
-});
-
 // Login Route
 app.post("/login", async (req, res) => {
   const db = await dbPromise;
   const { username, password } = req.body;
 
-  const user = await db.get(
-    "SELECT * FROM users WHERE username = ? AND password = ?",
-    [username, password]
-  );
+  try {
+    const user = await db.get(
+      "SELECT * FROM users WHERE username = ? AND password = ?",
+      [username, password]
+    );
 
-  if (user) {
-    res.json({ message: "Login successful!" });
-  } else {
-    res.status(401).json({ error: "Invalid username or password" });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    // If admin, redirect to admin dashboard
+    if (user.role === "admin") {
+      return res.json({
+        message: "Admin login successful!",
+        redirect: "/admin.html",
+      });
+    }
+
+    // Otherwise, redirect to user dashboard
+    return res.json({
+      message: "Login successful!",
+      redirect: "/dashboard.html",
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Server error during login" });
   }
 });
-
-// --- Serve Frontend ---
-const frontendPath = path.join(__dirname, "frontend");
-app.use(express.static(frontendPath));
-
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
-
-
 
 // --- Start Server ---
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

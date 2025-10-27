@@ -38,8 +38,12 @@ if (loginForm) {
 
     if (response.ok) {
       messageElement.textContent = "✅ " + data.message;
+      setTimeout(() => {
+        window.location.href = data.redirect; // Redirect based on role
+      }, 1000);
     } else {
       messageElement.textContent = "❌ " + data.error;
     }
+    
   });
 }
