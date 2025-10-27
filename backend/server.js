@@ -72,9 +72,10 @@ app.post("/api/complaints", upload.single("file"), (req, res) => {
 });
 
 // === Catch-all route for SPA ===
-app.get("*", (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
+
 
 // Start server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
