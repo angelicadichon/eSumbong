@@ -3,12 +3,13 @@ import cors from "cors";
 import path from "path";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
+import bcrypt from "bcryptjs";
 import { fileURLToPath } from "url";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Fix __dirname for ES Modules
+// Fix for __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -16,48 +17,95 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
 
-// Connect to SQLite
+// Database setup
 const dbPromise = open({
   filename: path.join(__dirname, "eSumbong.db"),
   driver: sqlite3.Database,
 });
 
-// --- API Routes ---
-
-// Register Route
-// Login Route
-app.post("/login", async (req, res) => {
+// Initialize the database with a user table (if not exists)
+(async () => {
   const db = await dbPromise;
-  const { username, password } = req.body;
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE,
+      password TEXT,
+      role TEXT
+    )
+  `);
 
-  try {
-    const user = await db.get(
-      "SELECT * FROM users WHERE username = ? AND password = ?",
-      [username, password]
+  // Predefined admin account
+  const adminUsername = "admin";
+  const adminPassword = "admin123";
+  const hashed = await bcrypt.hash(adminPassword, 10);
+
+  const existingAdmin = await db.get(
+    "SELECT * FROM users WHERE username = ?",
+    [adminUsername]
+  );
+
+  if (!existingAdmin) {
+    await db.run(
+      "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+      [adminUsername, hashed, "admin"]
     );
+    console.log("✅ Admin account created:", adminUsername);
+  } else {
+    console.log("ℹ️ Admin account already exists.");
+  }
+})();
 
-    if (!user) {
-      return res.status(401).json({ error: "Invalid username or password" });
-    }
+// API routes (register, login)
+app.post("/api/register", async (req, res) => {
+  try {
+    const { username, password, role } = req.body;
+    const db = await dbPromise;
 
-    // If admin, redirect to admin dashboard
-    if (user.role === "admin") {
-      return res.json({
-        message: "Admin login successful!",
-        redirect: "/admin.html",
-      });
-    }
+    const existingUser = await db.get("SELECT * FROM users WHERE username = ?", [username]);
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
 
-    // Otherwise, redirect to user dashboard
-    return res.json({
-      message: "Login successful!",
-      redirect: "/dashboard.html",
-    });
+    const hashed = await bcrypt.hash(password, 10);
+    await db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", [
+      username,
+      hashed,
+      role || "user",
+    ]);
+
+    res.json({ message: "User registered successfully" });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ error: "Server error during login" });
+    console.error("Error registering user:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-// --- Start Server ---
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.post("/api/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const db = await dbPromise;
+
+    const user = await db.get("SELECT * FROM users WHERE username = ?", [username]);
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
+
+    res.json({ message: "Login successful", role: user.role });
+  } catch (err) {
+    console.error("Error logging in:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Serve frontend files
+const frontendPath = path.join(__dirname, "frontend");
+app.use(express.static(frontendPath));
+
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
