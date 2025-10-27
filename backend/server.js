@@ -61,9 +61,10 @@ app.post("/login", async (req, res) => {
 const frontendPath = path.join(__dirname, "frontend");
 app.use(express.static(frontendPath));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
+
 
 
 // --- Start Server ---
