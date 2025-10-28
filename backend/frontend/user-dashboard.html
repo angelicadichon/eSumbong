@@ -7,102 +7,137 @@
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
-    <header class="top-header">
-      <div class="logo">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
         <i data-lucide="home"></i>
-        <h1>eSumbong Resident Dashboard</h1>
+        <h2>eSumbong</h2>
       </div>
-      <button class="logout-btn" onclick="logout()">Logout</button>
-    </header>
+      <nav>
+        <ul>
+          <li class="active" onclick="showSection('dashboard')">
+            <i data-lucide="layout-dashboard"></i> Dashboard
+          </li>
+          <li onclick="showSection('complaintFormSection')">
+            <i data-lucide="file-plus"></i> Submit Report
+          </li>
+          <li onclick="showSection('notifications')">
+            <i data-lucide='bell'></i> Notifications
+          </li>
+          <li onclick="showSection('feedback-section')">
+            <i data-lucide='star'></i> Feedback
+          </li>
+          <li onclick="logout()">
+            <i data-lucide="log-out"></i> Logout
+          </li>
+        </ul>
+      </nav>
+    </aside>
 
-    <section class="welcome-section">
-      <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="profile-pic" />
-      <div class="profile-info">
-        <h2>Welcome, <span id="residentName">Resident User</span></h2>
-        <p>Total Reports: <span id="totalReports">5</span></p>
-        <p>Pending: <span id="pendingCount">2</span> | Resolved: <span id="resolvedCount">3</span></p>
-      </div>
-      <button class="submit-btn" onclick="toggleForm()">+ Submit Report</button>
-    </section>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <header class="top-header">
+        <h1>Resident Dashboard</h1>
+      </header>
 
-    <section id="complaintFormSection" class="form-section hidden">
-      <h3><i data-lucide="file-plus"></i> Submit a Complaint / Request</h3>
-      <form id="complaintForm" enctype="multipart/form-data">
-        <input type="text" name="name" placeholder="Name (Optional)" />
-        <input type="text" name="contact" placeholder="Contact Information" />
-        <select name="category" required>
-          <option value="">Select Category</option>
-          <option>Sanitation</option>
-          <option>Infrastructure</option>
-          <option>Safety</option>
-          <option>SK Concerns</option>
-        </select>
-        <textarea name="description" placeholder="Description" required></textarea>
-        <input type="text" name="location" placeholder="Location" required />
-        <input type="file" name="attachment" />
-        <button type="submit" class="primary-btn">Submit</button>
-      </form>
-      <p id="response"></p>
-    </section>
+      <section id="dashboard">
+        <section class="welcome-section">
+          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="profile-pic" />
+          <div class="profile-info">
+            <h2>Welcome, <span id="residentName">Resident User</span></h2>
+            <p>Total Reports: <span id="totalReports">5</span></p>
+            <p>Pending: <span id="pendingCount">2</span> | Resolved: <span id="resolvedCount">3</span></p>
+          </div>
+        </section>
 
-    <section class="dashboard-content">
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search complaints..." />
-      </div>
+        <section class="dashboard-content">
+          <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search complaints..." />
+          </div>
 
-      <h3>📋 My Complaints</h3>
-      <table id="complaintsTable">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Date</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Assigned Officer</th>
-          </tr>
-        </thead>
-        <tbody id="complaintsBody">
-          <tr>
-            <td>#0421</td>
-            <td>2025-10-25</td>
-            <td>Public Lighting</td>
-            <td><span class="status in-progress">In Progress</span></td>
-            <td>Mr. Cruz</td>
-          </tr>
-          <tr>
-            <td>#0410</td>
-            <td>2025-10-20</td>
-            <td>Sanitation</td>
-            <td><span class="status resolved">Resolved</span></td>
-            <td>Ms. Dela Cruz</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+          <h3>📋 My Complaints</h3>
+          <table id="complaintsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Assigned Officer</th>
+              </tr>
+            </thead>
+            <tbody id="complaintsBody">
+              <tr>
+                <td>#0421</td>
+                <td>2025-10-25</td>
+                <td>Public Lighting</td>
+                <td><span class="status in-progress">In Progress</span></td>
+                <td>Mr. Cruz</td>
+              </tr>
+              <tr>
+                <td>#0410</td>
+                <td>2025-10-20</td>
+                <td>Sanitation</td>
+                <td><span class="status resolved">Resolved</span></td>
+                <td>Ms. Dela Cruz</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </section>
 
-    <section class="notifications">
-      <h3>🔔 Notifications</h3>
-      <ul id="notifList">
-        <li>Your report #0421 has been reviewed.</li>
-        <li>Complaint #0410 marked as resolved.</li>
-      </ul>
-    </section>
+      <section id="complaintFormSection" class="hidden">
+        <h3><i data-lucide="file-plus"></i> Submit a Complaint / Request</h3>
+        <form id="complaintForm" enctype="multipart/form-data">
+          <input type="text" name="name" placeholder="Name (Optional)" />
+          <input type="text" name="contact" placeholder="Contact Information" />
+          <select name="category" required>
+            <option value="">Select Category</option>
+            <option>Sanitation</option>
+            <option>Infrastructure</option>
+            <option>Safety</option>
+            <option>SK Concerns</option>
+          </select>
+          <textarea name="description" placeholder="Description" required></textarea>
+          <input type="text" name="location" placeholder="Location" required />
+          <input type="file" name="attachment" />
+          <button type="submit" class="primary-btn">Submit</button>
+        </form>
+        <p id="response"></p>
+      </section>
 
-    <section class="feedback-section">
-      <h3>⭐ Feedback</h3>
-      <p>How satisfied are you with our service?</p>
-      <div class="stars">
-        <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i>
-      </div>
-    </section>
+      <section id="notifications" class="hidden notifications">
+        <h3>🔔 Notifications</h3>
+        <ul id="notifList">
+          <li>Your report #0421 has been reviewed.</li>
+          <li>Complaint #0410 marked as resolved.</li>
+        </ul>
+      </section>
 
-    <footer>
-      <p>Need help? Visit our <a href="#">Help & Support</a> page.</p>
-    </footer>
+      <section id="feedback-section" class="hidden feedback-section">
+        <h3>⭐ Feedback</h3>
+        <p>How satisfied are you with our service?</p>
+        <div class="stars">
+          <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i>
+        </div>
+      </section>
+    </main>
 
     <script src="js/user.js"></script>
     <script>
       lucide.createIcons();
+
+      function showSection(sectionId) {
+        document.querySelectorAll("main section").forEach((sec) => sec.classList.add("hidden"));
+        document.getElementById(sectionId).classList.remove("hidden");
+
+        document.querySelectorAll(".sidebar nav ul li").forEach((item) => item.classList.remove("active"));
+        event.target.closest("li").classList.add("active");
+      }
+
+      function logout() {
+        window.location.href = "login.html";
+      }
     </script>
   </body>
 </html>

@@ -1,191 +1,83 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
-
 body {
-  background: linear-gradient(180deg, #d6a7ff, #a8e5ff);
-  color: #222;
-}
-
-/* Header */
-.top-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #274c77;
-  color: white;
-  padding: 15px 30px;
+  margin: 0;
+  height: 100vh;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(to bottom right, #c7d2fe, #a5f3fc);
 }
 
-.logo {
+/* SIDEBAR */
+.sidebar {
+  width: 250px;
+  background-color: #1f3d5f;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 25px 15px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.sidebar-header {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 40px;
 }
 
-.logout-btn {
-  background: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 15px;
-  cursor: pointer;
-  color: #274c77;
-  font-weight: 600;
+.sidebar-header i {
+  width: 24px;
+  height: 24px;
 }
 
-.logout-btn:hover {
-  background: #e6e6e6;
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
 }
 
-/* Welcome section */
-.welcome-section {
+.sidebar nav ul li {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.7);
-  margin: 20px auto;
-  padding: 20px;
-  width: 90%;
-  border-radius: 15px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-}
-
-.profile-pic {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-}
-
-.profile-info h2 {
-  margin-bottom: 5px;
-  color: #000;
-}
-
-.submit-btn {
-  background-color: #274c77;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 25px;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
+  transition: background 0.3s ease;
 }
 
-.submit-btn:hover {
-  background-color: #1f3d5f;
+.sidebar nav ul li:hover,
+.sidebar nav ul li.active {
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Form Section */
-.form-section {
-  background: white;
-  width: 90%;
-  margin: 10px auto;
-  padding: 20px;
-  border-radius: 15px;
-  display: block;
+/* MAIN */
+.main-content {
+  flex: 1;
+  padding: 20px 40px;
+  overflow-y: auto;
+}
+
+.top-header {
+  background-color: #274c77;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
 }
 
 .hidden {
   display: none;
 }
 
-#complaintForm input,
-#complaintForm select,
-#complaintForm textarea {
-  width: 100%;
-  margin-bottom: 12px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-}
-
 .primary-btn {
   background-color: #274c77;
   color: white;
+  padding: 10px 15px;
+  border-radius: 20px;
   border: none;
-  border-radius: 25px;
-  padding: 10px 20px;
   cursor: pointer;
 }
 
-/* Table */
-.dashboard-content {
-  width: 90%;
-  margin: 20px auto;
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  text-align: left;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.status {
-  padding: 4px 10px;
-  border-radius: 15px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.status.pending { background: #ffce54; color: #333; }
-.status.in-progress { background: #5bc0de; color: white; }
-.status.resolved { background: #5cb85c; color: white; }
-
-/* Notifications */
-.notifications {
-  width: 90%;
-  margin: 20px auto;
-  background: rgba(255,255,255,0.9);
-  border-radius: 15px;
-  padding: 15px 20px;
-}
-
-.notifications ul {
-  list-style: none;
-  margin-top: 10px;
-}
-
-.notifications li {
-  margin-bottom: 8px;
-}
-
-/* Feedback */
-.feedback-section {
-  width: 90%;
-  margin: 20px auto;
-  background: rgba(255,255,255,0.9);
-  border-radius: 15px;
-  padding: 20px;
-  text-align: center;
-}
-
-.stars i {
-  width: 24px;
-  height: 24px;
-  color: #ccc;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.stars i:hover, .stars i.active {
-  color: #ffbf00;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  padding: 20px;
-  color: #333;
-  font-size: 14px;
+.primary-btn:hover {
+  background-color: #1b3b5e;
 }
