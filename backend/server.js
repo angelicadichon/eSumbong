@@ -73,8 +73,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// === Complaint submission (UPDATED) ===
-// === Complaint submission (UPDATED with better error handling) ===
+// === Complaint submission with Supabase Storage ===
 app.post("/api/complaints", upload.single("file"), async (req, res) => {
   console.log("📨 Received complaint submission request");
   
@@ -89,35 +88,69 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
           });
       }
 
+      let fileUrl = null;
+
+      // If file is uploaded, store it in Supabase Storage
+      if (req.file) {
+          console.log("📁 Processing file upload:", req.file.originalname);
+          
+          const fileName = `complaint-${Date.now()}-${req.file.originalname}`;
+          const fileBuffer = fs.readFileSync(req.file.path);
+          
+          // Upload to Supabase Storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('complaint-files')
+              .upload(fileName, fileBuffer, {
+                  contentType: req.file.mimetype,
+                  upsert: false
+              });
+
+          if (uploadError) {
+              console.error("❌ Supabase storage error:", uploadError);
+              // Continue without file if upload fails
+          } else {
+              // Get public URL
+              const { data: { publicUrl } } = supabase.storage
+                  .from('complaint-files')
+                  .getPublicUrl(fileName);
+              
+              fileUrl = publicUrl;
+              console.log("✅ File uploaded to Supabase:", publicUrl);
+          }
+
+          // Delete local file after upload
+          fs.unlinkSync(req.file.path);
+      }
+
       const complaint = {
           name: name,
           contact: contact,
           category: category,
           description: description,
           location: location,
-          file: req.file ? req.file.filename : null,
+          file: fileUrl, // Store the Supabase URL instead of local path
           refNumber: "REF-" + Date.now(),
           created_at: new Date().toISOString(),
-          status: 'pending' // Add default status
+          status: 'pending'
       };
 
-      console.log("📝 Complaint data:", complaint);
+      console.log("📝 Saving complaint to database:", complaint);
 
-      // Save to Supabase
+      // Save to Supabase Database
       const { data, error } = await supabase
           .from('complaints')
           .insert([complaint])
           .select();
 
       if (error) {
-          console.error("❌ Supabase error:", error);
+          console.error("❌ Supabase database error:", error);
           return res.status(500).json({ 
               success: false, 
               message: "Database error: " + error.message 
           });
       }
 
-      console.log("✅ Complaint saved to Supabase:", data);
+      console.log("✅ Complaint saved successfully");
 
       res.json({
           success: true,
@@ -127,6 +160,12 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
 
   } catch (error) {
       console.error("❌ Server error:", error);
+      
+      // Clean up uploaded file if error occurs
+      if (req.file && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+      }
+      
       res.status(500).json({ 
           success: false, 
           message: "Server error: " + error.message 

@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/storage-js": "^2.76.1",
     "@supabase/supabase-js": "^2.76.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
