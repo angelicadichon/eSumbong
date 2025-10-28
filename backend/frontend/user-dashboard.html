@@ -15,7 +15,7 @@
       </div>
       <nav>
         <ul>
-          <li data-link="user-dashboard.html" class="nav-item">
+          <li data-link="user-dashboard.html" class="nav-item active">
             <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
           </li>
           <li data-link="submit-report.html" class="nav-item">
@@ -43,57 +43,83 @@
       </header>
 
       <section class="page-content dashboard-page">
-        <div class="cards-row">
-          <div class="card summary-card">
-            <h3>Welcome back</h3>
-            <p>Here's a quick view of your reports and their statuses.</p>
-            <div class="summary-stats">
-              <div><strong>2</strong><span>Total Reports</span></div>
-              <div><strong>1</strong><span>Open</span></div>
-              <div><strong>1</strong><span>Resolved</span></div>
+        <!-- Analytics Cards -->
+        <div class="analytics-section">
+          <h2>Report Analytics</h2>
+          <div class="cards-row">
+            <div class="stat-card">
+              <div class="stat-icon total">
+                <i data-lucide="file-text"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="totalReports">0</h3>
+                <p>Total Reports</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon pending">
+                <i data-lucide="clock"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="pendingReports">0</h3>
+                <p>Pending</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon in-progress">
+                <i data-lucide="refresh-cw"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="progressReports">0</h3>
+                <p>In Progress</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon resolved">
+                <i data-lucide="check-circle"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="resolvedReports">0</h3>
+                <p>Resolved</p>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div class="card complaints-card">
-            <div class="card-header">
-              <h3>📋 My Complaints</h3>
-              <input
-                type="text"
-                id="tableSearch"
-                placeholder="Search complaints..."
-                class="search-box"
-              />
-            </div>
+        <!-- Complaints Table -->
+        <div class="card complaints-card">
+          <div class="card-header">
+            <h3>📋 My Complaints</h3>
+            <input
+              type="text"
+              id="tableSearch"
+              placeholder="Search complaints..."
+              class="search-box"
+            />
+          </div>
 
-            <div class="table-wrap">
-              <table id="complaintsTable" class="table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Date</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                    <th>Assigned Officer</th>
-                  </tr>
-                </thead>
-                <tbody id="complaintsBody">
-                  <tr>
-                    <td>#0421</td>
-                    <td>2025-10-25</td>
-                    <td>Public Lighting</td>
-                    <td><span class="status in-progress">In Progress</span></td>
-                    <td>Mr. Cruz</td>
-                  </tr>
-                  <tr>
-                    <td>#0410</td>
-                    <td>2025-10-20</td>
-                    <td>Sanitation</td>
-                    <td><span class="status resolved">Resolved</span></td>
-                    <td>Ms. Dela Cruz</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="table-wrap">
+            <table id="complaintsTable" class="table">
+              <thead>
+                <tr>
+                  <th>Reference #</th>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Location</th>
+                </tr>
+              </thead>
+              <tbody id="complaintsBody">
+                <!-- Data will be loaded dynamically -->
+                <tr>
+                  <td colspan="6" class="loading-text">Loading complaints...</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -102,6 +128,11 @@
     <script src="js/user.js"></script>
     <script>
       lucide.createIcons();
+      
+      // Load dashboard data when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+      });
     </script>
   </body>
 </html>
