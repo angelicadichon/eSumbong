@@ -2,104 +2,147 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard | Barangay eSumbong</title>
-    <link rel="stylesheet" href="css/admin.css" />
+    <title>Admin Dashboard | eSumbong</title>
+    <link rel="stylesheet" href="css/user.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
   </head>
   <body>
-    <div class="admin-container">
-      <!-- SIDEBAR -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <i>🏛️</i>
-          <h2>Barangay eSumbong</h2>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i data-lucide="home"></i>
+        <h2>eSumbong</h2>
+      </div>
+      <nav>
+        <ul>
+          <li data-link="admin-dashboard.html" class="nav-item active">
+            <a href="admin-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li data-link="admin-reports.html" class="nav-item">
+            <a href="admin-reports.html"><i data-lucide="file-text"></i> All Reports</a>
+          </li>
+          <li data-link="admin-residents.html" class="nav-item">
+            <a href="admin-residents.html"><i data-lucide="users"></i> Residents</a>
+          </li>
+          <li data-link="admin-settings.html" class="nav-item">
+            <a href="admin-settings.html"><i data-lucide="settings"></i> Settings</a>
+          </li>
+          <li class="nav-item logout-btn">
+            <a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1>Admin Dashboard</h1>
+        <div class="header-actions">
+          <input id="searchInput" class="global-search" placeholder="Search all complaints..." />
         </div>
-    
-        <nav>
-          <ul>
-            <li class="active"><i>📊</i> Dashboard</li>
-            <li><i>📁</i> Reports</li>
-            <li><i>👥</i> Residents</li>
-            <li><i>⚙️</i> Settings</li>
-          </ul>
-        </nav>
-    
-        <div class="sidebar-footer">
-          <div class="admin-info">
-            <div class="admin-avatar">A</div>
-            <div>
-              <p class="admin-name">Admin User</p>
-              <p class="admin-role">Administrator</p>
-            </div>
-          </div>
-          <button class="primary-btn logout-btn" onclick="logout()">Logout</button>
-        </div>
-      </aside>
-    
-      <!-- MAIN DASHBOARD CONTENT -->
-      <main class="main-content">
-        <div class="top-header">
-          <h1>📋 Admin Dashboard</h1>
-        </div>
-    
-        <div class="dashboard">
-          <div class="dashboard-container">
-            <div class="profile-card">
-              <h2>Admin User</h2>
-              <div class="stats">
-                <p>Total Reports: <strong>125</strong></p>
-                <p>Pending: <strong>18</strong></p>
-                <p>Resolved: <strong>92</strong></p>
+      </header>
+
+      <section class="page-content dashboard-page">
+        <!-- Analytics Cards -->
+        <div class="analytics-section">
+          <h2>System Overview</h2>
+          <div class="cards-row">
+            <div class="stat-card">
+              <div class="stat-icon total">
+                <i data-lucide="file-text"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="totalReports">0</h3>
+                <p>Total Reports</p>
               </div>
             </div>
-    
-            <div class="complaints-card">
-              <div class="header-bar">
-                <h3>Complaint List</h3>
-                <input type="text" class="search-box" placeholder="Search complaint..." />
+            
+            <div class="stat-card">
+              <div class="stat-icon pending">
+                <i data-lucide="clock"></i>
               </div>
-    
-              <table id="complaintsTable">
-                <thead>
-                  <tr>
-                    <th>Tracking #</th>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>#001</td>
-                    <td>Juan Dela Cruz</td>
-                    <td>Lighting</td>
-                    <td>Streetlight not working</td>
-                    <td><span class="status in-progress">In Progress</span></td>
-                  </tr>
-                  <tr>
-                    <td>#002</td>
-                    <td>Maria Santos</td>
-                    <td>Garbage</td>
-                    <td>Uncollected trash in Zone 4</td>
-                    <td><span class="status resolved">Resolved</span></td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="stat-info">
+                <h3 id="pendingReports">0</h3>
+                <p>Pending</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon in-progress">
+                <i data-lucide="refresh-cw"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="progressReports">0</h3>
+                <p>In Progress</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon resolved">
+                <i data-lucide="check-circle"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="resolvedReports">0</h3>
+                <p>Resolved</p>
+              </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
-  
-    <script>
-        // Initialize Lucide icons after the document loads
-        lucide.createIcons();
-        function logout() {
-        window.location.href = "login.html";
-      }
-    </script>
+
+        <!-- All Complaints Table -->
+        <div class="card complaints-card">
+          <div class="card-header">
+            <h3>📋 All Complaints</h3>
+            <div class="header-actions">
+              <input
+                type="text"
+                id="tableSearch"
+                placeholder="Search complaints..."
+                class="search-box"
+              />
+              <select id="statusFilter" class="status-filter">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="complaintsTable" class="table">
+              <thead>
+                <tr>
+                  <th>Reference #</th>
+                  <th>Date</th>
+                  <th>Submitted By</th>
+                  <th>Contact</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="complaintsBody">
+                <tr>
+                  <td colspan="9" class="loading-text">Loading all complaints...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
     <script src="js/admin.js"></script>
+    <script>
+      lucide.createIcons();
+      
+      // Load admin dashboard data when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        loadAdminDashboard();
+      });
+    </script>
   </body>
 </html>
