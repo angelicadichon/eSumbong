@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Feedback | eSumbong</title>
+    <link rel="stylesheet" href="css/user.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i data-lucide="home"></i>
+        <h2>eSumbong</h2>
+      </div>
+      <nav>
+        <ul>
+          <li data-link="user-dashboard.html" class="nav-item">
+            <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li data-link="submit-report.html" class="nav-item">
+            <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
+          </li>
+          <li data-link="notifications.html" class="nav-item">
+            <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
+          </li>
+          <li data-link="feedback.html" class="nav-item active">
+            <a href="feedback.html"><i data-lucide="star"></i> Feedback</a>
+          </li>
+          <li class="nav-item logout-btn">
+            <a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1>Feedback</h1>
+      </header>
+
+      <section class="page-content feedback-page">
+        <div class="card feedback-card">
+          <h3>⭐ How satisfied are you with our service?</h3>
+          <div class="stars" id="starRow" aria-label="feedback stars">
+            <button class="star-btn" data-value="1" aria-label="1 star">☆</button>
+            <button class="star-btn" data-value="2" aria-label="2 stars">☆</button>
+            <button class="star-btn" data-value="3" aria-label="3 stars">☆</button>
+            <button class="star-btn" data-value="4" aria-label="4 stars">☆</button>
+            <button class="star-btn" data-value="5" aria-label="5 stars">☆</button>
+          </div>
+          <textarea id="feedbackText" placeholder="Optional comments"></textarea>
+          <div class="form-actions">
+            <button class="primary-btn" onclick="submitFeedback()">Send Feedback</button>
+            <a class="secondary-btn" href="user-dashboard.html">Back to Dashboard</a>
+          </div>
+          <p id="fbResponse" class="response-text"></p>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/user.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

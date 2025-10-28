@@ -5,9 +5,9 @@
     <title>Resident Dashboard | eSumbong</title>
     <link rel="stylesheet" href="css/user.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
   </head>
   <body>
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <i data-lucide="home"></i>
@@ -15,48 +15,58 @@
       </div>
       <nav>
         <ul>
-          <li class="active" onclick="showSection('dashboard')">
-            <i data-lucide="layout-dashboard"></i> Dashboard
+          <li data-link="user-dashboard.html" class="nav-item">
+            <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
           </li>
-          <li onclick="showSection('complaintFormSection')">
-            <i data-lucide="file-plus"></i> Submit Report
+          <li data-link="submit-report.html" class="nav-item">
+            <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
           </li>
-          <li onclick="showSection('notifications')">
-            <i data-lucide='bell'></i> Notifications
+          <li data-link="notifications.html" class="nav-item">
+            <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
           </li>
-          <li onclick="showSection('feedback-section')">
-            <i data-lucide='star'></i> Feedback
+          <li data-link="feedback.html" class="nav-item">
+            <a href="feedbacks.html"><i data-lucide="star"></i> Feedback</a>
           </li>
-          <li onclick="logout()">
-            <i data-lucide="log-out"></i> Logout
+          <li class="nav-item logout-btn">
+            <a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
           </li>
         </ul>
       </nav>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
       <header class="top-header">
         <h1>Resident Dashboard</h1>
+        <div class="header-actions">
+          <input id="searchInput" class="global-search" placeholder="Search complaints..." />
+        </div>
       </header>
 
+      <section class="page-content dashboard-page">
+        <div class="cards-row">
+          <div class="card summary-card">
+            <h3>Welcome back</h3>
+            <p>Here's a quick view of your reports and their statuses.</p>
+            <div class="summary-stats">
+              <div><strong>2</strong><span>Total Reports</span></div>
+              <div><strong>1</strong><span>Open</span></div>
+              <div><strong>1</strong><span>Resolved</span></div>
+            </div>
+          </div>
 
-        <section id="dashboard" class="dashboard">
-          <div class="dashboard-container">
-        
-            <!-- RIGHT PANEL (Complaints Table) -->
-            <div class="complaints-card">
-              <div class="header-bar">
-                <h3>📋 My Complaints</h3>
-                <input
-                  type="text"
-                  id="searchInput"
-                  placeholder="Search complaints..."
-                  class="search-box"
-                />
-              </div>
-        
-              <table id="complaintsTable">
+          <div class="card complaints-card">
+            <div class="card-header">
+              <h3>📋 My Complaints</h3>
+              <input
+                type="text"
+                id="tableSearch"
+                placeholder="Search complaints..."
+                class="search-box"
+              />
+            </div>
+
+            <div class="table-wrap">
+              <table id="complaintsTable" class="table">
                 <thead>
                   <tr>
                     <th>ID</th>
@@ -85,42 +95,6 @@
               </table>
             </div>
           </div>
-        </section>
-        
-
-      <section id="complaintFormSection" class="hidden">
-        <h3><i data-lucide="file-plus"></i> Submit a Complaint / Request</h3>
-        <form id="complaintForm" enctype="multipart/form-data">
-          <input type="text" name="name" placeholder="Name (Optional)" />
-          <input type="text" name="contact" placeholder="Contact Information" />
-          <select name="category" required>
-            <option value="">Select Category</option>
-            <option>Sanitation</option>
-            <option>Infrastructure</option>
-            <option>Safety</option>
-            <option>SK Concerns</option>
-          </select>
-          <textarea name="description" placeholder="Description" required></textarea>
-          <input type="text" name="location" placeholder="Location" required />
-          <input type="file" name="attachment" />
-          <button type="submit" class="primary-btn">Submit</button>
-        </form>
-        <p id="response"></p>
-      </section>
-
-      <section id="notifications" class="hidden notifications">
-        <h3>🔔 Notifications</h3>
-        <ul id="notifList">
-          <li>Your report #0421 has been reviewed.</li>
-          <li>Complaint #0410 marked as resolved.</li>
-        </ul>
-      </section>
-
-      <section id="feedback-section" class="hidden feedback-section">
-        <h3>⭐ Feedback</h3>
-        <p>How satisfied are you with our service?</p>
-        <div class="stars">
-          <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i>
         </div>
       </section>
     </main>
@@ -128,18 +102,6 @@
     <script src="js/user.js"></script>
     <script>
       lucide.createIcons();
-
-      function showSection(sectionId) {
-        document.querySelectorAll("main section").forEach((sec) => sec.classList.add("hidden"));
-        document.getElementById(sectionId).classList.remove("hidden");
-
-        document.querySelectorAll(".sidebar nav ul li").forEach((item) => item.classList.remove("active"));
-        event.target.closest("li").classList.add("active");
-      }
-
-      function logout() {
-        window.location.href = "login.html";
-      }
     </script>
   </body>
 </html>

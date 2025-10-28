@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Submit Report | eSumbong</title>
+    <link rel="stylesheet" href="css/user.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i data-lucide="home"></i>
+        <h2>eSumbong</h2>
+      </div>
+      <nav>
+        <ul>
+          <li data-link="user-dashboard.html" class="nav-item">
+            <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li data-link="submit-report.html" class="nav-item active">
+            <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
+          </li>
+          <li data-link="notifications.html" class="nav-item">
+            <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
+          </li>
+          <li data-link="feedback.html" class="nav-item">
+            <a href="feedback.html"><i data-lucide="star"></i> Feedback</a>
+          </li>
+          <li class="nav-item logout-btn">
+            <a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1>Submit a Complaint / Request</h1>
+      </header>
+
+      <section class="page-content form-page">
+        <div class="card form-card">
+          <form id="complaintForm" enctype="multipart/form-data" onsubmit="submitForm(event)">
+            <label>
+              Name (Optional)
+              <input type="text" name="name" placeholder="Your name" />
+            </label>
+
+            <label>
+              Contact Information
+              <input type="text" name="contact" placeholder="Phone or email" />
+            </label>
+
+            <label>
+              Category
+              <select name="category" required>
+                <option value="">Select Category</option>
+                <option>Sanitation</option>
+                <option>Infrastructure</option>
+                <option>Safety</option>
+                <option>SK Concerns</option>
+              </select>
+            </label>
+
+            <label>
+              Description
+              <textarea name="description" placeholder="Describe the issue" required></textarea>
+            </label>
+
+            <label>
+              Location
+              <input type="text" name="location" placeholder="Location" required />
+            </label>
+
+            <label>
+              Attachment (optional)
+              <input type="file" name="attachment" />
+            </label>
+
+            <div class="form-actions">
+              <button type="submit" class="primary-btn">Submit</button>
+              <a class="secondary-btn" href="user-dashboard.html">Back to Dashboard</a>
+            </div>
+            <p id="response" class="response-text"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/user.js"></script>
+    <script>
+      lucide.createIcons();
+
+      function submitForm(e) {
+        e.preventDefault();
+        // Simple client-side feedback; integrate with backend as needed
+        document.getElementById('response').textContent = 'Thank you — your report has been submitted.';
+        document.getElementById('response').classList.add('success');
+        e.target.reset();
+      }
+    </script>
+  </body>
+</html>

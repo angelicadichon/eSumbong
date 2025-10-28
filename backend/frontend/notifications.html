@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Notifications | eSumbong</title>
+    <link rel="stylesheet" href="css/user.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i data-lucide="home"></i>
+        <h2>eSumbong</h2>
+      </div>
+      <nav>
+        <ul>
+          <li data-link="user-dashboard.html" class="nav-item">
+            <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li data-link="submit-report.html" class="nav-item">
+            <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
+          </li>
+          <li data-link="notifications.html" class="nav-item active">
+            <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
+          </li>
+          <li data-link="feedback.html" class="nav-item">
+            <a href="feedback.html"><i data-lucide="star"></i> Feedback</a>
+          </li>
+          <li class="nav-item logout-btn">
+            <a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1>Notifications</h1>
+      </header>
+
+      <section class="page-content notifications-page">
+        <div class="card notifications-card">
+          <ul id="notifList" class="notif-list">
+            <li><strong>#0421</strong> — Your report has been reviewed. <span class="muted">2025-10-26</span></li>
+            <li><strong>#0410</strong> — Complaint marked as resolved. <span class="muted">2025-10-21</span></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/user.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
