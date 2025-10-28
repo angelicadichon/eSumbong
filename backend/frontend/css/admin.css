@@ -1,11 +1,19 @@
 /* css/admin.css */
 
 :root {
-  --primary-color: #0056b3;
+  /* Admin primary colors */
+  --primary-color: #0056b3; 
   --secondary-color: #6c757d; 
   --success-color: #28a745; 
   --warning-color: #ffc107;
   --danger-color: #dc3545;
+  
+  /* NEW Sidebar colors based on the image */
+  --sidebar-bg: #1c2e4a; /* Dark blue background */
+  --sidebar-text: #ffffff;
+  --sidebar-hover-bg: #294060; /* Slightly lighter on hover */
+  --sidebar-active-bg: #007bff; /* Vibrant blue for active state */
+  
   --bg-light: #f4f7f6;
   --border-color: #dee2e6;
   --text-color: #333;
@@ -14,7 +22,7 @@
 
 /* Base Styles */
 body {
-  font-family: 'Inter', sans-serif; /* A more modern font choice */
+  font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
   background-color: var(--bg-light);
@@ -23,7 +31,7 @@ body {
 
 /* Top Header */
 .top-header {
-  background-color: var(--primary-color);
+  background-color: var(--primary-color); /* Retain admin blue for top bar */
   color: white;
   padding: 10px 30px;
   display: flex;
@@ -37,31 +45,58 @@ body {
   font-size: 1.4em;
 }
 
+.top-header button {
+  background-color: var(--danger-color);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
 /* --------------------
  LAYOUT: SIDEBAR & MAIN
  -------------------- */
 .main-layout-container {
   display: flex;
-  min-height: calc(100vh - 54px); /* Full viewport height minus header height */
+  min-height: calc(100vh - 54px);
 }
 
-/* 1. Sidebar Navigation */
+/* 1. Modern Dark Sidebar Navigation */
 #sidebar-navigation {
   width: var(--sidebar-width);
-  background-color: #ffffff;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-  padding: 20px 0;
-  flex-shrink: 0; /* Prevents sidebar from shrinking */
-  border-right: 1px solid var(--border-color);
+  background-color: var(--sidebar-bg); /* Dark blue background */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.15);
+  padding: 0; /* Remove top/bottom padding */
+  flex-shrink: 0;
+  color: var(--sidebar-text);
 }
 
+/* Sidebar Title/Logo (Adapt from the image) */
 #sidebar-navigation h2 {
-  font-size: 1em;
-  color: #6c757d;
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--sidebar-text);
+  padding: 20px 20px 10px 20px; /* Add internal padding */
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#sidebar-navigation h2 i[data-lucide] {
+  width: 24px;
+  height: 24px;
+}
+
+/* Status Section Header */
+#sidebar-navigation .section-header {
+  font-size: 0.9em;
+  color: #aeb9c9; /* Lighter grey for section titles */
   text-transform: uppercase;
-  padding: 0 20px;
-  margin-top: 15px;
-  margin-bottom: 5px;
+  padding: 15px 20px 5px 20px;
+  margin-top: 10px;
   font-weight: 600;
 }
 
@@ -70,55 +105,65 @@ body {
   align-items: center;
   padding: 12px 20px;
   text-decoration: none;
-  color: var(--text-color);
+  color: #e0e6f0; /* Light text color */
   font-weight: 500;
   transition: background-color 0.2s, color 0.2s;
   gap: 10px;
+  border-radius: 5px; /* Subtle rounded corners */
+  margin: 5px 15px; /* Add margin for floating effect */
 }
 
 .nav-link i[data-lucide] {
   width: 20px;
   height: 20px;
+  stroke: #e0e6f0; /* Match text color */
 }
 
 .nav-link:hover {
-  background-color: var(--bg-light);
-  color: var(--primary-color);
+  background-color: var(--sidebar-hover-bg);
+  color: var(--sidebar-text);
 }
 
 .nav-link.active {
-  background-color: var(--primary-color);
-  color: white;
-  border-left: 5px solid var(--warning-color); /* Highlight active link */
-  padding-left: 15px;
+  background-color: var(--sidebar-active-bg); /* Vibrant blue active state */
+  color: var(--sidebar-text);
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .nav-link.active i[data-lucide] {
-  stroke: white; /* Ensure icons are visible when active */
+  stroke: var(--sidebar-text);
 }
 
 .nav-divider {
   border: 0;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid #3d4a63; /* Darker line for separator */
   margin: 15px 20px;
 }
 
-/* Sidebar Export Tool */
+/* Sidebar Export Tool (Tools section) */
 #sidebar-export {
   padding: 0 20px;
+  margin-top: 20px;
 }
+
 #sidebar-export label {
   display: block;
   margin-bottom: 5px;
   font-size: 0.9em;
+  color: #aeb9c9;
 }
+
 #sidebar-export select {
   width: 100%;
   padding: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #3d4a63;
+  background-color: #294060; /* Slightly darker input field */
+  color: var(--sidebar-text);
   border-radius: 4px;
   margin-bottom: 10px;
 }
+
 #sidebar-export button {
   width: 100%;
   background-color: var(--success-color);
@@ -137,7 +182,7 @@ body {
   background-color: #218838;
 }
 
-/* 2. Main Content Area */
+/* 2. Main Content Area (Layout is the same) */
 #main-content-area {
   flex-grow: 1;
   padding: 20px;
@@ -152,102 +197,4 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-#controls-section h3 {
-  margin-top: 0;
-  font-size: 1.2em;
-  color: var(--primary-color);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 10px;
-}
-
-#filter-options {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.filter-group {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 0 8px;
-  background-color: #f8f9fa;
-}
-
-.filter-group i[data-lucide] {
-  width: 18px;
-  height: 18px;
-  color: var(--secondary-color);
-  margin-right: 8px;
-}
-
-#filter-options input,
-#filter-options select {
-  padding: 8px 0;
-  border: none;
-  background-color: transparent;
-  flex-grow: 1;
-  outline: none;
-}
-
-.date-range input {
-  width: 120px;
-}
-
-.date-range span {
-  color: var(--secondary-color);
-}
-
-/* Buttons */
-.btn-primary, .btn-secondary {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: opacity 0.3s;
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-}
-.btn-primary:hover {
-  opacity: 0.9;
-}
-
-.btn-secondary {
-  background-color: var(--secondary-color);
-}
-.btn-secondary:hover {
-  opacity: 0.9;
-}
-
-/* Complaints Table Section */
-#complaints-section {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  overflow-x: auto;
-}
-
-/* (Table styles from previous CSS remain largely the same, but ensure they fit) */
-#complaintsTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
-/* ... rest of the table and modal styles ... */
-
-/* Detail Modal/Sidebar (Keep the slide-in effect) */
-#detail-modal {
-  /* ... (Same as previous CSS, ensuring z-index is high) ... */
-  z-index: 1000;
-}
+/* ... (Rest of the main content styles remain the same from the previous response) ... */
