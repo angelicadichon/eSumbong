@@ -84,97 +84,96 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// === Complaint submission with Supabase Storage (UPDATED) ===
+/// === Complaint submission (UPDATED - Use existing columns) ===
 app.post("/api/complaints", upload.single("file"), async (req, res) => {
-    console.log("📨 Received complaint submission request");
-    
-    try {
-        // Validate required fields
-        const { name, contact, category, description, location } = req.body;
-        
-        if (!name || !contact || !category || !description || !location) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "All fields are required" 
-            });
-        }
+  console.log("📨 Received complaint submission request");
+  
+  try {
+      // Validate required fields
+      const { name, contact, category, description, location } = req.body;
+      
+      if (!name || !contact || !category || !description || !location) {
+          return res.status(400).json({ 
+              success: false, 
+              message: "All fields are required" 
+          });
+      }
 
-        let fileUrl = null;
+      let fileUrl = null;
 
-        // If file is uploaded, store it in Supabase Storage
-        if (req.file) {
-            console.log("📁 Processing file upload:", req.file.originalname);
-            
-            const fileName = `complaint-${Date.now()}-${req.file.originalname}`;
-            
-            // Upload to Supabase Storage directly from memory
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('complaint-files')
-                .upload(fileName, req.file.buffer, {
-                    contentType: req.file.mimetype,
-                    upsert: false
-                });
+      // If file is uploaded, store it in Supabase Storage
+      if (req.file) {
+          console.log("📁 Processing file upload:", req.file.originalname);
+          
+          const fileName = `complaint-${Date.now()}-${req.file.originalname}`;
+          
+          // Upload to Supabase Storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('complaint-files')
+              .upload(fileName, req.file.buffer, {
+                  contentType: req.file.mimetype,
+                  upsert: false
+              });
 
-            if (uploadError) {
-                console.error("❌ Supabase storage error:", uploadError);
-                // Continue without file if upload fails
-                console.log("⚠️ File upload failed, continuing without file");
-            } else {
-                // Get public URL
-                const { data: { publicUrl } } = supabase.storage
-                    .from('complaint-files')
-                    .getPublicUrl(fileName);
-                
-                fileUrl = publicUrl;
-                console.log("✅ File uploaded to Supabase:", publicUrl);
-            }
-        } else {
-            console.log("📝 No file attached to complaint");
-        }
+          if (uploadError) {
+              console.error("❌ Supabase storage error:", uploadError);
+          } else {
+              // Get public URL
+              const { data: { publicUrl } } = supabase.storage
+                  .from('complaint-files')
+                  .getPublicUrl(fileName);
+              
+              fileUrl = publicUrl;
+              console.log("✅ File uploaded to Supabase:", publicUrl);
+          }
+      }
 
-        const complaint = {
-            name: name,
-            contact: contact,
-            category: category,
-            description: description,
-            location: location,
-            file: fileUrl, // Store the Supabase URL
-            refNumber: "REF-" + Date.now(),
-            created_at: new Date().toISOString(),
-            status: 'pending'
-        };
+      // Generate reference number
+      const refNumber = "REF-" + Date.now();
 
-        console.log("📝 Saving complaint to database");
+      const complaint = {
+          name: name,
+          contact: contact,
+          category: category,
+          description: description,
+          location: location,
+          file: fileUrl,
+          refNumber: refNumber, // Make sure this column exists
+          status: 'pending',
+          created_at: new Date().toISOString()
+      };
 
-        // Save to Supabase Database
-        const { data, error } = await supabase
-            .from('complaints')
-            .insert([complaint])
-            .select();
+      console.log("📝 Saving complaint to database:", complaint);
 
-        if (error) {
-            console.error("❌ Supabase database error:", error);
-            return res.status(500).json({ 
-                success: false, 
-                message: "Database error: " + error.message 
-            });
-        }
+      // Save to Supabase Database
+      const { data, error } = await supabase
+          .from('complaints')
+          .insert([complaint])
+          .select();
 
-        console.log("✅ Complaint saved successfully with ID:", data[0]?.id);
+      if (error) {
+          console.error("❌ Supabase database error:", error);
+          return res.status(500).json({ 
+              success: false, 
+              message: "Database error: " + error.message 
+          });
+      }
 
-        res.json({
-            success: true,
-            message: "Complaint submitted successfully!",
-            reference: complaint.refNumber,
-        });
+      console.log("✅ Complaint saved successfully");
 
-    } catch (error) {
-        console.error("❌ Server error:", error);
-        res.status(500).json({ 
-            success: false, 
-            message: "Server error: " + error.message 
-        });
-    }
+      res.json({
+          success: true,
+          message: "Complaint submitted successfully!",
+          reference: refNumber,
+      });
+
+  } catch (error) {
+      console.error("❌ Server error:", error);
+      res.status(500).json({ 
+          success: false, 
+          message: "Server error: " + error.message 
+      });
+  }
 });
 
 // === Get Complaints ===
