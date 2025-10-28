@@ -8,92 +8,91 @@
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <i>🏛️</i>
-        <h2>Barangay eSumbong</h2>
-      </div>
-  
-      <nav>
-        <ul>
-          <li class="active"><i>📊</i> Dashboard</li>
-          <li><i>📁</i> Reports</li>
-          <li><i>👥</i> Residents</li>
-          <li><i>⚙️</i> Settings</li>
-        </ul>
-      </nav>
-  
-      <div class="sidebar-footer">
-        <div class="admin-info">
-          <div class="admin-avatar">A</div>
-          <div>
-            <p class="admin-name">Admin User</p>
-            <p class="admin-role">Administrator</p>
-          </div>
+    <div class="admin-container">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i>🏛️</i>
+          <h2>Barangay eSumbong</h2>
         </div>
-        <button class="primary-btn logout-btn">Logout</button>
-      </div>
-    </aside>
-  
-    <!-- MAIN DASHBOARD CONTENT -->
-    <main class="main-content">
-      <div class="top-header">
-        <h1>📋 Admin Dashboard</h1>
-      </div>
-  
-      <div class="dashboard">
-        <div class="dashboard-container">
-          <!-- PROFILE CARD -->
-          <div class="profile-card">
-            <div class="profile-pic"></div>
-            <h2>Admin User</h2>
-            <div class="stats">
-              <p>Total Reports: <strong>125</strong></p>
-              <p>Pending: <strong>18</strong></p>
-              <p>Resolved: <strong>92</strong></p>
+    
+        <nav>
+          <ul>
+            <li class="active"><i>📊</i> Dashboard</li>
+            <li><i>📁</i> Reports</li>
+            <li><i>👥</i> Residents</li>
+            <li><i>⚙️</i> Settings</li>
+          </ul>
+        </nav>
+    
+        <div class="sidebar-footer">
+          <div class="admin-info">
+            <div class="admin-avatar">A</div>
+            <div>
+              <p class="admin-name">Admin User</p>
+              <p class="admin-role">Administrator</p>
             </div>
           </div>
-  
-          <!-- COMPLAINTS TABLE -->
-          <div class="complaints-card">
-            <div class="header-bar">
-              <h3>Complaint List</h3>
-              <input type="text" class="search-box" placeholder="Search complaint..." />
+          <button class="primary-btn logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </aside>
+    
+      <!-- MAIN DASHBOARD CONTENT -->
+      <main class="main-content">
+        <div class="top-header">
+          <h1>📋 Admin Dashboard</h1>
+        </div>
+    
+        <div class="dashboard">
+          <div class="dashboard-container">
+            <div class="profile-card">
+              <h2>Admin User</h2>
+              <div class="stats">
+                <p>Total Reports: <strong>125</strong></p>
+                <p>Pending: <strong>18</strong></p>
+                <p>Resolved: <strong>92</strong></p>
+              </div>
             </div>
-  
-            <table id="complaintsTable">
-              <thead>
-                <tr>
-                  <th>Tracking #</th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>#001</td>
-                  <td>Juan Dela Cruz</td>
-                  <td>Lighting</td>
-                  <td>Streetlight not working</td>
-                  <td><span class="status in-progress">In Progress</span></td>
-                </tr>
-                <tr>
-                  <td>#002</td>
-                  <td>Maria Santos</td>
-                  <td>Garbage</td>
-                  <td>Uncollected trash in Zone 4</td>
-                  <td><span class="status resolved">Resolved</span></td>
-                </tr>
-              </tbody>
-            </table>
+    
+            <div class="complaints-card">
+              <div class="header-bar">
+                <h3>Complaint List</h3>
+                <input type="text" class="search-box" placeholder="Search complaint..." />
+              </div>
+    
+              <table id="complaintsTable">
+                <thead>
+                  <tr>
+                    <th>Tracking #</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#001</td>
+                    <td>Juan Dela Cruz</td>
+                    <td>Lighting</td>
+                    <td>Streetlight not working</td>
+                    <td><span class="status in-progress">In Progress</span></td>
+                  </tr>
+                  <tr>
+                    <td>#002</td>
+                    <td>Maria Santos</td>
+                    <td>Garbage</td>
+                    <td>Uncollected trash in Zone 4</td>
+                    <td><span class="status resolved">Resolved</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
-
+      </main>
+    </div>
+  
     <script>
         // Initialize Lucide icons after the document loads
         lucide.createIcons();
