@@ -50,41 +50,67 @@
           </div>
         </section>
 
-        <section class="dashboard-content">
-          <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search complaints..." />
+        <section id="dashboard" class="dashboard">
+          <div class="dashboard-container">
+        
+            <!-- LEFT PANEL (Profile Info) -->
+            <div class="profile-card">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                alt="Profile Picture"
+                class="profile-pic"
+              />
+              <h2>Welcome, <span id="residentName">Resident User</span></h2>
+              <div class="stats">
+                <p><strong>Total Reports:</strong> <span id="totalReports">5</span></p>
+                <p><strong>Pending:</strong> <span id="pendingCount">2</span></p>
+                <p><strong>Resolved:</strong> <span id="resolvedCount">3</span></p>
+              </div>
+            </div>
+        
+            <!-- RIGHT PANEL (Complaints Table) -->
+            <div class="complaints-card">
+              <div class="header-bar">
+                <h3>📋 My Complaints</h3>
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder="Search complaints..."
+                  class="search-box"
+                />
+              </div>
+        
+              <table id="complaintsTable">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Assigned Officer</th>
+                  </tr>
+                </thead>
+                <tbody id="complaintsBody">
+                  <tr>
+                    <td>#0421</td>
+                    <td>2025-10-25</td>
+                    <td>Public Lighting</td>
+                    <td><span class="status in-progress">In Progress</span></td>
+                    <td>Mr. Cruz</td>
+                  </tr>
+                  <tr>
+                    <td>#0410</td>
+                    <td>2025-10-20</td>
+                    <td>Sanitation</td>
+                    <td><span class="status resolved">Resolved</span></td>
+                    <td>Ms. Dela Cruz</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-
-          <h3>📋 My Complaints</h3>
-          <table id="complaintsTable">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Assigned Officer</th>
-              </tr>
-            </thead>
-            <tbody id="complaintsBody">
-              <tr>
-                <td>#0421</td>
-                <td>2025-10-25</td>
-                <td>Public Lighting</td>
-                <td><span class="status in-progress">In Progress</span></td>
-                <td>Mr. Cruz</td>
-              </tr>
-              <tr>
-                <td>#0410</td>
-                <td>2025-10-20</td>
-                <td>Sanitation</td>
-                <td><span class="status resolved">Resolved</span></td>
-                <td>Ms. Dela Cruz</td>
-              </tr>
-            </tbody>
-          </table>
         </section>
-      </section>
+        
 
       <section id="complaintFormSection" class="hidden">
         <h3><i data-lucide="file-plus"></i> Submit a Complaint / Request</h3>
