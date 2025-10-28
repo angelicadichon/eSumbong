@@ -41,45 +41,52 @@
 
       <section class="page-content form-page">
         <div class="card form-card">
-          <form id="complaintForm" enctype="multipart/form-data" onsubmit="submitForm(event)">
+          <form id="complaintForm" enctype="multipart/form-data">
             <label>
-              Name (Optional)
-              <input type="text" name="name" placeholder="Your name" />
+              Name
+              <input type="text" name="name" placeholder="Your full name" required />
             </label>
 
             <label>
               Contact Information
-              <input type="text" name="contact" placeholder="Phone or email" />
+              <input type="text" name="contact" placeholder="Phone number or email" required />
             </label>
 
             <label>
               Category
               <select name="category" required>
                 <option value="">Select Category</option>
-                <option>Sanitation</option>
-                <option>Infrastructure</option>
-                <option>Safety</option>
-                <option>SK Concerns</option>
+                <option value="Sanitation">Sanitation</option>
+                <option value="Infrastructure">Infrastructure</option>
+                <option value="Public Lighting">Public Lighting</option>
+                <option value="Safety">Safety</option>
+                <option value="SK Concerns">SK Concerns</option>
+                <option value="Garbage">Garbage</option>
+                <option value="Other">Other</option>
               </select>
             </label>
 
             <label>
               Description
-              <textarea name="description" placeholder="Describe the issue" required></textarea>
+              <textarea name="description" placeholder="Describe the issue in detail..." required rows="4"></textarea>
             </label>
 
             <label>
               Location
-              <input type="text" name="location" placeholder="Location" required />
+              <input type="text" name="location" placeholder="Exact location or address" required />
             </label>
 
             <label>
               Attachment (optional)
-              <input type="file" name="attachment" />
+              <input type="file" name="file" accept="image/*,.pdf,.doc,.docx" />
+              <small>Supported files: images, PDF, Word documents</small>
             </label>
 
             <div class="form-actions">
-              <button type="submit" class="primary-btn">Submit</button>
+              <button type="submit" class="primary-btn" id="submitBtn">
+                <span>Submit Report</span>
+                <div class="loading-spinner" style="display: none;">Submitting...</div>
+              </button>
               <a class="secondary-btn" href="user-dashboard.html">Back to Dashboard</a>
             </div>
             <p id="response" class="response-text"></p>
@@ -89,16 +96,9 @@
     </main>
 
     <script src="js/user.js"></script>
+    <script src="js/submit-report.js"></script>
     <script>
       lucide.createIcons();
-
-      function submitForm(e) {
-        e.preventDefault();
-        // Simple client-side feedback; integrate with backend as needed
-        document.getElementById('response').textContent = 'Thank you — your report has been submitted.';
-        document.getElementById('response').classList.add('success');
-        e.target.reset();
-      }
     </script>
   </body>
 </html>
