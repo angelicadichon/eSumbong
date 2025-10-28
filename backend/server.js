@@ -3,7 +3,7 @@ import cors from "cors";
 import path from "path";
 import multer from "multer";
 import { fileURLToPath } from "url";
-import { supabase } from "./supabase.js"; // Add this import
+import { supabase } from "./supabase.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,24 +21,35 @@ app.use(express.urlencoded({ extended: true }));
 const frontendPath = path.join(__dirname, "frontend");
 app.use(express.static(frontendPath));
 
-// === Multer for file uploads ===
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "uploads"));
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({ storage });
+// === Multer with Memory Storage ===
+const storage = multer.memoryStorage(); // Store files in memory instead of disk
 
-// === Predefined users (KEEP THIS for now) ===
+const upload = multer({ 
+  storage: storage, // Use memory storage
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Check file types
+    const allowedTypes = /jpeg|jpg|png|pdf|doc|docx/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images, PDF and Word documents are allowed'));
+    }
+  }
+});
+
+// === Predefined users ===
 const users = [
   { username: "admin", password: "admin123", role: "admin" },
   { username: "user", password: "user123", role: "user" },
 ];
 
-// === Login Route (UPDATED) ===
+// === Login Route ===
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   
@@ -73,107 +84,100 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// === Complaint submission with Supabase Storage ===
+// === Complaint submission with Supabase Storage (UPDATED) ===
 app.post("/api/complaints", upload.single("file"), async (req, res) => {
-  console.log("📨 Received complaint submission request");
-  
-  try {
-      // Validate required fields
-      const { name, contact, category, description, location } = req.body;
-      
-      if (!name || !contact || !category || !description || !location) {
-          return res.status(400).json({ 
-              success: false, 
-              message: "All fields are required" 
-          });
-      }
+    console.log("📨 Received complaint submission request");
+    
+    try {
+        // Validate required fields
+        const { name, contact, category, description, location } = req.body;
+        
+        if (!name || !contact || !category || !description || !location) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "All fields are required" 
+            });
+        }
 
-      let fileUrl = null;
+        let fileUrl = null;
 
-      // If file is uploaded, store it in Supabase Storage
-      if (req.file) {
-          console.log("📁 Processing file upload:", req.file.originalname);
-          
-          const fileName = `complaint-${Date.now()}-${req.file.originalname}`;
-          const fileBuffer = fs.readFileSync(req.file.path);
-          
-          // Upload to Supabase Storage
-          const { data: uploadData, error: uploadError } = await supabase.storage
-              .from('complaint-files')
-              .upload(fileName, fileBuffer, {
-                  contentType: req.file.mimetype,
-                  upsert: false
-              });
+        // If file is uploaded, store it in Supabase Storage
+        if (req.file) {
+            console.log("📁 Processing file upload:", req.file.originalname);
+            
+            const fileName = `complaint-${Date.now()}-${req.file.originalname}`;
+            
+            // Upload to Supabase Storage directly from memory
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('complaint-files')
+                .upload(fileName, req.file.buffer, {
+                    contentType: req.file.mimetype,
+                    upsert: false
+                });
 
-          if (uploadError) {
-              console.error("❌ Supabase storage error:", uploadError);
-              // Continue without file if upload fails
-          } else {
-              // Get public URL
-              const { data: { publicUrl } } = supabase.storage
-                  .from('complaint-files')
-                  .getPublicUrl(fileName);
-              
-              fileUrl = publicUrl;
-              console.log("✅ File uploaded to Supabase:", publicUrl);
-          }
+            if (uploadError) {
+                console.error("❌ Supabase storage error:", uploadError);
+                // Continue without file if upload fails
+                console.log("⚠️ File upload failed, continuing without file");
+            } else {
+                // Get public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('complaint-files')
+                    .getPublicUrl(fileName);
+                
+                fileUrl = publicUrl;
+                console.log("✅ File uploaded to Supabase:", publicUrl);
+            }
+        } else {
+            console.log("📝 No file attached to complaint");
+        }
 
-          // Delete local file after upload
-          fs.unlinkSync(req.file.path);
-      }
+        const complaint = {
+            name: name,
+            contact: contact,
+            category: category,
+            description: description,
+            location: location,
+            file: fileUrl, // Store the Supabase URL
+            refNumber: "REF-" + Date.now(),
+            created_at: new Date().toISOString(),
+            status: 'pending'
+        };
 
-      const complaint = {
-          name: name,
-          contact: contact,
-          category: category,
-          description: description,
-          location: location,
-          file: fileUrl, // Store the Supabase URL instead of local path
-          refNumber: "REF-" + Date.now(),
-          created_at: new Date().toISOString(),
-          status: 'pending'
-      };
+        console.log("📝 Saving complaint to database");
 
-      console.log("📝 Saving complaint to database:", complaint);
+        // Save to Supabase Database
+        const { data, error } = await supabase
+            .from('complaints')
+            .insert([complaint])
+            .select();
 
-      // Save to Supabase Database
-      const { data, error } = await supabase
-          .from('complaints')
-          .insert([complaint])
-          .select();
+        if (error) {
+            console.error("❌ Supabase database error:", error);
+            return res.status(500).json({ 
+                success: false, 
+                message: "Database error: " + error.message 
+            });
+        }
 
-      if (error) {
-          console.error("❌ Supabase database error:", error);
-          return res.status(500).json({ 
-              success: false, 
-              message: "Database error: " + error.message 
-          });
-      }
+        console.log("✅ Complaint saved successfully with ID:", data[0]?.id);
 
-      console.log("✅ Complaint saved successfully");
+        res.json({
+            success: true,
+            message: "Complaint submitted successfully!",
+            reference: complaint.refNumber,
+        });
 
-      res.json({
-          success: true,
-          message: "Complaint submitted successfully!",
-          reference: complaint.refNumber,
-      });
-
-  } catch (error) {
-      console.error("❌ Server error:", error);
-      
-      // Clean up uploaded file if error occurs
-      if (req.file && fs.existsSync(req.file.path)) {
-          fs.unlinkSync(req.file.path);
-      }
-      
-      res.status(500).json({ 
-          success: false, 
-          message: "Server error: " + error.message 
-      });
-  }
+    } catch (error) {
+        console.error("❌ Server error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Server error: " + error.message 
+        });
+    }
 });
 
-// === New Route: Get Complaints (for admin dashboard) ===
+// === Get Complaints ===
 app.get("/api/complaints", async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -189,7 +193,7 @@ app.get("/api/complaints", async (req, res) => {
   }
 });
 
-// === Update Complaint Status (for admin) ===
+// === Update Complaint Status ===
 app.put("/api/complaints/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -206,6 +210,34 @@ app.put("/api/complaints/:id", async (req, res) => {
     res.json({ success: true, message: "Status updated" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// === Test Supabase Storage ===
+app.get("/api/test-storage", async (req, res) => {
+  try {
+    // Test if storage bucket exists and is accessible
+    const { data, error } = await supabase.storage
+      .from('complaint-files')
+      .list('', { limit: 1 });
+
+    if (error) {
+      console.error("❌ Storage test failed:", error);
+      return res.json({ 
+        success: false, 
+        message: "Storage test failed: " + error.message 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: "Storage bucket is accessible" 
+    });
+  } catch (error) {
+    res.json({ 
+      success: false, 
+      message: "Storage test error: " + error.message 
+    });
   }
 });
 
