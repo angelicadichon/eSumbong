@@ -1,27 +1,31 @@
+// Replace any mock data with actual API calls
 async function loadComplaints() {
-    const res = await fetch("/api/complaints");
-    const data = await res.json();
-  
-    const tbody = document.querySelector("#complaintsTable tbody");
-    tbody.innerHTML = "";
-  
-    data.forEach((c) => {
-      const row = `
-        <tr>
-          <td>${c.trackingNumber}</td>
-          <td>${c.name}</td>
-          <td>${c.category}</td>
-          <td>${c.description}</td>
-          <td>${c.status}</td>
-          <td>${new Date(c.date).toLocaleString()}</td>
-        </tr>`;
-      tbody.innerHTML += row;
-    });
+  try {
+      const response = await fetch('/api/complaints');
+      const result = await response.json();
+      
+      if (result.success) {
+          // Display the complaints in your table
+          displayComplaints(result.complaints);
+      }
+  } catch (error) {
+      console.error('Error loading complaints:', error);
   }
-  
-  function logout() {
-    window.location.href = "index.html";
+}
+
+async function updateComplaintStatus(refNumber, status) {
+  try {
+      const response = await fetch(`/api/complaints/${refNumber}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: status })
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+          loadComplaints(); // Refresh the list
+      }
+  } catch (error) {
+      console.error('Error updating status:', error);
   }
-  
-  loadComplaints();
-  
+}
