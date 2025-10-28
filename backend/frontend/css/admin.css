@@ -1,200 +1,230 @@
-/* css/admin.css */
-
-:root {
-  /* Admin primary colors */
-  --primary-color: #0056b3; 
-  --secondary-color: #6c757d; 
-  --success-color: #28a745; 
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  
-  /* NEW Sidebar colors based on the image */
-  --sidebar-bg: #1c2e4a; /* Dark blue background */
-  --sidebar-text: #ffffff;
-  --sidebar-hover-bg: #294060; /* Slightly lighter on hover */
-  --sidebar-active-bg: #007bff; /* Vibrant blue for active state */
-  
-  --bg-light: #f4f7f6;
-  --border-color: #dee2e6;
-  --text-color: #333;
-  --sidebar-width: 250px;
-}
-
-/* Base Styles */
+/* GLOBAL RESET */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: "Poppins", sans-serif;
   margin: 0;
-  padding: 0;
-  background-color: var(--bg-light);
-  color: var(--text-color);
+  background: linear-gradient(to bottom right, #cce5ff, #b3e5fc);
+  color: #333;
 }
 
-/* Top Header */
-.top-header {
-  background-color: var(--primary-color); /* Retain admin blue for top bar */
-  color: white;
-  padding: 10px 30px;
+/* TOP HEADER */
+.admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #1e3a8a;
+  color: #fff;
+  padding: 15px 30px;
 }
 
-.top-header h1 {
-  margin: 0;
-  font-size: 1.4em;
+.admin-header .logo {
+  font-size: 20px;
+  font-weight: 600;
 }
 
-.top-header button {
-  background-color: var(--danger-color);
-  color: white;
+.admin-header span {
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.logout-btn {
+  background-color: #ef4444;
+  color: #fff;
   border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-/* --------------------
- LAYOUT: SIDEBAR & MAIN
- -------------------- */
-.main-layout-container {
-  display: flex;
-  min-height: calc(100vh - 54px);
-}
-
-/* 1. Modern Dark Sidebar Navigation */
-#sidebar-navigation {
-  width: var(--sidebar-width);
-  background-color: var(--sidebar-bg); /* Dark blue background */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.15);
-  padding: 0; /* Remove top/bottom padding */
-  flex-shrink: 0;
-  color: var(--sidebar-text);
-}
-
-/* Sidebar Title/Logo (Adapt from the image) */
-#sidebar-navigation h2 {
-  font-size: 1.5em;
-  font-weight: 700;
-  color: var(--sidebar-text);
-  padding: 20px 20px 10px 20px; /* Add internal padding */
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-#sidebar-navigation h2 i[data-lucide] {
-  width: 24px;
-  height: 24px;
-}
-
-/* Status Section Header */
-#sidebar-navigation .section-header {
-  font-size: 0.9em;
-  color: #aeb9c9; /* Lighter grey for section titles */
-  text-transform: uppercase;
-  padding: 15px 20px 5px 20px;
-  margin-top: 10px;
-  font-weight: 600;
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  padding: 12px 20px;
-  text-decoration: none;
-  color: #e0e6f0; /* Light text color */
   font-weight: 500;
-  transition: background-color 0.2s, color 0.2s;
-  gap: 10px;
-  border-radius: 5px; /* Subtle rounded corners */
-  margin: 5px 15px; /* Add margin for floating effect */
 }
 
-.nav-link i[data-lucide] {
-  width: 20px;
-  height: 20px;
-  stroke: #e0e6f0; /* Match text color */
+.logout-btn:hover {
+  background-color: #dc2626;
 }
 
-.nav-link:hover {
-  background-color: var(--sidebar-hover-bg);
-  color: var(--sidebar-text);
+/* LAYOUT */
+.admin-container {
+  display: flex;
+  min-height: calc(100vh - 60px);
 }
 
-.nav-link.active {
-  background-color: var(--sidebar-active-bg); /* Vibrant blue active state */
-  color: var(--sidebar-text);
-  font-weight: 600;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background-color: #1e293b;
+  color: white;
+  padding: 25px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.nav-link.active i[data-lucide] {
-  stroke: var(--sidebar-text);
+.sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #fff;
 }
 
-.nav-divider {
-  border: 0;
-  border-top: 1px solid #3d4a63; /* Darker line for separator */
-  margin: 15px 20px;
+.nav-btn {
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-bottom: 8px;
+  transition: 0.3s;
 }
 
-/* Sidebar Export Tool (Tools section) */
-#sidebar-export {
-  padding: 0 20px;
+.nav-btn:hover,
+.nav-btn.active {
+  background-color: #2563eb;
+}
+
+.tools {
   margin-top: 20px;
 }
 
-#sidebar-export label {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 0.9em;
-  color: #aeb9c9;
-}
-
-#sidebar-export select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #3d4a63;
-  background-color: #294060; /* Slightly darker input field */
-  color: var(--sidebar-text);
-  border-radius: 4px;
+.tools h3 {
+  font-size: 16px;
   margin-bottom: 10px;
 }
 
-#sidebar-export button {
+.select-box {
   width: 100%;
-  background-color: var(--success-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px;
+  padding: 6px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.export-btn {
+  width: 100%;
+  background-color: #22c55e;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-#sidebar-export button:hover {
-  background-color: #218838;
-}
-
-/* 2. Main Content Area (Layout is the same) */
-#main-content-area {
-  flex-grow: 1;
-  padding: 20px;
-}
-
-/* Filter and Search Controls */
-#controls-section {
-  background-color: white;
-  padding: 20px;
-  margin-bottom: 20px;
+  color: white;
+  padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  font-weight: 500;
 }
 
-/* ... (Rest of the main content styles remain the same from the previous response) ... */
+.export-btn:hover {
+  background-color: #16a34a;
+}
+
+/* MAIN CONTENT */
+.dashboard-content {
+  flex-grow: 1;
+  padding: 30px;
+}
+
+/* FILTER CARD */
+.filter-card {
+  background-color: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 25px;
+}
+
+.filter-card h2 {
+  color: #1f3d5f;
+  margin-bottom: 15px;
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.apply {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.clear {
+  background-color: #e2e8f0;
+  color: #1f2937;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* COMPLAINTS TABLE */
+.complaints-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.complaints-card h2 {
+  color: #1f3d5f;
+  margin-bottom: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: #1f3d5f;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+}
+
+.status.in-progress {
+  background-color: #facc15;
+  color: #000;
+}
+
+.status.resolved {
+  background-color: #22c55e;
+}
+
+.view-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.view-btn:hover {
+  background-color: #1d4ed8;
+}

@@ -8,111 +8,86 @@
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
-    
-    <header class="top-header">
-      <h1>Barangay eSumbong - Admin Dashboard</h1>
-      <button onclick="logout()">Logout</button>
+    <!-- TOP NAV -->
+    <header class="admin-header">
+      <div class="logo">Barangay eSumbong <span>- Admin Dashboard</span></div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
     </header>
-
-    <div class="main-layout-container">
-      
-      <nav id="sidebar-navigation">
+  
+    <div class="admin-container">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
         <h2>Reports Status</h2>
-        
-        <a href="#" class="nav-link active" data-status="All">
-          <i data-lucide="layout-dashboard"></i> 
-          All Reports
-        </a>
-        <a href="#" class="nav-link" data-status="Pending">
-          <i data-lucide="clock"></i> 
-          Pending Reports
-        </a>
-        <a href="#" class="nav-link" data-status="In Progress">
-          <i data-lucide="tool"></i> 
-          In Progress Reports
-        </a>
-        <a href="#" class="nav-link" data-status="Resolved">
-          <i data-lucide="check-circle"></i> 
-          Resolved Reports
-        </a>
-
-        <hr class="nav-divider">
-
-        <h2>Tools</h2>
-        <div id="sidebar-export">
-            <label for="export-type">Export Data:</label>
-            <select id="export-type">
-              <option value="csv">CSV</option>
-              <option value="pdf">PDF</option>
-            </select>
-            <button onclick="exportData()">
-              <i data-lucide="download"></i> Export
-            </button>
+        <nav>
+          <button class="nav-btn active">📄 All Reports</button>
+          <button class="nav-btn">⏳ Pending Reports</button>
+          <button class="nav-btn">🔧 In Progress</button>
+          <button class="nav-btn">✅ Resolved</button>
+        </nav>
+  
+        <div class="tools">
+          <h3>Tools</h3>
+          <label for="export">Export Data:</label>
+          <select id="export" class="select-box">
+            <option value="csv">CSV</option>
+            <option value="pdf">PDF</option>
+          </select>
+          <button class="export-btn">⬇️ Export</button>
         </div>
-      </nav>
-
-      <main id="main-content-area">
-        
-        <section id="controls-section">
-          <h3>Filter & Search</h3>
-          <div id="filter-options">
-            <div class="filter-group">
-                <i data-lucide="search"></i>
-                <input type="text" id="search-reporter" placeholder="Search by Reporter Name" />
+      </aside>
+  
+      <!-- MAIN CONTENT -->
+      <main class="dashboard-content">
+        <div class="filter-card">
+          <h2>🔍 Filter & Search</h2>
+          <div class="filter-group">
+            <input type="text" placeholder="Search by Reporter Name" />
+            <select>
+              <option>Filter by Category</option>
+              <option>Sanitation</option>
+              <option>Lighting</option>
+              <option>Safety</option>
+            </select>
+            <input type="date" />
+            <input type="date" />
+            <div class="filter-buttons">
+              <button class="apply">Apply Filters</button>
+              <button class="clear">Clear Filters</button>
             </div>
-            
-            <div class="filter-group">
-                <i data-lucide="tag"></i>
-                <select id="filter-category">
-                    <option value="">Filter by Category</option>
-                    <option value="Drainage">Drainage</option>
-                    <option value="Road">Road</option>
-                    <option value="Security">Security</option>
-                    </select>
-            </div>
-            
-            <div class="filter-group date-range">
-                <i data-lucide="calendar"></i>
-                <input type="date" id="filter-date-start" title="Start Date"/>
-                <span>to</span>
-                <input type="date" id="filter-date-end" title="End Date"/>
-            </div>
-            
-            <button onclick="applyFilters()" class="btn-primary">
-                <i data-lucide="filter"></i> Apply Filters
-            </button>
-            <button onclick="clearFilters()" class="btn-secondary">
-                <i data-lucide="rotate-ccw"></i> Clear Filters
-            </button>
           </div>
-        </section>
-        
-        <section id="complaints-section">
-          <h2>Complaints List</h2>
-          <table id="complaintsTable">
+        </div>
+  
+        <div class="complaints-card">
+          <h2>📋 Complaints List</h2>
+          <table>
             <thead>
               <tr>
                 <th>Tracking #</th>
                 <th>Name</th>
                 <th>Category</th>
-                <th>Description (Snippet)</th>
+                <th>Description</th>
                 <th>Assigned To</th>
                 <th>Status</th>
-                <th>Date Submitted</th>
+                <th>Date</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              </tbody>
+              <tr>
+                <td>#0421</td>
+                <td>Juan Dela Cruz</td>
+                <td>Lighting</td>
+                <td>Streetlight not working</td>
+                <td>Mr. Cruz</td>
+                <td><span class="status in-progress">In Progress</span></td>
+                <td>2025-10-25</td>
+                <td><button class="view-btn">View</button></td>
+              </tr>
+            </tbody>
           </table>
-        </section>
-
+        </div>
       </main>
-
     </div>
-
-    <div id="detail-modal" style="display: none;">
-      </div>
 
     <script>
         // Initialize Lucide icons after the document loads
