@@ -1,44 +1,191 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f3f3f3;
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
 
-header {
-  background: #2e7d32;
-  color: white;
-  padding: 15px;
+body {
+  background: linear-gradient(180deg, #d6a7ff, #a8e5ff);
+  color: #222;
+}
+
+/* Header */
+.top-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #274c77;
+  color: white;
+  padding: 15px 30px;
 }
 
-form {
-  background: white;
-  max-width: 500px;
-  margin: 40px auto;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logout-btn {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 15px;
+  cursor: pointer;
+  color: #274c77;
+  font-weight: 600;
+}
+
+.logout-btn:hover {
+  background: #e6e6e6;
+}
+
+/* Welcome section */
+.welcome-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.7);
+  margin: 20px auto;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
-input,
-select,
-textarea {
+.profile-pic {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.profile-info h2 {
+  margin-bottom: 5px;
+  color: #000;
+}
+
+.submit-btn {
+  background-color: #274c77;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.submit-btn:hover {
+  background-color: #1f3d5f;
+}
+
+/* Form Section */
+.form-section {
+  background: white;
+  width: 90%;
+  margin: 10px auto;
+  padding: 20px;
+  border-radius: 15px;
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+#complaintForm input,
+#complaintForm select,
+#complaintForm textarea {
   width: 100%;
+  margin-bottom: 12px;
   padding: 10px;
-  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
 }
 
-button {
-  background: #388e3c;
+.primary-btn {
+  background-color: #274c77;
   color: white;
   border: none;
+  border-radius: 25px;
   padding: 10px 20px;
   cursor: pointer;
 }
 
-button:hover {
-  background: #2e7d32;
+/* Table */
+.dashboard-content {
+  width: 90%;
+  margin: 20px auto;
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status.pending { background: #ffce54; color: #333; }
+.status.in-progress { background: #5bc0de; color: white; }
+.status.resolved { background: #5cb85c; color: white; }
+
+/* Notifications */
+.notifications {
+  width: 90%;
+  margin: 20px auto;
+  background: rgba(255,255,255,0.9);
+  border-radius: 15px;
+  padding: 15px 20px;
+}
+
+.notifications ul {
+  list-style: none;
+  margin-top: 10px;
+}
+
+.notifications li {
+  margin-bottom: 8px;
+}
+
+/* Feedback */
+.feedback-section {
+  width: 90%;
+  margin: 20px auto;
+  background: rgba(255,255,255,0.9);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stars i {
+  width: 24px;
+  height: 24px;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.stars i:hover, .stars i.active {
+  color: #ffbf00;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #333;
+  font-size: 14px;
 }
