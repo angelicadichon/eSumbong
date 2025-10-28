@@ -2,31 +2,109 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | Barangay eSumbong</title>
     <link rel="stylesheet" href="css/admin.css" />
   </head>
   <body>
     <header>
-      <h1>Barangay eSumbong - Admin Dashboard</h1>
+      <h1>Barangay eSumbong - Admin Dashboard (Barangay/SK Officials)</h1>
       <button onclick="logout()">Logout</button>
     </header>
 
+    <nav id="status-navigation">
+      <button class="status-filter active" data-status="All">All Reports</button>
+      <button class="status-filter" data-status="Pending">
+        <span class="emoji">⏱️</span> Pending Reports
+      </button>
+      <button class="status-filter" data-status="In Progress">
+        <span class="emoji">🛠️</span> In Progress Reports
+      </button>
+      <button class="status-filter" data-status="Resolved">
+        <span class="emoji">✅</span> Resolved Reports
+      </button>
+    </nav>
+
+    <section id="controls-section">
+      <div id="filter-options">
+        <input type="text" id="search-reporter" placeholder="Search by Reporter Name" />
+        <select id="filter-category">
+          <option value="">Filter by Category</option>
+          <option value="Drainage">Drainage</option>
+          <option value="Road">Road</option>
+          <option value="Security">Security</option>
+          </select>
+        <input type="date" id="filter-date-start" />
+        <input type="date" id="filter-date-end" />
+        <button onclick="applyFilters()">Apply Filters</button>
+        <button onclick="clearFilters()">Clear Filters</button>
+      </div>
+
+      <div id="data-export">
+        <label for="export-type">Export Data:</label>
+        <select id="export-type">
+          <option value="csv">CSV</option>
+          <option value="pdf">PDF</option>
+        </select>
+        <button onclick="exportData()">
+          <span class="emoji">💾</span> Export
+        </button>
+      </div>
+    </section>
+
     <section id="complaints-section">
-      <h2>All Complaints</h2>
+      <h2>Complaints List</h2>
       <table id="complaintsTable">
         <thead>
           <tr>
             <th>Tracking #</th>
             <th>Name</th>
             <th>Category</th>
-            <th>Description</th>
+            <th>Description (Snippet)</th>
+            <th>Assigned To</th>
             <th>Status</th>
-            <th>Date</th>
+            <th>Date Submitted</th>
+            <th>Actions</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          </tbody>
       </table>
     </section>
+
+    <div id="detail-modal" style="display: none;">
+      <h3>Complaint Details: <span id="modal-tracking-id"></span></h3>
+      <p>Reporter: <span id="modal-reporter-name"></span></p>
+      <p>Full Description: <span id="modal-full-description"></span></p>
+
+      <div id="attachments">
+        <h4>Attachments</h4>
+        </div>
+
+      <div id="history">
+        <h4>Update History</h4>
+        </div>
+
+      <div id="action-tools">
+        <label for="assign-staff">Assign To:</label>
+        <select id="assign-staff">
+          <option value="">Select Team/Staff</option>
+          </select>
+        <button onclick="assignReport()">Assign</button>
+
+        <button onclick="updateStatus('In Progress')" class="quick-action-btn">
+          Mark as In Progress
+        </button>
+        <button onclick="updateStatus('Resolved')" class="quick-action-btn">
+          Mark as Resolved
+        </button>
+
+        <textarea id="resident-message" placeholder="Message/Update for Resident"></textarea>
+        <button onclick="sendMessageToResident()">Send Update</button>
+      </div>
+
+      <button onclick="closeModal()">Close</button>
+    </div>
 
     <script src="js/admin.js"></script>
   </body>
