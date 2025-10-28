@@ -47,40 +47,127 @@ body {
 }
 
 /* SIDEBAR */
+/* SIDEBAR UPDATES */
 .sidebar {
-  width: 260px;
-  background-color: #1e293b;
+  width: 250px;
+  background-color: #1f3d5f;
   color: white;
-  padding: 25px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  padding: 25px 15px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 }
 
-.sidebar h2 {
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.sidebar-header h2 {
   font-size: 18px;
-  margin-bottom: 15px;
-  color: #fff;
+  font-weight: 600;
 }
 
-.nav-btn {
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.sidebar nav ul li:hover,
+.sidebar nav ul li.active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* SIDEBAR FOOTER (ADMIN INFO + LOGOUT) */
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 20px;
+  margin-top: 30px;
+}
+
+.admin-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.admin-avatar {
+  background-color: #93c5fd;
+  color: #1e3a8a;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.admin-name {
+  margin: 0;
+  font-weight: 600;
+}
+
+.admin-role {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
   width: 100%;
-  padding: 10px 12px;
-  background: none;
+  background-color: #ef4444;
   border: none;
   color: white;
-  text-align: left;
-  border-radius: 8px;
+  border-radius: 20px;
+  padding: 10px;
   cursor: pointer;
-  font-size: 15px;
-  margin-bottom: 8px;
+  font-weight: 500;
   transition: 0.3s;
 }
 
-.nav-btn:hover,
-.nav-btn.active {
-  background-color: #2563eb;
+.logout-btn:hover {
+  background-color: #dc2626;
 }
+
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
+  padding: 30px 40px;
+  overflow-y: auto;
+  background: linear-gradient(to bottom right, #c7d2fe, #a5f3fc);
+}
+
+/* HEADER */
+.top-header {
+  background-color: #274c77;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+}
+
+/* Maintain existing dashboard + table styling */
+
 
 .tools {
   margin-top: 20px;
