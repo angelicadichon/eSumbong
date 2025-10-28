@@ -5,31 +5,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (complaintForm) {
         complaintForm.addEventListener('submit', handleFormSubmit);
     }
-    
-    // Refresh icons after form reset
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList') {
-                lucide.createIcons();
-            }
-        });
-    });
-    
-    if (complaintForm) {
-        observer.observe(complaintForm, { childList: true, subtree: true });
-    }
 });
 
 async function handleFormSubmit(e) {
     e.preventDefault();
+    console.log('🔄 Form submission started');
     
     const submitBtn = document.getElementById('submitBtn');
     const responseEl = document.getElementById('response');
     const formData = new FormData(this);
     
+    // Log form data for debugging
+    for (let [key, value] of formData.entries()) {
+        console.log(`📋 ${key}:`, value);
+    }
+    
     // Validate file size
     const file = formData.get('file');
-    if (file && file.size > 5 * 1024 * 1024) { // 5MB limit
+    if (file && file.size > 5 * 1024 * 1024) {
         showErrorMessage(responseEl, '❌ File size must be less than 5MB');
         return;
     }
@@ -39,27 +32,39 @@ async function handleFormSubmit(e) {
     clearResponseMessage(responseEl);
     
     try {
+        console.log('📤 Sending request to /api/complaints');
         const response = await fetch('/api/complaints', {
             method: 'POST',
             body: formData
         });
         
-        const result = await response.json();
+        console.log('📥 Received response, status:', response.status);
         
-        if (result.success) {
+        let result;
+        try {
+            result = await response.json();
+            console.log('📄 Response data:', result);
+        } catch (parseError) {
+            console.error('❌ Failed to parse JSON response:', parseError);
+            throw new Error('Invalid server response');
+        }
+        
+        if (response.ok && result.success) {
             showSuccessMessage(responseEl, `✅ ${result.message} Reference: ${result.reference}`);
-            this.reset(); // Clear form
-            lucide.createIcons(); // Refresh icons after reset
+            this.reset();
+            lucide.createIcons();
         } else {
-            throw new Error(result.message || 'Failed to submit report');
+            throw new Error(result.message || `Server error: ${response.status}`);
         }
     } catch (error) {
+        console.error('❌ Form submission error:', error);
         showErrorMessage(responseEl, `❌ Error: ${error.message}`);
     } finally {
         setButtonLoadingState(submitBtn, false);
     }
 }
 
+// ... rest of the functions remain the same
 function setButtonLoadingState(button, isLoading) {
     if (!button) return;
     

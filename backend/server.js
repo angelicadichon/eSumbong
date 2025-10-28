@@ -74,46 +74,63 @@ app.post("/api/login", async (req, res) => {
 });
 
 // === Complaint submission (UPDATED) ===
+// === Complaint submission (UPDATED with better error handling) ===
 app.post("/api/complaints", upload.single("file"), async (req, res) => {
-  const complaint = {
-    name: req.body.name,
-    contact: req.body.contact,
-    category: req.body.category,
-    description: req.body.description,
-    location: req.body.location,
-    file: req.file ? req.file.filename : null,
-    refNumber: "REF-" + Date.now(),
-    created_at: new Date().toISOString()
-  };
-
+  console.log("📨 Received complaint submission request");
+  
   try {
-    // Save to Supabase
-    const { data, error } = await supabase
-      .from('complaints')
-      .insert([complaint])
-      .select();
+      // Validate required fields
+      const { name, contact, category, description, location } = req.body;
+      
+      if (!name || !contact || !category || !description || !location) {
+          return res.status(400).json({ 
+              success: false, 
+              message: "All fields are required" 
+          });
+      }
 
-    if (error) {
-      console.error("Supabase error:", error);
-      return res.status(500).json({ 
-        success: false, 
-        message: "Failed to save complaint" 
+      const complaint = {
+          name: name,
+          contact: contact,
+          category: category,
+          description: description,
+          location: location,
+          file: req.file ? req.file.filename : null,
+          refNumber: "REF-" + Date.now(),
+          created_at: new Date().toISOString(),
+          status: 'pending' // Add default status
+      };
+
+      console.log("📝 Complaint data:", complaint);
+
+      // Save to Supabase
+      const { data, error } = await supabase
+          .from('complaints')
+          .insert([complaint])
+          .select();
+
+      if (error) {
+          console.error("❌ Supabase error:", error);
+          return res.status(500).json({ 
+              success: false, 
+              message: "Database error: " + error.message 
+          });
+      }
+
+      console.log("✅ Complaint saved to Supabase:", data);
+
+      res.json({
+          success: true,
+          message: "Complaint submitted successfully!",
+          reference: complaint.refNumber,
       });
-    }
-
-    console.log("Complaint saved to Supabase:", complaint);
-    res.json({
-      success: true,
-      message: "Complaint submitted successfully!",
-      reference: complaint.refNumber,
-    });
 
   } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error" 
-    });
+      console.error("❌ Server error:", error);
+      res.status(500).json({ 
+          success: false, 
+          message: "Server error: " + error.message 
+      });
   }
 });
 
