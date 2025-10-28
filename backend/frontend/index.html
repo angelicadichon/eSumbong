@@ -4,25 +4,26 @@
     <meta charset="UTF-8" />
     <title>eSumbong Login</title>
     <link rel="stylesheet" href="css/login.css" />
-    <!-- Lucide Icons CDN -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
     <div class="login-container">
-      <h2>eSumbong Login</h2>
+      <h2>Welcome to <span>eSumbong</span></h2>
+      <p class="subtitle">Please log in to continue</p>
 
-      <!-- Message appears here -->
+      <!-- Message -->
       <p id="message"></p>
 
       <form id="loginForm">
         <div class="input-group">
-          <i data-lucide="user"></i>
-          <input type="text" id="username" placeholder="Username" required />
+          <input><i data-lucide="user"></i>
+          type="text" id="username" placeholder="Username" required />
         </div>
 
         <div class="input-group password-group">
+          <input>
           <i data-lucide="lock"></i>
-          <input
             type="password"
             id="password"
             placeholder="Password"
