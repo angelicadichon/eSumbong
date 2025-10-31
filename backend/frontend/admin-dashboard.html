@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Admin Dashboard | eSumbong</title>
-    <link rel="stylesheet" href="css/user.css" />
+    <link rel="stylesheet" href="css/admin.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
   </head>
@@ -37,9 +37,7 @@
     <main class="main-content">
       <header class="top-header">
         <h1>Admin Dashboard</h1>
-        <div class="header-actions">
-          <input id="searchInput" class="global-search" placeholder="Search all complaints..." />
-        </div>
+        
       </header>
 
       <section class="page-content dashboard-page">
@@ -48,39 +46,28 @@
           <h2>System Overview</h2>
           <div class="cards-row">
             <div class="stat-card">
-              <div class="stat-icon total">
-                <i data-lucide="file-text"></i>
-              </div>
+              <div class="stat-icon total"><i data-lucide="file-text"></i></div>
               <div class="stat-info">
                 <h3 id="totalReports">0</h3>
                 <p>Total Reports</p>
               </div>
             </div>
-            
             <div class="stat-card">
-              <div class="stat-icon pending">
-                <i data-lucide="clock"></i>
-              </div>
+              <div class="stat-icon pending"><i data-lucide="clock"></i></div>
               <div class="stat-info">
                 <h3 id="pendingReports">0</h3>
                 <p>Pending</p>
               </div>
             </div>
-            
             <div class="stat-card">
-              <div class="stat-icon in-progress">
-                <i data-lucide="refresh-cw"></i>
-              </div>
+              <div class="stat-icon in-progress"><i data-lucide="refresh-cw"></i></div>
               <div class="stat-info">
                 <h3 id="progressReports">0</h3>
                 <p>In Progress</p>
               </div>
             </div>
-            
             <div class="stat-card">
-              <div class="stat-icon resolved">
-                <i data-lucide="check-circle"></i>
-              </div>
+              <div class="stat-icon resolved"><i data-lucide="check-circle"></i></div>
               <div class="stat-info">
                 <h3 id="resolvedReports">0</h3>
                 <p>Resolved</p>
@@ -89,7 +76,7 @@
           </div>
         </div>
 
-        <!-- All Complaints Table -->
+        <!-- Complaints Section (Cards layout) -->
         <div class="card complaints-card">
           <div class="card-header">
             <h3>📋 All Complaints</h3>
@@ -109,31 +96,30 @@
             </div>
           </div>
 
-          <div class="table-wrap">
-            <table id="complaintsTable" class="table">
-              <thead>
-                <tr>
-                  <th>Reference #</th>
-                  <th>Date</th>
-                  <th>Submitted By</th>
-                  <th>Contact</th>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th>Location</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="complaintsBody">
-                <tr>
-                  <td colspan="9" class="loading-text">Loading all complaints...</td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Complaints displayed as cards -->
+          <div id="complaintsContainer" class="complaints-grid">
+            <p class="loading-text">Loading complaints...</p>
           </div>
         </div>
       </section>
     </main>
+    <div id="complaintModal" class="modal hidden">
+      <div class="modal-content">
+        <button id="closeModal" class="close-btn">&times;</button>
+        <h2>Complaint Details</h2>
+        <div id="modalDetails"></div>
+        <div class="actions">
+          <label for="teamSelect">Assign team:</label>
+          <select id="teamSelect">
+            <option value="">Select Team</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="response">Response</option>
+            <option value="sk">SK</option>
+          </select>
+          <button id="assignBtn" class="primary-btn">Assign</button>
+        </div>
+      </div>
+    </div>
 
     <script src="js/admin.js"></script>
     <script>
@@ -143,6 +129,9 @@
       document.addEventListener('DOMContentLoaded', function() {
         loadAdminDashboard();
       });
+      function logout() {
+    window.location.href = 'index.html';
+}
     </script>
   </body>
 </html>

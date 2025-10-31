@@ -10,13 +10,11 @@ loginForm.addEventListener("submit", async (e) => {
 
   // Basic validation
   if (!username || !password) {
-    message.style.color = "red";
-    message.textContent = "⚠️ Please fill in both fields.";
+    showMessage("Please fill in both fields.", "error");
     return;
   }
 
-  message.style.color = "#555";
-  message.textContent = "⏳ Validating...";
+  showMessage("Validating credentials...", "info");
 
   try {
     const res = await fetch("/api/login", {
@@ -27,31 +25,33 @@ loginForm.addEventListener("submit", async (e) => {
 
     // Handle non-JSON or server errors gracefully
     if (!res.ok) {
-      message.style.color = "red";
-      message.textContent = "⚠️ Server error. Please try again.";
+      showMessage("Server error. Please try again.", "error");
       return;
     }
 
     const data = await res.json();
 
     if (data.success) {
-      message.style.color = "green";
-      message.textContent = "✅ Login successful! Redirecting...";
+      showMessage("Login successful! Redirecting...", "success");
 
       setTimeout(() => {
         if (data.role === "admin") {
           window.location.href = "admin-dashboard.html";
+        } else if (data.role === "maintenance") {
+          window.location.href = "maintenance-dashboard.html";
+        } else if (data.role === "sk") {
+          window.location.href = "sk-dashboard.html";
+        } else if (data.role === "response") {
+          window.location.href = "response-dashboard.html";
         } else {
           window.location.href = "user-dashboard.html";
         }
       }, 1200);
     } else {
-      message.style.color = "red";
-      message.textContent = data.message || "❌ Invalid username or password.";
+      showMessage(data.message || "Invalid username or password.", "error");
     }
   } catch (error) {
-    message.style.color = "red";
-    message.textContent = "⚠️ Connection error. Please check your network.";
+    showMessage("Connection error. Please check your network.", "error");
     console.error("Login error:", error);
   }
 });
@@ -67,4 +67,31 @@ if (togglePassword && passwordInput) {
     togglePassword.setAttribute("data-lucide", isHidden ? "eye-off" : "eye");
     lucide.createIcons(); // refresh icon
   });
+}
+
+// Function to show messages with proper styling
+function showMessage(text, type = 'info') {
+  message.textContent = text;
+  message.className = ''; // Clear previous classes
+  message.classList.add(type);
+  
+  
+  const iconName = {
+    'success': 'check-circle',
+    'error': 'alert-circle', 
+    'info': 'info',
+    'warning': 'alert-triangle'
+  }[type] || 'info';
+  
+  // Update icon if using the with-icon version
+  if (message.classList.contains('with-icon')) {
+    const iconEl = message.querySelector('.message-icon');
+    const contentEl = message.querySelector('.message-content');
+    if (iconEl && contentEl) {
+      iconEl.setAttribute('data-lucide', iconName);
+      contentEl.textContent = text;
+      lucide.createIcons();
+    }
+  }
+  
 }

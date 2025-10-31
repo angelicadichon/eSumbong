@@ -1,41 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <title>eSumbong Login</title>
     <link rel="stylesheet" href="css/login.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
-  </head>
-  <body>
-    <div class="login-container">
-      <h2>Welcome to <span>eSumbong</span></h2>
-      <p class="subtitle">Please log in to continue</p>
-      <p id="message"></p>
-
-      <form id="loginForm">
-        <div class="input-group">
-          <i data-lucide="user" class="input-icon"></i>
-          <input type="text" id="username" placeholder="Username" required />
+</head>
+<body>
+    <div class="login-wrapper">
+        <!-- Side Image Section - FULL BACKGROUND -->
+        <div class="login-side">
+            
         </div>
+        
+        <!-- Login Form Section -->
+        <div class="login-container">
+            <h2>Welcome!</h2>
+            <p class="subtitle">Log in to your eSumbong account</p>
+            <p id="message"></p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <i data-lucide="user" class="input-icon"></i>
+                    <input type="text" id="username" placeholder="@username" required />
+                </div>
 
-        <div class="input-group">
-          <i data-lucide="lock" class="input-icon"></i>
-          <input
-            type="password"
-            id="password"
-            placeholder="Password"
-            required
-          />
-          <i data-lucide="eye" id="togglePassword" class="eye-icon"></i>
+                <div class="input-group">
+                    <i data-lucide="lock" class="input-icon"></i>
+                    <input type="password" id="password" placeholder="Password" required />
+                    <i data-lucide="eye" id="togglePassword" class="eye-icon"></i>
+                </div>
+                <button type="submit">LOGIN</button>
+            </form>
         </div>
-
-        <button type="submit">Login</button>
-      </form>
     </div>
 
     <script src="js/login.js"></script>
     <script>
-      lucide.createIcons();
+        lucide.createIcons();
     </script>
-  </body>
+</body>
 </html>

@@ -23,8 +23,12 @@ async function loadDashboardData() {
 // Update analytics cards
 function updateAnalytics(complaints) {
     const total = complaints.length;
-    const pending = complaints.filter(c => c.status === 'pending').length;
-    const inProgress = complaints.filter(c => c.status === 'in-progress').length;
+    
+    const pending = complaints.filter(c => !c.assigned_team && c.status !== 'resolved').length;
+    const inProgress = complaints.filter(c => 
+        c.assigned_team && c.assigned_team.trim() !== '' && c.status !== 'resolved'
+    ).length;
+    
     const resolved = complaints.filter(c => c.status === 'resolved').length;
 
     document.getElementById('totalReports').textContent = total;
@@ -33,26 +37,43 @@ function updateAnalytics(complaints) {
     document.getElementById('resolvedReports').textContent = resolved;
 }
 
-// Populate complaints table
 function populateComplaintsTable(complaints) {
     const tbody = document.getElementById('complaintsBody');
-    
+
     if (complaints.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-text">No complaints found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-text">No complaints found</td></tr>';
         return;
     }
 
     tbody.innerHTML = complaints.map(complaint => `
         <tr>
-            <td><strong>${complaint.refNumber}</strong></td>
+            <td><strong>${complaint.id}</strong></td>
             <td>${formatDate(complaint.created_at)}</td>
             <td>${complaint.category || 'N/A'}</td>
             <td>${complaint.description || 'No description'}</td>
             <td><span class="status ${complaint.status || 'pending'}">${getStatusText(complaint.status)}</span></td>
             <td>${complaint.location || 'N/A'}</td>
+            <td>
+                ${renderFile(complaint.file)}
+            </td>
         </tr>
     `).join('');
 }
+
+// Helper to render image or file link
+function renderFile(filePath) {
+    console.log("Rendering file:", filePath); // 👀 for debugging
+    if (!filePath) return '<em>No file</em>';
+  
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
+    if (isImage) {
+      return `<img src="${filePath}" alt="Report Photo" class="complaint-img" style="max-width: 200px; border-radius: 8px;">`;
+    } else {
+      return `<a href="${filePath}" target="_blank" class="file-link">📎 View File</a>`;
+    }
+  }
+  
+
 
 // Format date
 function formatDate(dateString) {
@@ -80,7 +101,6 @@ function showError(message) {
     tbody.innerHTML = `<tr><td colspan="6" style="color: red; text-align: center;">${message}</td></tr>`;
 }
 
-// Shared JS for user pages: active nav highlighting, search filter, logout
 document.addEventListener('DOMContentLoaded', function() {
     // Highlight the active nav item based on current file
     try {
@@ -125,10 +145,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.querySelectorAll('.star-btn')[i].textContent = '★';
             }
             document.getElementById('fbResponse')?.classList.remove('success');
-            document.getElementById('fbResponse')?.textContent = '';
+            document.getElementById('fbResponse') && (document.getElementById('fbResponse').textContent = '');
             (document.getElementById('feedbackText') || {}).dataset.rating = val;
         });
     });
+
+    // Load dashboard data when page loads
+    loadDashboardData();
 });
 
 // Helper: filter rows in complaints table

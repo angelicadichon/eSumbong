@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SK Dashboard | eSumbong</title>
+  <link rel="stylesheet" href="css/sk.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <i data-lucide="youth"></i>
+      <h2>Sangguniang Kabataan</h2>
+    </div>
+    <nav>
+      <ul>
+        <li class="nav-item active"><a href="maintenance-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li class="nav-item logout-btn"><a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-header">
+      <h1>SK Dashboard</h1>
+    </header>
+
+    <div class="card complaints-card">
+      <div class="card-header">
+        <h3>🧾 My Assigned Complaints</h3>
+        <input type="text" id="tableSearch" placeholder="Search complaints..." class="search-box" />
+      </div>
+
+      <div class="complaints-grid" id="complaintsGrid">
+        <div class="loading-text">Loading complaints...</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Update Modal (For complaints without updates) -->
+  <div id="updateModal" class="modal">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>Maintenance Update</h2>
+        <button id="closeModal" class="modal-close" title="Close">✕</button>
+      </header>
+
+      <form id="updateForm">
+        <div class="modal-body">
+          <div class="complaint-details">
+            <h3>Complaint Details</h3>
+            <p><strong>ID:</strong> <span id="modalComplaintId">-</span></p>
+            <p><strong>Category:</strong> <span id="modalCategory">-</span></p>
+            <p><strong>Description:</strong> <span id="modalDescription">-</span></p>
+            <p><strong>Location:</strong> <span id="modalLocation">-</span></p>
+            <p><strong>Status:</strong> <span id="modalStatus">-</span></p>
+            
+            <div class="original-file-display">
+              <label><strong>Original Complaint File:</strong></label>
+              <div id="modalOriginalFile" class="file-container">
+                <!-- Original file will be displayed here -->
+              </div>
+            </div>
+          </div>
+
+          <div class="update-section">
+            <h3>Update Complaint</h3>
+            <label for="teamNotes">Team Notes *</label>
+            <textarea id="teamNotes" name="team_notes" rows="4" placeholder="Describe the work done..." required></textarea>
+
+            <label for="afterPhoto">After Photo (optional)</label>
+            <input id="afterPhoto" name="after_photo" type="file" accept="image/*,application/pdf" />
+
+            <p class="hint">You can attach an image (jpg/png) or PDF. Max 5MB.</p>
+          </div>
+        </div>
+
+        <footer class="modal-actions">
+          <button type="button" id="closeModalBtn" class="btn secondary">Cancel</button>
+          <button type="submit" class="btn primary">Submit Update</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Modal (For complaints with existing updates) -->
+  <div id="viewModal" class="modal">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>Complaint Details</h2>
+        <button id="closeViewModal" class="modal-close" title="Close">✕</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="complaint-details">
+          <h3>Complaint Information</h3>
+          <p><strong>ID:</strong> <span id="viewComplaintId">-</span></p>
+          <p><strong>Category:</strong> <span id="viewCategory">-</span></p>
+          <p><strong>Description:</strong> <span id="viewDescription">-</span></p>
+          <p><strong>Location:</strong> <span id="viewLocation">-</span></p>
+          <p><strong>Status:</strong> <span id="viewStatus">-</span></p>
+          
+          <div class="original-file-display">
+            <label><strong>Original Complaint File:</strong></label>
+            <div id="viewOriginalFile" class="file-container">
+              <!-- Original file will be displayed here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="update-details">
+          <h3>Maintenance Update</h3>
+          <div class="team-notes-display">
+            <label><strong>Team Notes:</strong></label>
+            <div class="notes-content" id="viewTeamNotes">-</div>
+          </div>
+          
+          <div class="after-photo-display">
+            <label><strong>After Photo:</strong></label>
+            <div id="viewAfterPhoto" class="file-container">
+              <!-- After photo will be displayed here -->
+            </div>
+          </div>
+          
+          <div class="update-info">
+            <p><strong>Updated on:</strong> <span id="viewUpdatedAt">-</span></p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-actions">
+        <button type="button" id="closeViewModalBtn" class="btn primary">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="js/sk.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
