@@ -1,141 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Resident Dashboard | eSumbong</title>
-    <link rel="stylesheet" href="css/user.css" />
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard | eSumbong</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="css/user-dashboard.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
     <aside class="sidebar">
-      <div class="sidebar-header">
-        <i data-lucide="home"></i>
-        <h2>eSumbong</h2>
-      </div>
-      <nav>
-        <ul>
-          <li data-link="user-dashboard.html" class="nav-item active">
-            <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
-          </li>
-          <li data-link="submit-report.html" class="nav-item">
-            <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
-          </li>
-          <li data-link="notifications.html" class="nav-item">
-            <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
-          </li>
-          <li data-link="feedbacks.html" class="nav-item">
-            <a href="feedbacks.html"><i data-lucide="star"></i> Feedback</a>
-          </li>
-          <li class="nav-item logout-btn">
-            <a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
-          </li>
-        </ul>
-      </nav>
+        <div class="sidebar-header">
+            <h2>eSumbong</h2>
+        </div>
+        <nav>
+            <ul>
+              <li data-link="user-dashboard.html" class="nav-item active">
+                <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+              </li>
+              <li data-link="admin-reports.html" class="nav-item ">
+                <a href="myreports.html"><i data-lucide="file-text" ></i> My Reports</a>
+              </li>
+              <li data-link="submit-report.html" class="nav-item">
+                <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
+              </li>
+              <li data-link="notifications.html" class="nav-item">
+                <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
+              </li>
+              <li data-link="feedbacks.html" class="nav-item">
+                <a href="feedbacks.html"><i data-lucide="star"></i> Feedback</a>
+              </li>
+              <li class="nav-item logout-btn">
+                <a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+              </li>
+            </ul>
+          </nav>
     </aside>
 
     <main class="main-content">
-      <header class="top-header">
-        <h1>Resident Dashboard</h1>
-        <div class="header-actions">
-        </div>
-      </header>
-
-      <section class="page-content dashboard-page">
-        <!-- Analytics Cards -->
-        <div class="analytics-section">
-          <h2>Report Analytics</h2>
-          <div class="cards-row">
-            <div class="stat-card">
-              <div class="stat-icon total">
-                <i data-lucide="file-text"></i>
-              </div>
-              <div class="stat-info">
-                <h3 id="totalReports">0</h3>
-                <p>Total Reports</p>
-              </div>
-            </div>
+        <header class="top-header">
+            <h1>Reports Overview</h1>
             
-            <div class="stat-card">
-              <div class="stat-icon pending">
-                <i data-lucide="clock"></i>
-              </div>
-              <div class="stat-info">
-                <h3 id="pendingReports">0</h3>
-                <p>Pending</p>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon in-progress">
-                <i data-lucide="refresh-cw"></i>
-              </div>
-              <div class="stat-info">
-                <h3 id="progressReports">0</h3>
-                <p>In Progress</p>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon resolved">
-                <i data-lucide="check-circle"></i>
-              </div>
-              <div class="stat-info">
-                <h3 id="resolvedReports">0</h3>
-                <p>Resolved</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        </header>
 
-        <!-- Complaints Table -->
-        <div class="card complaints-card">
-          <div class="card-header">
-            <h3>📋 My Complaints</h3>
-            <input
-              type="text"
-              id="tableSearch"
-              placeholder="Search complaints..."
-              class="search-box"
-            />
-          </div>
+        <section class="page-content">
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalReports">0</div>
+                    <div class="stat-label">Total Reports</div>
+                </div>
+                <div class="stat-item pending">
+                    <div class="stat-number" id="pendingReports">0</div>
+                    <div class="stat-label">Pending Reports</div>
+                </div>
+                <div class="stat-item in-progress">
+                    <div class="stat-number" id="inProgressReports">0</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-item resolved">
+                    <div class="stat-number" id="resolvedReports">0</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
 
-          <div class="table-wrap">
-            <table id="complaintsTable" class="table">
-              <thead>
-                <tr>
-                  <th>Reference #</th>
-                  <th>Date</th>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                  <th>Location</th>
-                  <th>Attachment</th>
-                </tr>
-              </thead>
-              <tbody id="complaintsBody">
-                <!-- Data will be loaded dynamically -->
-                <tr>
-                  <td colspan="6" class="loading-text">Loading complaints...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+            <!-- Charts Container -->
+            <div class="charts-container">
+                <!-- Category Distribution Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Reports by Category</h3>
+                        <div class="chart-actions">
+                            <button class="chart-btn" onclick="downloadChart('categoryChart')">
+                                <i data-lucide="download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Team Assignments Over Time -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Team Assignments by Month</h3>
+                        <div class="chart-actions">
+                            <button class="chart-btn" onclick="downloadChart('teamChart')">
+                                <i data-lucide="download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="teamChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Charts Row -->
+            <div class="charts-container">
+                <!-- Status Distribution -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Status Distribution</h3>
+                        <div class="chart-actions">
+                            <button class="chart-btn" onclick="downloadChart('statusChart')">
+                                <i data-lucide="download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Monthly Trend -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Monthly Report Trend</h3>
+                        <div class="chart-actions">
+                            <button class="chart-btn" onclick="downloadChart('trendChart')">
+                                <i data-lucide="download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <script src="js/user.js"></script>
-    <script>
-      lucide.createIcons();
-      
-      // Load dashboard data when page loads
-      document.addEventListener('DOMContentLoaded', function() {
-        loadDashboardData();
-      });
-      function logout() {
-    window.location.href = 'index.html';
-}
-    </script>
-  </body>
+    <script src="js/reports.js"></script>
+</body>
 </html>

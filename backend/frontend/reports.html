@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>All Reports | eSumbong</title>
+    <link rel="stylesheet" href="css/admin.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>eSumbong</h2>
+      </div>
+      <nav>
+        <ul>
+          <li data-link="admin-dashboard.html" class="nav-item">
+            <a href="admin-dashboard.html"><i data-lucide="layout-dashboard" ></i> Dashboard</a>
+          </li>
+          <li data-link="admin-reports.html" class="nav-item active">
+            <a href="reports.html"><i data-lucide="file-text" ></i> All Reports</a>
+          </li>
+          <li data-link="admin-residents.html" class="nav-item">
+            <a href="residents.html"><i data-lucide="users" ></i> Residents</a>
+          </li>
+          <li data-link="admin-settings.html" class="nav-item">
+            <a href="profile.html"><i data-lucide="settings" ></i> Profile</a>
+          </li>
+          <li class="nav-item logout-btn">
+            <a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1>Reports and Complaints</h1>
+        
+      </header>
+
+      <section class="page-content dashboard-page">
+        <!-- Analytics Cards -->
+        <div class="analytics-section">
+          <h2>Reports Overview</h2>
+          <div class="cards-row">
+            <div class="stat-card">
+              <div class="stat-icon total"><i data-lucide="file-text"></i></div>
+              <div class="stat-info">
+                <h3 id="totalReports">0</h3>
+                <p>Total Reports</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon pending"><i data-lucide="clock"></i></div>
+              <div class="stat-info">
+                <h3 id="pendingReports">0</h3>
+                <p>Pending</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon in-progress"><i data-lucide="refresh-cw"></i></div>
+              <div class="stat-info">
+                <h3 id="progressReports">0</h3>
+                <p>In Progress</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon resolved"><i data-lucide="check-circle"></i></div>
+              <div class="stat-info">
+                <h3 id="resolvedReports">0</h3>
+                <p>Resolved</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complaints Section (Cards layout) -->
+        <div class="card complaints-card">
+          <div class="card-header">
+            <h3>All Complaints</h3>
+            <div class="header-actions">
+              <input
+                type="text"
+                id="tableSearch"
+                placeholder="Search complaints..."
+                class="search-box"
+              />
+              <select id="statusFilter" class="status-filter">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Complaints displayed as cards -->
+          <div id="complaintsContainer" class="complaints-grid">
+            <p class="loading-text">Loading complaints...</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="complaintModal" class="modal hidden">
+      <div class="modal-content">
+        <button id="closeModal" class="close-btn">&times;</button>
+        <h2>Complaint Details</h2>
+        <div id="modalDetails"></div>
+        <div class="actions">
+          <label for="teamSelect">Assign team:</label>
+          <select id="teamSelect">
+            <option value="">Select Team</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="response">Response</option>
+            <option value="sk">SK</option>
+          </select>
+          <button id="assignBtn" class="primary-btn">Assign</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+      lucide.createIcons();
+      
+      // Load admin dashboard data when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        loadAdminDashboard();
+      });
+      function logout() {
+    window.location.href = 'index.html';
+}
+    </script>
+  </body>
+</html>

@@ -1,98 +1,114 @@
-// Submit Report functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const complaintForm = document.getElementById('complaintForm');
-    
+document.addEventListener("DOMContentLoaded", function () {
+    const complaintForm = document.getElementById("complaintForm");
+  
     if (complaintForm) {
-        complaintForm.addEventListener('submit', handleFormSubmit);
+      // Set the username in the hidden field when page loads
+      const username = localStorage.getItem("username");
+      const usernameInput = document.getElementById("usernameInput");
+      
+      console.log("Page loaded - Username from localStorage:", username);
+      
+      if (usernameInput && username) {
+        usernameInput.value = username;
+        console.log("Set username in hidden field:", username);
+      } else {
+        console.error("Username not found in localStorage or hidden field missing");
+      }
+  
+      complaintForm.addEventListener("submit", handleFormSubmit);
     }
-});
-
-async function handleFormSubmit(e) {
+  });
+  
+  async function handleFormSubmit(e) {
     e.preventDefault();
-    console.log('🔄 Form submission started');
-    
-    const submitBtn = document.getElementById('submitBtn');
-    const responseEl = document.getElementById('response');
+    console.log("Form submission started");
+  
+    const submitBtn = document.getElementById("submitBtn");
+    const responseEl = document.getElementById("response");
     const formData = new FormData(this);
-    
-    // Log form data for debugging
+  
+    // Debug: Log all FormData entries before validation
+    console.log("All FormData entries:");
     for (let [key, value] of formData.entries()) {
-        console.log(`📋 ${key}:`, value);
+      console.log(`${key}:`, value);
     }
-    
-    // Validate file size
-    const file = formData.get('file');
+  
+    // ✅ Validate file size (max 5MB)
+    const file = formData.get("file");
     if (file && file.size > 5 * 1024 * 1024) {
-        showErrorMessage(responseEl, '❌ File size must be less than 5MB');
-        return;
+      showErrorMessage(responseEl, "File size must be less than 5MB");
+      return;
     }
-    
-    // Show loading state
+  
+    // ✅ Validate that username is present
+    const username = formData.get("username");
+    if (!username) {
+      showErrorMessage(responseEl, "Error: No user session found. Please log in again.");
+      return;
+    }
+  
+    // ✅ Show loading state
     setButtonLoadingState(submitBtn, true);
     clearResponseMessage(responseEl);
-    
+  
     try {
-        console.log('📤 Sending request to /api/complaints');
-        const response = await fetch('/api/complaints', {
-            method: 'POST',
-            body: formData
-        });
-        
-        console.log('📥 Received response, status:', response.status);
-        
-        let result;
-        try {
-            result = await response.json();
-            console.log('📄 Response data:', result);
-        } catch (parseError) {
-            console.error('❌ Failed to parse JSON response:', parseError);
-            throw new Error('Invalid server response');
-        }
-        
-        if (response.ok && result.success) {
-            showSuccessMessage(responseEl, `✅ ${result.message} Reference: ${result.reference}`);
-            this.reset();
-            lucide.createIcons();
-        } else {
-            throw new Error(result.message || `Server error: ${response.status}`);
-        }
+      const response = await fetch("/api/complaints", {
+        method: "POST",
+        body: formData,
+      });
+  
+      const result = await response.json();
+      console.log("Server response:", result);
+  
+      if (response.ok && result.success) {
+        showSuccessMessage(responseEl, result.message);
+        this.reset();
+        lucide.createIcons();
+  
+        // Redirect after 3 seconds
+        setTimeout(() => {
+          window.location.href = "user-dashboard.html";
+        }, 3000);
+      } else {
+        throw new Error(result.message || `Server error: ${response.status}`);
+      }
     } catch (error) {
-        console.error('❌ Form submission error:', error);
-        showErrorMessage(responseEl, `❌ Error: ${error.message}`);
+      console.error("Form submission error:", error);
+      showErrorMessage(responseEl, `Error: ${error.message}`);
     } finally {
-        setButtonLoadingState(submitBtn, false);
+      setButtonLoadingState(submitBtn, false);
     }
-}
-
-// ... rest of the functions remain the same
-function setButtonLoadingState(button, isLoading) {
+  }
+  
+  /* ---------- Utility Functions ---------- */
+  function setButtonLoadingState(button, isLoading) {
     if (!button) return;
-    
+  
     button.disabled = isLoading;
-    const span = button.querySelector('span');
-    const spinner = button.querySelector('.loading-spinner');
-    
-    if (span) span.style.display = isLoading ? 'none' : 'block';
-    if (spinner) spinner.style.display = isLoading ? 'flex' : 'none';
-}
-
-function clearResponseMessage(responseEl) {
+    const span = button.querySelector("span");
+    const spinner = button.querySelector(".loading-spinner");
+  
+    if (span) span.style.display = isLoading ? "none" : "block";
+    if (spinner) spinner.style.display = isLoading ? "flex" : "none";
+  }
+  
+  function clearResponseMessage(responseEl) {
     if (responseEl) {
-        responseEl.textContent = '';
-        responseEl.className = 'response-text';
+      responseEl.textContent = "";
+      responseEl.className = "response-text";
     }
-}
-
-function showSuccessMessage(responseEl, message) {
+  }
+  
+  function showSuccessMessage(responseEl, message) {
     if (responseEl) {
-        responseEl.textContent = message;
-        responseEl.className = 'response-text success';
+      responseEl.textContent = message;
+      responseEl.className = "response-text success";
     }
-}
-
-function showErrorMessage(responseEl, message) {
+  }
+  
+  function showErrorMessage(responseEl, message) {
     if (responseEl) {
-        responseEl.textContent = message;
-        responseEl.className = 'response-text error';
+      responseEl.textContent = message;
+      responseEl.className = "response-text error";
     }
-}
+  }

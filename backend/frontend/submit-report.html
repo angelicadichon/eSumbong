@@ -3,20 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <title>Submit Report | eSumbong</title>
-    <link rel="stylesheet" href="css/user.css" />
+    <link rel="stylesheet" href="css/submit-report.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
   </head>
   <body>
     <aside class="sidebar">
       <div class="sidebar-header">
-        <i data-lucide="home"></i>
         <h2>eSumbong</h2>
       </div>
       <nav>
         <ul>
           <li data-link="user-dashboard.html" class="nav-item">
             <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li data-link="admin-reports.html" class="nav-item">
+            <a href="myreports.html"><i data-lucide="file-text" ></i> My Reports</a>
           </li>
           <li data-link="submit-report.html" class="nav-item active">
             <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
@@ -36,64 +38,96 @@
 
     <main class="main-content">
       <header class="top-header">
-        <h1>Submit a Complaint / Request</h1>
       </header>
 
       <section class="page-content form-page">
-        <div class="card form-card">
-          <form id="complaintForm" enctype="multipart/form-data">
-            <label>
-              Name
-              <input type="text" name="name" placeholder="Your full name" required />
-            </label>
-
-            <label>
-              Contact Information
-              <input type="text" name="contact" placeholder="Phone number or email" required />
-            </label>
-
-            <label>
-              Category
-              <select name="category" required>
-                <option value="">Select Category</option>
-                <option value="Sanitation">Sanitation</option>
-                <option value="Infrastructure">Infrastructure</option>
-                <option value="Public Lighting">Public Lighting</option>
-                <option value="Safety">Safety</option>
-                <option value="SK Concerns">SK Concerns</option>
-                <option value="Garbage">Garbage</option>
-                <option value="Other">Other</option>
-              </select>
-            </label>
-
-            <label>
-              Description
-              <textarea name="description" placeholder="Describe the issue in detail..." required rows="4"></textarea>
-            </label>
-
-            <label>
-              Location
-              <input type="text" name="location" placeholder="Exact location or address" required />
-            </label>
-
-            <label>
-              Attachment (optional)
-              <input type="file" name="file" accept="image/*,.pdf,.doc,.docx" />
-              <small>Supported files: images, PDF, Word documents</small>
-            </label>
-
-            <div class="form-actions">
-              <button type="submit" class="primary-btn" id="submitBtn">
-                <span>Submit Report</span>
-                <div class="loading-spinner" style="display: none;">Submitting...</div>
-              </button>
-              <a class="secondary-btn" href="user-dashboard.html">Back to Dashboard</a>
-            </div>
-            <p id="response" class="response-text"></p>
-          </form>
+  <div class="card form-card">
+    <h2>
+      <i data-lucide="file-plus"></i>
+      Submit New Report
+    </h2>
+    <form id="complaintForm" enctype="multipart/form-data">
+      <label>
+        <div class="input-wrapper">
+          <input type="hidden" id="usernameInput" name="username">
         </div>
-      </section>
-    </main>
+      </label>
+      <label>
+        Name
+        <div class="input-wrapper">
+          <input type="text" name="name" placeholder="Your full name" required />
+          <i data-lucide="user" class="input-icon"></i>
+        </div>
+      </label>
+
+      <label>
+        Contact Information
+        <div class="input-wrapper">
+          <input type="text" name="contact" placeholder="Phone number or email" required />
+          <i data-lucide="phone" class="input-icon"></i>
+        </div>
+      </label>
+
+      <label>
+        Category
+        <div class="input-wrapper">
+          <select name="category" required>
+            <option value="">Select Category</option>
+            <option value="Sanitation">Sanitation</option>
+            <option value="Infrastructure">Infrastructure</option>
+            <option value="Public Lighting">Public Lighting</option>
+            <option value="Safety">Safety</option>
+            <option value="SK Concerns">SK Concerns</option>
+            <option value="Garbage">Garbage</option>
+            <option value="Other">Other</option>
+          </select>
+          <i data-lucide="list" class="input-icon"></i>
+        </div>
+      </label>
+
+      <label>
+        Description
+        <div class="input-wrapper">
+          <textarea name="description" placeholder="Describe the issue in detail..." required rows="3"></textarea>
+          <i data-lucide="message-circle" class="input-icon"></i>
+        </div>
+      </label>
+
+      <label>
+        Location
+        <div class="input-wrapper">
+          <input type="text" name="location" placeholder="Exact location or address" required />
+          <i data-lucide="map-pin" class="input-icon"></i>
+        </div>
+      </label>
+
+      <label>
+        Attachment (optional)
+        <div class="input-wrapper">
+          <input type="file" name="file" accept="image/*,.pdf,.doc,.docx" />
+          <i data-lucide="paperclip" class="input-icon"></i>
+        </div>
+        <small>Supported files: images, PDF, Word documents</small>
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" class="primary-btn" id="submitBtn">
+          <i data-lucide="send" class="btn-icon"></i>
+          <span>Submit Report</span>
+          <div class="loading-spinner" style="display: none;">
+            <i data-lucide="loader-2" class="spinner-icon"></i>
+            Submitting...
+          </div>
+        </button>
+        <a class="secondary-btn" href="user-dashboard.html">
+          <i data-lucide="arrow-left" class="btn-icon"></i>
+          Back to Dashboard
+        </a>
+      </div>
+      <p id="response" class="response-text"></p>
+    </form>
+  </div>
+</section>
 
     <script src="js/user.js"></script>
     <script src="js/submit-report.js"></script>

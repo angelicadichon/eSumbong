@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My Reports | eSumbong</title>
+    <link rel="stylesheet" href="css/myreports.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>eSumbong</h2>
+      </div>
+      <nav>
+        <ul>
+          <li data-link="user-dashboard.html" class="nav-item ">
+            <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li data-link="admin-reports.html" class="nav-item active">
+            <a href="myreports.html"><i data-lucide="file-text" ></i> My Reports</a>
+          </li>
+          <li data-link="submit-report.html" class="nav-item">
+            <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
+          </li>
+          <li data-link="notifications.html" class="nav-item">
+            <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
+          </li>
+          <li data-link="feedbacks.html" class="nav-item">
+            <a href="feedbacks.html"><i data-lucide="star"></i> Feedback</a>
+          </li>
+          <li class="nav-item logout-btn">
+            <a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1>Resident Dashboard</h1>
+        <div class="header-actions">
+        </div>
+      </header>
+
+      <section class="page-content dashboard-page">
+        <!-- Analytics Cards -->
+        <div class="analytics-section">
+          <h2>Report Analytics</h2>
+          <div class="cards-row">
+            <div class="stat-card">
+              <div class="stat-icon total">
+                <i data-lucide="file-text"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="totalReports">0</h3>
+                <p>Total Reports</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon pending">
+                <i data-lucide="clock"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="pendingReports">0</h3>
+                <p>Pending</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon in-progress">
+                <i data-lucide="refresh-cw"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="progressReports">0</h3>
+                <p>In Progress</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon resolved">
+                <i data-lucide="check-circle"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="resolvedReports">0</h3>
+                <p>Resolved</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section class="complaints-section">
+        <div class="card-header">
+          <h3>My Submitted Complaints</h3>
+          <input type="text" id="cardSearch" placeholder="Search complaints..." class="search-box" />
+        </div>
+
+        <div class="complaint-cards" id="complaintsContainer">
+          <p class="loading-text">Loading complaints...</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Update your modal HTML -->
+<div id="complaintModal" class="modal">
+  <div class="modal-content">
+    <button class="close">
+      <i data-lucide="x"></i>
+    </button>
+    <div class="modal-body">
+      <div id="user-complaint">
+        <h2 id="modalCategory"></h2>
+        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+        <p><strong>Date:</strong> <span id="modalDate"></span></p>
+        <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+        <p><strong>Description:</strong> <span id="modalDescription"></span></p>
+        <div id="beforePhotoSection">
+          <p><strong>Attachment:</strong></p>
+          <img id="modalAttachment" src="" alt="Before Photo" class="modal-image" />
+        </div>
+      </div>
+      <div id="resolvedSection" style="display:none;">
+        <p><strong>After Photo:</strong></p>
+        <img id="modalAfterPhoto" src="" alt="After Photo" class="modal-image" />
+        <p><strong>Team Notes:</strong></p>
+        <p id="modalTeamNotes"></p>
+      </div>
+    </div>
+  </div>
+</div>
+    <script src="js/user.js"></script>
+    <script>
+      lucide.createIcons();
+      
+      // Load dashboard data when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+      });
+      function logout() {
+    window.location.href = 'index.html';
+}
+    </script>
+  </body>
+</html>

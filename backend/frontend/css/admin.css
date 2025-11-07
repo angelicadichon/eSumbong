@@ -334,6 +334,22 @@ body {
 .complaint-card p strong {
   color: #2c3e50;
 }
+.complaint-card.pending {
+  border-left: 4px solid #e0a800;
+  border-bottom: 4px solid #e0a800;
+  background: linear-gradient(135deg, #fffdf6 0%, #fff9e6 100%);
+}
+
+.complaint-card.in-progress {
+  border-left: 4px solid #138496;
+  background: linear-gradient(135deg, #f8fdff 0%, #f0f9ff 100%);
+}
+
+.complaint-card.resolved {
+  border-left: 4px solid #1e7e34;
+  border-bottom: 4px solid #1e7e34;
+  background: linear-gradient(135deg, #f8fff9 0%, #f0fff4 100%);
+}
 
 .loading-text {
   text-align: center;

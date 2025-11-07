@@ -1,14 +1,13 @@
 const loginForm = document.getElementById("loginForm");
 const message = document.getElementById("message");
 
-// Handle login form submission
+// login form submission
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
-  // Basic validation
   if (!username || !password) {
     showMessage("Please fill in both fields.", "error");
     return;
@@ -23,7 +22,6 @@ loginForm.addEventListener("submit", async (e) => {
       body: JSON.stringify({ username, password }),
     });
 
-    // Handle non-JSON or server errors gracefully
     if (!res.ok) {
       showMessage("Server error. Please try again.", "error");
       return;
@@ -34,17 +32,28 @@ loginForm.addEventListener("submit", async (e) => {
     if (data.success) {
       showMessage("Login successful! Redirecting...", "success");
 
+      // ✅ Store username and role for later use
+      localStorage.setItem("username", username);
+      localStorage.setItem("role", data.role);
+
+      console.log("Stored username:", username);
+
       setTimeout(() => {
-        if (data.role === "admin") {
-          window.location.href = "admin-dashboard.html";
-        } else if (data.role === "maintenance") {
-          window.location.href = "maintenance-dashboard.html";
-        } else if (data.role === "sk") {
-          window.location.href = "sk-dashboard.html";
-        } else if (data.role === "response") {
-          window.location.href = "response-dashboard.html";
-        } else {
-          window.location.href = "user-dashboard.html";
+        switch (data.role) {
+          case "admin":
+            window.location.href = "admin-dashboard.html";
+            break;
+          case "maintenance":
+            window.location.href = "maintenance-dashboard.html";
+            break;
+          case "sk":
+            window.location.href = "sk-dashboard.html";
+            break;
+          case "response":
+            window.location.href = "response-dashboard.html";
+            break;
+          default:
+            window.location.href = "user-dashboard.html";
         }
       }, 1200);
     } else {
@@ -57,6 +66,8 @@ loginForm.addEventListener("submit", async (e) => {
 });
 
 // Password visibility toggle
+lucide.createIcons();
+
 const togglePassword = document.getElementById("togglePassword");
 const passwordInput = document.getElementById("password");
 
@@ -64,34 +75,30 @@ if (togglePassword && passwordInput) {
   togglePassword.addEventListener("click", () => {
     const isHidden = passwordInput.type === "password";
     passwordInput.type = isHidden ? "text" : "password";
-    togglePassword.setAttribute("data-lucide", isHidden ? "eye-off" : "eye");
-    lucide.createIcons(); // refresh icon
+    togglePassword.setAttribute("data-lucide", isHidden ? "eye" : "eye-off");
+    lucide.createIcons();
   });
 }
 
-// Function to show messages with proper styling
-function showMessage(text, type = 'info') {
+function showMessage(text, type = "info") {
   message.textContent = text;
-  message.className = ''; // Clear previous classes
+  message.className = "";
   message.classList.add(type);
-  
-  
+
   const iconName = {
-    'success': 'check-circle',
-    'error': 'alert-circle', 
-    'info': 'info',
-    'warning': 'alert-triangle'
-  }[type] || 'info';
-  
-  // Update icon if using the with-icon version
-  if (message.classList.contains('with-icon')) {
-    const iconEl = message.querySelector('.message-icon');
-    const contentEl = message.querySelector('.message-content');
+    success: "check-circle",
+    error: "alert-circle",
+    info: "info",
+    warning: "alert-triangle",
+  }[type] || "info";
+
+  if (message.classList.contains("with-icon")) {
+    const iconEl = message.querySelector(".message-icon");
+    const contentEl = message.querySelector(".message-content");
     if (iconEl && contentEl) {
-      iconEl.setAttribute('data-lucide', iconName);
+      iconEl.setAttribute("data-lucide", iconName);
       contentEl.textContent = text;
       lucide.createIcons();
     }
   }
-  
 }

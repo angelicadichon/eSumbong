@@ -1,16 +1,36 @@
-// Dashboard functionality
 let allComplaints = [];
 
-// Load dashboard data
+// filter user dashboard information during login
 async function loadDashboardData() {
     try {
-        const response = await fetch('/api/complaints');
-        const result = await response.json();
+        const username = localStorage.getItem('username');
+        const role = localStorage.getItem('role');
+        
+        if (!username) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        console.log("Loading dashboard for:", { username, role });
+
+        const response = await fetch(`/api/complaints?username=${encodeURIComponent(username)}&role=${encodeURIComponent(role)}`);        const result = await response.json();
         
         if (result.success) {
             allComplaints = result.complaints;
+            console.log("All complaints fetched:", allComplaints);
+            
+            // Filter complaints by username to display only those complaint the logged in user submitted
+            if (role === 'resident') {
+                allComplaints = allComplaints.filter(complaint => {
+                    console.log("Comparing:", complaint.username, "with:", username);
+                    return complaint.username === username;
+                });
+                console.log("Filtered complaints for resident:", allComplaints);
+            }
+            
             updateAnalytics(allComplaints);
-            populateComplaintsTable(allComplaints);
+            populateComplaintCards(allComplaints);
+            setupModal();
         } else {
             showError('Failed to load complaints');
         }
@@ -20,15 +40,11 @@ async function loadDashboardData() {
     }
 }
 
-// Update analytics cards
+// get analytics information
 function updateAnalytics(complaints) {
     const total = complaints.length;
-    
-    const pending = complaints.filter(c => !c.assigned_team && c.status !== 'resolved').length;
-    const inProgress = complaints.filter(c => 
-        c.assigned_team && c.assigned_team.trim() !== '' && c.status !== 'resolved'
-    ).length;
-    
+    const pending = complaints.filter(c => c.status === 'pending').length;
+    const inProgress = complaints.filter(c => c.status === 'in-progress').length;
     const resolved = complaints.filter(c => c.status === 'resolved').length;
 
     document.getElementById('totalReports').textContent = total;
@@ -37,46 +53,105 @@ function updateAnalytics(complaints) {
     document.getElementById('resolvedReports').textContent = resolved;
 }
 
-function populateComplaintsTable(complaints) {
-    const tbody = document.getElementById('complaintsBody');
+// Populate complaint cards
+function populateComplaintCards(complaints) {
+    const container = document.getElementById('complaintsContainer');
 
     if (complaints.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="loading-text">No complaints found</td></tr>';
+        container.innerHTML = '<p class="loading-text">No complaints found</p>';
         return;
     }
 
-    tbody.innerHTML = complaints.map(complaint => `
-        <tr>
-            <td><strong>${complaint.id}</strong></td>
-            <td>${formatDate(complaint.created_at)}</td>
-            <td>${complaint.category || 'N/A'}</td>
-            <td>${complaint.description || 'No description'}</td>
-            <td><span class="status ${complaint.status || 'pending'}">${getStatusText(complaint.status)}</span></td>
-            <td>${complaint.location || 'N/A'}</td>
-            <td>
-                ${renderFile(complaint.file)}
-            </td>
-        </tr>
+    container.innerHTML = complaints.map(complaint => `
+    <div class="complaint-card ${complaint.status || 'pending'}" data-id="${complaint.id}">
+        <div class="card-category">${complaint.category || 'General'}</div>
+        <div class="card-description">${complaint.description || 'No description'}</div>
+        <div class="card-footer">
+            <span class="status ${complaint.status || 'pending'}">${getStatusText(complaint.status)}</span>
+            <span class="card-date">${formatDate(complaint.created_at)}</span>
+        </div>
+        <div class="card-actions">
+            <button class="view-btn" onclick="openComplaintModal('${complaint.id}')">View Details</button>
+        </div>
+    </div>
     `).join('');
 }
 
-// Helper to render image or file link
-function renderFile(filePath) {
-    console.log("Rendering file:", filePath); // 👀 for debugging
-    if (!filePath) return '<em>No file</em>';
-  
-    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath);
-    if (isImage) {
-      return `<img src="${filePath}" alt="Report Photo" class="complaint-img" style="max-width: 200px; border-radius: 8px;">`;
+// Open complaint modal
+function openComplaintModal(complaintId) {
+    const complaint = allComplaints.find(c => c.id == complaintId);
+    if (!complaint) return;
+    
+    const modal = document.getElementById('complaintModal');
+    const modalCategory = document.getElementById('modalCategory');
+    const modalStatus = document.getElementById('modalStatus');
+    const modalDate = document.getElementById('modalDate');
+    const modalLocation = document.getElementById('modalLocation');
+    const modalDescription = document.getElementById('modalDescription');
+    const modalAttachment = document.getElementById('modalAttachment');
+    const modalAfterPhoto = document.getElementById('modalAfterPhoto');
+    const modalTeamNotes = document.getElementById('modalTeamNotes');
+    const resolvedSection = document.getElementById('resolvedSection');
+    const beforePhotoSection = document.getElementById('beforePhotoSection');
+    
+    // Populate modal with complaint data
+    modalCategory.textContent = complaint.category || 'General Complaint';
+    modalStatus.textContent = getStatusText(complaint.status);
+    modalStatus.className = `status ${complaint.status || 'pending'}`;
+    modalDate.textContent = formatDate(complaint.created_at);
+    modalLocation.textContent = complaint.location || 'Not specified';
+    modalDescription.textContent = complaint.description || 'No description provided';
+    
+    // Handle attachment
+    if (complaint.file) {
+        modalAttachment.src = complaint.file;
+        modalAttachment.style.display = 'block';
+        beforePhotoSection.style.display = 'block';
     } else {
-      return `<a href="${filePath}" target="_blank" class="file-link">📎 View File</a>`;
+        modalAttachment.style.display = 'none';
+        beforePhotoSection.style.display = 'none';
     }
-  }
-  
+    
+    // Handle resolved complaints
+    if (complaint.status === 'resolved') {
+        resolvedSection.style.display = 'block';
+        modalAfterPhoto.src = complaint.after_photo || '';
+        modalTeamNotes.textContent = complaint.team_notes || 'No notes provided';
+    } else {
+        resolvedSection.style.display = 'none';
+    }
+    
+    // Show modal
+    modal.style.display = 'block';
+}
 
+// Setup modal functionality
+function setupModal() {
+    const modal = document.getElementById('complaintModal');
+    const closeBtn = document.querySelector('.close');
+    
+    if (!closeBtn) return;
+    
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            modal.style.display = 'none';
+        }
+    });
+}
 
-// Format date
+// Helper functions
 function formatDate(dateString) {
+    if (!dateString) return 'No date';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -85,7 +160,6 @@ function formatDate(dateString) {
     });
 }
 
-// Get status display text
 function getStatusText(status) {
     const statusMap = {
         'pending': 'Pending',
@@ -95,88 +169,19 @@ function getStatusText(status) {
     return statusMap[status] || 'Pending';
 }
 
-// Show error message
 function showError(message) {
-    const tbody = document.getElementById('complaintsBody');
-    tbody.innerHTML = `<tr><td colspan="6" style="color: red; text-align: center;">${message}</td></tr>`;
+    const container = document.getElementById('complaintsContainer');
+    container.innerHTML = `<p style="color: red; text-align: center;">${message}</p>`;
 }
 
+// Initialize dashboard when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // Highlight the active nav item based on current file
-    try {
-        const links = document.querySelectorAll('.sidebar nav ul li');
-        const path = (location.pathname.split('/').pop() || 'user-dashboard.html').toLowerCase();
-        links.forEach(li => {
-            const linkFile = li.getAttribute('data-link');
-            if (linkFile && linkFile.toLowerCase() === path) {
-                li.classList.add('active');
-            } else {
-                li.classList.remove('active');
-            }
-        });
-    } catch (e) {}
-
-    // Table search on dashboard
-    const tableSearch = document.getElementById('tableSearch');
-    if (tableSearch) {
-        tableSearch.addEventListener('input', function(e) {
-            filterTable(e.target.value);
-        });
-    }
-
-    // Global search (optional)
-    const globalSearch = document.getElementById('searchInput');
-    if (globalSearch) {
-        globalSearch.addEventListener('input', function(e) {
-            const t = document.getElementById('tableSearch');
-            if (t) {
-                t.value = e.target.value;
-                t.dispatchEvent(new Event('input'));
-            }
-        });
-    }
-
-    // Feedback star interactions
-    document.querySelectorAll('.star-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const val = Number(this.dataset.value || 0);
-            document.querySelectorAll('.star-btn').forEach(s => s.textContent = '☆');
-            for (let i = 0; i < val; i++) {
-                document.querySelectorAll('.star-btn')[i].textContent = '★';
-            }
-            document.getElementById('fbResponse')?.classList.remove('success');
-            document.getElementById('fbResponse') && (document.getElementById('fbResponse').textContent = '');
-            (document.getElementById('feedbackText') || {}).dataset.rating = val;
-        });
-    });
-
-    // Load dashboard data when page loads
     loadDashboardData();
 });
 
-// Helper: filter rows in complaints table
-function filterTable(query) {
-    const q = query.trim().toLowerCase();
-    const tbody = document.getElementById('complaintsBody');
-    if (!tbody) return;
-    
-    Array.from(tbody.rows).forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(q) ? '' : 'none';
-    });
-}
-
-// Logout redirect
+// Logout function
 function logout() {
-    // Clear session data here if needed
+    localStorage.removeItem('username');
+    localStorage.removeItem('role');
     window.location.href = 'index.html';
-}
-
-// Feedback submit
-function submitFeedback() {
-    const rating = (document.getElementById('feedbackText') || {}).dataset.rating || '0';
-    const comment = document.getElementById('feedbackText')?.value || '';
-    const resp = document.getElementById('fbResponse');
-    resp.textContent = `Thanks! You rated ${rating} star(s).`;
-    resp.classList.add('success');
 }
