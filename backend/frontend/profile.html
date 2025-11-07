@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profile | eSumbong</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/profilestyle.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <i data-lucide="home"></i>
+      <h2>eSumbong</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="admin-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li class="nav-item active"><a href="profile.html"><i data-lucide="user"></i> Profile</a></li>
+        <li><a href="admin-reports.html"><i data-lucide="file-text"></i> All Reports</a></li>
+        <li><a href="admin-residents.html"><i data-lucide="users"></i> Residents</a></li>
+        <li><a href="admin-settings.html"><i data-lucide="settings"></i> Settings</a></li>
+        <li class="logout-btn"><a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-header">
+      <h1>Profile</h1>
+    </header>
+
+    <section class="page-content">
+      <div class="card profile-card">
+        <div class="edit-toggle">
+          <button id="editToggleBtn" class="edit-btn">Edit Profile</button>
+        </div>
+
+        <div class="profile-header">
+          <div class="profile-pic-container">
+            <img id="profileImage" src="images/default-avatar.png" alt="Profile Picture" />
+            <label for="profileUpload" class="upload-btn">Change</label>
+            <input type="file" id="profileUpload" accept="image/*" hidden />
+          </div>
+          <div class="profile-info">
+            <h2 id="adminName">Admin Name</h2>
+            <p id="adminEmail">admin@esumbong.com</p>
+          </div>
+        </div>
+
+        <form id="profileForm" class="profile-form view-mode">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" value="admin123" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" value="admin@esumbong.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="role">Role</label>
+            <select id="role">
+              <option>Resident</option>
+              <option>SK</option>
+              <option>Maintenance</option>
+              <option>Response</option>
+              <option selected>Admin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" placeholder="Sitio, Barangay, Municipality" value="Sitio Upper, Brgy. Obo, Dalaguete" />
+            <p class="address-placeholder">Format: Sitio, Barangay, Municipality</p>
+          </div>
+          
+         
+          <div class="password-section" style="display: none;">
+            <h3 class="subheader">Change Password</h3>
+            <!-- Password Fields -->
+            <div class="password-fields">
+              <div class="form-group">
+                <label for="oldPassword">Old Password</label>
+                <input type="password" id="oldPassword" placeholder="Enter old password" />
+              </div>
+
+              <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password" />
+              </div>
+
+              <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password" />
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="primary-btn" style="display:none;">Save Changes</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  lucide.createIcons();
+
+  const profileForm = document.getElementById('profileForm');
+  const editToggleBtn = document.getElementById('editToggleBtn');
+  const saveBtn = profileForm.querySelector('button[type="submit"]');
+  const passwordSection = document.querySelector('.password-section');
+
+  let isEditMode = false;
+
+  editToggleBtn.addEventListener('click', () => {
+    isEditMode = !isEditMode;
+
+    document.querySelector('.profile-card').classList.toggle('edit-mode', isEditMode);
+
+    if (isEditMode) {
+      profileForm.classList.remove('view-mode');
+      editToggleBtn.textContent = 'Cancel';
+      saveBtn.style.display = 'inline-block';
+      passwordSection.style.display = 'block'; // ✅ show whole section
+    } else {
+      profileForm.classList.add('view-mode');
+      editToggleBtn.textContent = 'Edit Profile';
+      saveBtn.style.display = 'none';
+      passwordSection.style.display = 'none'; // ✅ hide again
+    }
+  });
+
+  // Preview uploaded image
+  document.getElementById('profileUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById('profileImage').src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function logout() {
+    window.location.href = 'index.html';
+  }
+</script>
+
+</body>
+</html>
