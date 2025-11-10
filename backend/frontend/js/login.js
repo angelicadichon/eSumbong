@@ -32,7 +32,6 @@ loginForm.addEventListener("submit", async (e) => {
     if (data.success) {
       showMessage("Login successful! Redirecting...", "success");
 
-      // ✅ Store username and role for later use
       localStorage.setItem("username", username);
       localStorage.setItem("role", data.role);
 

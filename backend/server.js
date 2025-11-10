@@ -52,11 +52,10 @@ const users = [
   { username: "maintenance", password: "xamarinmaintenance123", role: "maintenance" },
 ];
 
-// === LOGIN ROUTE ===
+// routing login
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
-  // Check predefined users
   const predefinedUser = users.find(
     (u) => u.username === username && u.password === password
   );
@@ -93,19 +92,19 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// === SUBMIT COMPLAINT (Fixed database insert) ===
+// handling complaints submission from the resident report form to the database
 app.post("/api/complaints", upload.single("file"), async (req, res) => {
-  console.log("📩 Received complaint submission");
+  console.log("Received complaint submission");
 
   try {
-    // Extract all fields from form data
+    // getting all the data inputted in the fields from resident report form
     const { name, contact, category, description, location, username } = req.body;
 
-    console.log("🔍 Extracted form data:", {
+    console.log("Extracted form data:", {
       name, contact, category, description, location, username
     });
 
-    // Validate required fields
+    // Validating required fields
     if (!name || !contact || !category || !description || !location || !username) {
       return res.status(400).json({ 
         success: false, 
@@ -123,16 +122,16 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
 
     let fileUrl = null;
 
-    // ✅ Upload file to Supabase storage if present
+    // Upload file to Supabase storage bucket (complaint-files) that stores files and photos uploaded
     if (req.file) {
-      console.log("📁 Processing file upload:", req.file.originalname);
+      console.log("Processing file upload:", req.file.originalname);
       const fileName = `complaint-${Date.now()}-${req.file.originalname}`;
       const { error: uploadError } = await supabase.storage
         .from("complaint-files")
         .upload(fileName, req.file.buffer, { contentType: req.file.mimetype });
 
       if (uploadError) {
-        console.error("❌ File upload error:", uploadError);
+        console.error("File upload error:", uploadError);
         throw uploadError;
       }
 
@@ -140,10 +139,10 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
         .from("complaint-files")
         .getPublicUrl(fileName);
       fileUrl = urlData.publicUrl;
-      console.log("✅ File uploaded successfully:", fileUrl);
+      console.log("File uploaded successfully:", fileUrl);
     }
 
-    // ✅ Prepare complaint data for database
+    // saving complaint data for the supabase database
     const complaintData = {
       name: name,
       contact: contact,
@@ -152,13 +151,13 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
       location: location,
       file: fileUrl,
       status: "pending",
-      username: username, // Make sure this matches your database column name
+      username: username, 
       created_at: new Date().toISOString(),
     };
 
-    console.log("💾 Complaint data to save:", complaintData);
+    console.log("Complaint data to save:", complaintData);
 
-    // ✅ Insert into database with explicit column mapping
+    // Insert into the database 
     const { data, error } = await supabase
       .from("complaints")
       .insert([
@@ -170,20 +169,20 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
           location: complaintData.location,
           file: complaintData.file,
           status: complaintData.status,
-          username: complaintData.username, // Explicitly include username
+          username: complaintData.username, 
           created_at: complaintData.created_at
         }
       ])
       .select();
 
     if (error) {
-      console.error("❌ Database insert error:", error);
+      console.error("Database insert error:", error);
       console.error("Error details:", error.details, error.hint, error.message);
       throw error;
     }
 
-    console.log("✅ Complaint submitted successfully!");
-    console.log("📊 Inserted complaint:", data);
+    console.log("Complaint submitted successfully!");
+    console.log("Inserted complaint:", data);
 
     res.json({ 
       success: true, 
@@ -192,7 +191,7 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
     });
 
   } catch (error) {
-    console.error("🚨 Complaint Error:", error);
+    console.error("Complaint Error:", error);
     res.status(500).json({ 
       success: false, 
       message: error.message,
@@ -201,17 +200,16 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
   }
 });
 
-// === GET ALL COMPLAINTS ===
+// get the complaints when the user login ensuring the user logged in can only access his own records
 app.get("/api/complaints", async (req, res) => {
   try {
-    const { username, role } = req.query; // Get from query parameters
+    const { username, role } = req.query; 
     
     let query = supabase
       .from("complaints")
       .select("*")
       .order("created_at", { ascending: false });
 
-    // If it's a resident, only show their complaints
     if (role === 'resident' && username) {
       query = query.eq('username', username);
     }
@@ -225,7 +223,7 @@ app.get("/api/complaints", async (req, res) => {
   }
 });
 
-// === UPDATE COMPLAINT STATUS ===
+// updating status changes of the report 
 app.put("/api/complaints/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -240,7 +238,7 @@ app.put("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// === ASSIGN COMPLAINT TO TEAM ===
+// this part handles where the admin assign a report to its designated team
 app.put("/api/complaints/:id/assign", async (req, res) => {
   const { id } = req.params;
   const { assigned_team } = req.body;
@@ -261,7 +259,8 @@ app.put("/api/complaints/:id/assign", async (req, res) => {
   }
 });
 
-// === TEAM UPDATE ===
+// this handles the sumbission of the team update to the reports assigned to them where they submit
+// their teams response including photo and notes
 app.put("/api/complaints/:id/team-update", upload.single("after_photo"), async (req, res) => {
   const { id } = req.params;
   const { team_notes } = req.body;
@@ -295,7 +294,7 @@ app.put("/api/complaints/:id/team-update", upload.single("after_photo"), async (
   }
 });
 
-// === GET COMPLAINTS BY TEAM ===
+// this handles the part where the team can access the assigned reports to them by the admin 
 app.get("/api/team/:teamname", async (req, res) => {
   const { teamname } = req.params;
   try {
@@ -311,7 +310,6 @@ app.get("/api/team/:teamname", async (req, res) => {
   }
 });
 
-// === SPA fallback ===
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });

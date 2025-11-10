@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const complaintForm = document.getElementById("complaintForm");
   
     if (complaintForm) {
-      // Set the username in the hidden field when page loads
       const username = localStorage.getItem("username");
       const usernameInput = document.getElementById("usernameInput");
       
@@ -33,21 +32,21 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(`${key}:`, value);
     }
   
-    // ✅ Validate file size (max 5MB)
+    // Validate file size 
     const file = formData.get("file");
     if (file && file.size > 5 * 1024 * 1024) {
       showErrorMessage(responseEl, "File size must be less than 5MB");
       return;
     }
   
-    // ✅ Validate that username is present
+    // Validate that username is present
     const username = formData.get("username");
     if (!username) {
       showErrorMessage(responseEl, "Error: No user session found. Please log in again.");
       return;
     }
   
-    // ✅ Show loading state
+    // Show loading state
     setButtonLoadingState(submitBtn, true);
     clearResponseMessage(responseEl);
   
@@ -65,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.reset();
         lucide.createIcons();
   
-        // Redirect after 3 seconds
+        // Redirect to dashboard
         setTimeout(() => {
           window.location.href = "user-dashboard.html";
         }, 3000);
@@ -80,7 +79,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
   
-  /* ---------- Utility Functions ---------- */
   function setButtonLoadingState(button, isLoading) {
     if (!button) return;
   
