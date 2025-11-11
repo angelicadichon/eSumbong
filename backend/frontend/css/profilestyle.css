@@ -4,6 +4,83 @@ body {
   color: #3a3a3a;
 }
 
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;        
+  top: 0;                 
+  left: 0;               
+  width: 250px;           
+  height: 100vh;         
+  background: linear-gradient(180deg, #2c3e50 0%, #1a2530 100%);
+  color: #fff;
+  overflow-y: auto;       
+  z-index: 1000;         
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header i {
+  width: 24px;
+  height: 24px;
+}
+
+.sidebar-header h2 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 20px 0;
+}
+
+.nav-item {
+  margin-bottom: 5px;
+}
+
+.nav-item a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #b0b7c3;
+  text-decoration: none;
+  padding: 12px 20px;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-item a:hover, .nav-item.active a {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-left: 3px solid #3498db;
+}
+
+.nav-item i {
+  width: 18px;
+  height: 18px;
+}
+
+.logout-btn {
+  margin-top: 30px;
+  border-top: 1px solid #4a6278;
+  padding-top: 20px;
+}
+
+.logout-btn a {
+  color: #e74c3c !important;
+}
+
+.logout-btn a:hover {
+  background-color: #c0392b !important;
+  color: white !important;
+}
+
 /* --- Profile Card --- */
 .profile-card {
   background: #ffffff;

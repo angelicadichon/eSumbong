@@ -12,7 +12,6 @@
 <body>
     <aside class="sidebar">
       <div class="sidebar-header">
-        <i data-lucide="home"></i>
         <h2>eSumbong</h2>
       </div>
       <nav>
@@ -25,7 +24,7 @@
             <a href="reports.html"><i data-lucide="file-text"></i> All Reports</a>
           </li>
           <li data-link="admin-residents.html" class="nav-item">
-            <a href="admin-resident.html"><i data-lucide="users"></i> Residents</a>
+            <a href="resident.html"><i data-lucide="users"></i> Residents</a>
           </li>
           <li data-link="admin-settings.html" class="nav-item">
             <a href="admin-settings.html"><i data-lucide="settings"></i> Settings</a>
@@ -39,8 +38,12 @@
 
     <main class="main-content">
         <header class="top-header">
-            <h1>Reports Overview</h1>
-            
+            <h1> Admin Reports Overview</h1>
+            <div class="user-profile-header">  
+                <div class="profile-circle" id="profileCircle" onclick="redirectToProfile()">
+                    <div class="initials" id="profileInitials">U</div>
+                </div>
+            </div>
         </header>
 
         <section class="page-content">
@@ -132,6 +135,6 @@
         </section>
     </main>
 
-    <script src="js/reports.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>

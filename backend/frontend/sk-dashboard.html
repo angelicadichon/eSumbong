@@ -17,6 +17,7 @@
     <nav>
       <ul>
         <li class="nav-item active"><a href="maintenance-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li class="nav-item"><a href="sk-profile.html"><i data-lucide="user"></i> Profile</a></li>
         <li class="nav-item logout-btn"><a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a></li>
       </ul>
     </nav>
@@ -25,11 +26,14 @@
   <main class="main-content">
     <header class="top-header">
       <h1>SK Dashboard</h1>
+      <div class="profile-circle" id="profileCircle" onclick="redirectToProfile()">
+        <div class="initials" id="profileInitials">U</div>
+    </div>
     </header>
 
     <div class="card complaints-card">
       <div class="card-header">
-        <h3>🧾 My Assigned Complaints</h3>
+        <h3>My Assigned Complaints</h3>
         <input type="text" id="tableSearch" placeholder="Search complaints..." class="search-box" />
       </div>
 
@@ -43,7 +47,7 @@
   <div id="updateModal" class="modal">
     <div class="modal-content">
       <header class="modal-header">
-        <h2>Maintenance Update</h2>
+        <h2>SK Update</h2>
         <button id="closeModal" class="modal-close" title="Close">✕</button>
       </header>
 

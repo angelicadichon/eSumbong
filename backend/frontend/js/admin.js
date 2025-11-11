@@ -1,298 +1,525 @@
-let complaintsData = [];
-let selectedComplaintId = null;
+// reports-overview.js
+lucide.createIcons();
 
-// Search function
-function handleSearch(query) {
-  const q = query.trim().toLowerCase();
-  const filtered = complaintsData.filter(c =>
-    c.description?.toLowerCase().includes(q) ||
-    c.category?.toLowerCase().includes(q) ||
-    c.location?.toLowerCase().includes(q) ||
-    c.name?.toLowerCase().includes(q)
-  );
-  renderComplaintCards(filtered);
-}
+// Chart instances
+let categoryChart, teamChart, statusChart, trendChart;
 
-// Filter function
-function handleStatusFilter(status) {
-  const filtered = status ? complaintsData.filter(c => c.status === status) : complaintsData;
-  renderComplaintCards(filtered);
-}
-
-// Combined search and filter function
-function applySearchAndFilter(searchQuery, statusFilter) {
-  let filtered = [...complaintsData];
-  
-  // Apply status filter 
-  if (statusFilter) {
-    filtered = filtered.filter(c => c.status === statusFilter);
-  }
-  
-  // Apply search filter
-  if (searchQuery) {
-    const q = searchQuery.trim().toLowerCase();
-    filtered = filtered.filter(c =>
-      c.description?.toLowerCase().includes(q) ||
-      c.category?.toLowerCase().includes(q) ||
-      c.location?.toLowerCase().includes(q) ||
-      c.name?.toLowerCase().includes(q)
-    );
-  }
-  
-  renderComplaintCards(filtered);
-}
-
-function setupSearchAndFilterListeners() {
-  // Search functionality
-  const searchInput = document.getElementById('tableSearch');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const searchQuery = e.target.value;
-      const statusFilter = document.getElementById('statusFilter').value;
-      applySearchAndFilter(searchQuery, statusFilter);
-    });
-  }
-
-  // Status filter functionality
-  const statusFilter = document.getElementById('statusFilter');
-  if (statusFilter) {
-    statusFilter.addEventListener('change', (e) => {
-      const statusFilterValue = e.target.value;
-      const searchQuery = document.getElementById('tableSearch').value;
-      applySearchAndFilter(searchQuery, statusFilterValue);
-    });
-  }
-}
-
-// Load complaints for admin display 
-async function loadAdminDashboard() {
-  try {
-    const res = await fetch('/api/complaints');
-    const result = await res.json();
-
-    if (result.success) {
-      complaintsData = result.complaints;
-      renderComplaintCards(complaintsData);
-      updateAdminAnalytics(complaintsData);
-      setupSearchAndFilterListeners();
-    } else {
-      document.getElementById('complaintsContainer').innerHTML =
-        `<p class="loading-text">Failed to load complaints.</p>`;
-    }
-  } catch (err) {
-    console.error('Error loading complaints:', err);
-  }
-}
-function filterComplaintCards(query) {
-  const q = query.trim().toLowerCase();
-  const cards = document.querySelectorAll('.complaint-card');
-  
-  cards.forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(q) ? '' : 'none';
-  });
-}
-
-
-// Render complaint cards
-function renderComplaintCards(complaints) {
-  const container = document.getElementById('complaintsContainer');
-  if (!container) return;
-
-  if (complaints.length === 0) {
-    container.innerHTML = `<p class="loading-text">No complaints found.</p>`;
-    return;
-  }
-
-  // In your renderComplaintCards function, update the card HTML:
-container.innerHTML = complaints.map(c => `
-  <div class="complaint-card ${c.status}" onclick="openComplaintModal(${c.id})">
-    <span class="status-badge ${c.status}">${c.status}</span>
-    <h3>${c.category}</h3>
-    <p><strong>Submitted By:</strong> ${c.name || 'N/A'}</p>
-    <p><strong>Date:</strong> ${new Date(c.created_at).toLocaleDateString()}</p>
-    <p><strong>Location:</strong> ${c.location || 'N/A'}</p>
-    <p>${c.description?.slice(0, 60) || ''}...</p>
-  </div>
-`).join('');
-}
-
-// view modal with full complaint details
-function openComplaintModal(id) {
-  selectedComplaintId = id;
-  const complaint = complaintsData.find(c => c.id === id);
-  const modal = document.getElementById('complaintModal');
-  const details = document.getElementById('modalDetails');
-
-  if (!complaint) return;
-
-  // Render file images if they exist
-  const fileImage = complaint.file ? `
-    <div class="image-section">
-      <strong>Before Photo:</strong><br>
-      <img src="${complaint.file}" alt="Before Photo" class="modal-image" />
-    </div>
-  ` : '<p><strong>Before Photo:</strong> No File</p>';
-
-  const afterPhotoImage = complaint.after_photo ? `
-    <div class="image-section">
-      <strong>After Photo:</strong><br>
-      <img src="${complaint.after_photo}" alt="After Photo" class="modal-image" />
-    </div>
-  ` : '<p><strong>After Photo:</strong> No File</p>';
-
-  details.innerHTML = `
-    <p><strong>Category:</strong> ${complaint.category}</p>
-    <p><strong>Description:</strong> ${complaint.description}</p>
-    <p><strong>Submitted By:</strong> ${complaint.name}</p>
-    <p><strong>Contact:</strong> ${complaint.contact || 'N/A'}</p>
-    <p><strong>Location:</strong> ${complaint.location}</p>
-    <p><strong>Status:</strong> ${complaint.status}</p>
-    <p><strong>Assigned Team:</strong> ${complaint.assigned_team || 'Unassigned'}</p>
-    ${fileImage}
-    ${afterPhotoImage}
-    <p><strong>Team Notes:</strong> ${complaint.team_notes || 'N/A'}</p>
-  `;
-
-  // Update team select and assign button state
-  const teamSelect = document.getElementById('teamSelect');
-  const assignBtn = document.getElementById('assignBtn');
-  
-  if (teamSelect && assignBtn) {
-    teamSelect.value = complaint.assigned_team || '';
-    
-    // Disable assign button if already assigned
-    if (complaint.assigned_team) {
-      assignBtn.disabled = true;
-      assignBtn.textContent = 'Already Assigned';
-      assignBtn.style.backgroundColor = '#6b7280';
-      assignBtn.style.cursor = 'not-allowed';
-    } else {
-      assignBtn.disabled = false;
-      assignBtn.textContent = 'Assign';
-      assignBtn.style.backgroundColor = '';
-      assignBtn.style.cursor = 'pointer';
-    }
-  }
-
-  modal.classList.remove('hidden');
-}
-
-// admin Assign team 
-async function assignTeam() {
-  const team = document.getElementById('teamSelect').value;
-  const assignBtn = document.getElementById('assignBtn');
-  
-  if (!team) return alert('Select a team first.');
-
-  // Prevent double assignment
-  if (assignBtn.disabled) {
-    return alert('This complaint is already assigned to a team.');
-  }
-
-  try {
-    const res = await fetch(`/api/complaints/${selectedComplaintId}/assign`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        assigned_team: team,
-        status: 'in-progress' // Auto-update status when assigned
-      })
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert('Team assigned successfully!');
-      
-      // Update local data
-      const complaintIndex = complaintsData.findIndex(c => c.id === selectedComplaintId);
-      if (complaintIndex !== -1) {
-        complaintsData[complaintIndex].assigned_team = team;
-        complaintsData[complaintIndex].status = 'in-progress';
-      }
-      
-      closeModal();
-      renderComplaintCards(complaintsData);
-      updateAdminAnalytics(complaintsData);
-    }
-  } catch (err) {
-    alert('Failed to assign: ' + err.message);
-  }
-}
-
-// Mark complaint as resolved
-async function markResolved() {
-  try {
-    const res = await fetch(`/api/complaints/${selectedComplaintId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'resolved' })
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert('Complaint marked as resolved!');
-      
-      // Update local data
-      const complaintIndex = complaintsData.findIndex(c => c.id === selectedComplaintId);
-      if (complaintIndex !== -1) {
-        complaintsData[complaintIndex].status = 'resolved';
-      }
-      
-      closeModal();
-      renderComplaintCards(complaintsData);
-      updateAdminAnalytics(complaintsData);
-    }
-  } catch (err) {
-    alert('Error updating status.');
-  }
-}
-
-function closeModal() {
-  document.getElementById('complaintModal').classList.add('hidden');
-  
-  // Reset assign button state when modal closes
-  const assignBtn = document.getElementById('assignBtn');
-  if (assignBtn) {
-    assignBtn.disabled = false;
-    assignBtn.textContent = 'Assign';
-    assignBtn.style.backgroundColor = '';
-    assignBtn.style.cursor = 'pointer';
-  }
-}
-
-// Update analytics
-function updateAdminAnalytics(complaints) {
-  const total = complaints.length;
-  const pending = complaints.filter(c => c.status === 'pending').length;
-  const inProgress = complaints.filter(c => c.status === 'in-progress').length;
-  const resolved = complaints.filter(c => c.status === 'resolved').length;
-
-  document.getElementById('totalReports').textContent = total;
-  document.getElementById('pendingReports').textContent = pending;
-  document.getElementById('progressReports').textContent = inProgress;
-  document.getElementById('resolvedReports').textContent = resolved;
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-  loadAdminDashboard();
-
-  document.getElementById('closeModal').addEventListener('click', closeModal);
-  document.getElementById('assignBtn').addEventListener('click', assignTeam);
-  document.getElementById('markResolvedBtn').addEventListener('click', markResolved);
-
-  // Filters (keeping your original event listeners as backup)
-  document.getElementById('statusFilter').addEventListener('change', (e) => {
-    const filter = e.target.value;
-    const filtered = filter ? complaintsData.filter(c => c.status === filter) : complaintsData;
-    renderComplaintCards(filtered);
-  });
-
-  document.getElementById('tableSearch').addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase();
-    const filtered = complaintsData.filter(c =>
-      c.description?.toLowerCase().includes(q) ||
-      c.category?.toLowerCase().includes(q)
-    );
-    renderComplaintCards(filtered);
-  });
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadReportsData();
+    setupEventListeners();
 });
+
+// Load reports data from API
+async function loadReportsData() {
+    try {
+        const response = await fetch('/api/complaints');
+        const result = await response.json();
+        
+        if (result.success) {
+            const complaints = result.complaints;
+            const processedData = processComplaintsData(complaints);
+            updateStats(processedData);
+            initializeCharts(processedData);
+        } else {
+            console.error('Failed to load complaints:', result.error);
+        }
+    } catch (error) {
+        console.error('Error loading reports data:', error);
+    }
+}
+
+// Process complaints data for charts
+function processComplaintsData(complaints) {
+    // Get unique categories from complaints
+    const categories = [...new Set(complaints.map(c => c.category).filter(Boolean))];
+    
+    // Count reports by category
+    const categoryCounts = categories.map(category => 
+        complaints.filter(c => c.category === category).length
+    );
+
+    // Get unique teams (including unassigned)
+    const teams = [...new Set(complaints.map(c => c.assigned_team || 'Unassigned').filter(Boolean))];
+    
+    // Get last 6 months for trend data
+    const last6Months = getLastMonths(6);
+    
+    // Count assignments by team and month
+    const monthlyData = {};
+    last6Months.forEach(month => {
+        monthlyData[month] = {};
+        teams.forEach(team => {
+            monthlyData[month][team] = complaints.filter(c => {
+                const complaintDate = new Date(c.created_at);
+                const complaintMonth = complaintDate.toLocaleString('default', { month: 'short' });
+                const complaintTeam = c.assigned_team || 'Unassigned';
+                return complaintMonth === month && complaintTeam === team;
+            }).length;
+        });
+    });
+
+    // Count by status
+    const statusData = {
+        pending: complaints.filter(c => c.status === 'pending').length,
+        'in-progress': complaints.filter(c => c.status === 'in-progress').length,
+        resolved: complaints.filter(c => c.status === 'resolved').length
+    };
+
+    // Monthly trend (total reports per month)
+    const monthlyTrend = last6Months.map(month => 
+        complaints.filter(c => {
+            const complaintDate = new Date(c.created_at);
+            const complaintMonth = complaintDate.toLocaleString('default', { month: 'short' });
+            return complaintMonth === month;
+        }).length
+    );
+
+    return {
+        categories,
+        categoryCounts,
+        teams,
+        monthlyData,
+        statusData,
+        monthlyTrend,
+        last6Months,
+        totalComplaints: complaints.length
+    };
+}
+
+// Get last N months as short names
+function getLastMonths(count) {
+    const months = [];
+    const date = new Date();
+    
+    for (let i = count - 1; i >= 0; i--) {
+        const monthDate = new Date();
+        monthDate.setMonth(date.getMonth() - i);
+        months.push(monthDate.toLocaleString('default', { month: 'short' }));
+    }
+    
+    return months;
+}
+
+// Update statistics
+function updateStats(data) {
+    document.getElementById('totalReports').textContent = data.totalComplaints;
+    document.getElementById('pendingReports').textContent = data.statusData.pending;
+    document.getElementById('inProgressReports').textContent = data.statusData['in-progress'];
+    document.getElementById('resolvedReports').textContent = data.statusData.resolved;
+}
+
+// Initialize charts with real data
+function initializeCharts(data) {
+    // Category Distribution Chart (Bar Chart)
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    categoryChart = new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+            labels: data.categories,
+            datasets: [{
+                label: 'Number of Reports',
+                data: data.categoryCounts,
+                backgroundColor: [
+                    '#3498db', '#2ecc71', '#e74c3c', '#f39c12', 
+                    '#9b59b6', '#1abc9c', '#34495e', '#e67e22',
+                    '#27ae60', '#8e44ad', '#16a085', '#f1c40f'
+                ],
+                borderColor: [
+                    '#2980b9', '#27ae60', '#c0392b', '#d35400',
+                    '#8e44ad', '#16a085', '#2c3e50', '#d35400',
+                    '#229954', '#7d3c98', '#138d75', '#f39c12'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Reports: ${context.parsed.y}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Reports'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Categories'
+                    }
+                }
+            }
+        }
+    });
+
+    // Team Assignments Chart (Line Chart)
+    const teamCtx = document.getElementById('teamChart').getContext('2d');
+    teamChart = new Chart(teamCtx, {
+        type: 'line',
+        data: {
+            labels: data.last6Months,
+            datasets: data.teams.map((team, index) => {
+                const colors = [
+                    { border: '#3498db', background: 'rgba(52, 152, 219, 0.1)' },
+                    { border: '#2ecc71', background: 'rgba(46, 204, 113, 0.1)' },
+                    { border: '#9b59b6', background: 'rgba(155, 89, 182, 0.1)' },
+                    { border: '#e74c3c', background: 'rgba(231, 76, 60, 0.1)' },
+                    { border: '#f39c12', background: 'rgba(243, 156, 18, 0.1)' },
+                    { border: '#1abc9c', background: 'rgba(26, 188, 156, 0.1)' }
+                ];
+                
+                return {
+                    label: team,
+                    data: data.last6Months.map(month => data.monthlyData[month][team] || 0),
+                    borderColor: colors[index % colors.length].border,
+                    backgroundColor: colors[index % colors.length].background,
+                    borderWidth: 2,
+                    tension: 0.4
+                };
+            })
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Assignments'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months'
+                    }
+                }
+            }
+        }
+    });
+
+    // Status Distribution Chart (Doughnut Chart)
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    statusChart = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'In Progress', 'Resolved'],
+            datasets: [{
+                data: [data.statusData.pending, data.statusData['in-progress'], data.statusData.resolved],
+                backgroundColor: [
+                    '#ffc107', // Pending - Yellow
+                    '#17a2b8', // In Progress - Blue
+                    '#28a745'  // Resolved - Green
+                ],
+                borderColor: [
+                    '#e0a800', // Pending border
+                    '#138496', // In Progress border
+                    '#1e7e34'  // Resolved border
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((context.parsed / total) * 100);
+                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Monthly Trend Chart (Line Chart)
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    trendChart = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: data.last6Months,
+            datasets: [{
+                label: 'Reports Trend',
+                data: data.monthlyTrend,
+                borderColor: '#e74c3c',
+                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Reports: ${context.parsed.y}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Reports'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    const timeFilter = document.getElementById('timeFilter');
+    if (timeFilter) {
+        timeFilter.addEventListener('change', function(e) {
+            filterDataByTime(e.target.value);
+        });
+    }
+}
+
+// Filter data by time period
+async function filterDataByTime(period) {
+    try {
+        let url = '/api/complaints';
+        
+        // Add time filter to API call if needed
+        if (period !== 'all') {
+            url += `?timeFilter=${period}`;
+        }
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (result.success) {
+            const complaints = result.complaints;
+            const processedData = processComplaintsData(complaints);
+            
+            // Update charts with filtered data
+            updateCharts(processedData);
+            updateStats(processedData);
+        }
+    } catch (error) {
+        console.error('Error filtering data:', error);
+    }
+}
+
+// Update charts with new data
+function updateCharts(data) {
+    // Update category chart
+    categoryChart.data.labels = data.categories;
+    categoryChart.data.datasets[0].data = data.categoryCounts;
+    categoryChart.update();
+
+    // Update team chart
+    teamChart.data.labels = data.last6Months;
+    teamChart.data.datasets.forEach((dataset, index) => {
+        if (data.teams[index]) {
+            dataset.label = data.teams[index];
+            dataset.data = data.last6Months.map(month => data.monthlyData[month][data.teams[index]] || 0);
+        }
+    });
+    teamChart.update();
+
+    // Update status chart
+    statusChart.data.datasets[0].data = [data.statusData.pending, data.statusData['in-progress'], data.statusData.resolved];
+    statusChart.update();
+
+    // Update trend chart
+    trendChart.data.labels = data.last6Months;
+    trendChart.data.datasets[0].data = data.monthlyTrend;
+    trendChart.update();
+}
+
+// Download chart as image
+function downloadChart(chartId) {
+    const chart = getChartInstance(chartId);
+    if (chart) {
+        const link = document.createElement('a');
+        link.download = `${chartId}-${new Date().toISOString().split('T')[0]}.png`;
+        link.href = chart.toBase64Image();
+        link.click();
+    }
+}
+
+// Get chart instance by canvas ID
+function getChartInstance(chartId) {
+    switch (chartId) {
+        case 'categoryChart':
+            return categoryChart;
+        case 'teamChart':
+            return teamChart;
+        case 'statusChart':
+            return statusChart;
+        case 'trendChart':
+            return trendChart;
+        default:
+            return null;
+    }
+}
+
+function redirectToProfile() {
+    window.location.href = 'user-profile.html';
+}
+
+// Function to get user initials from name
+function getUserInitials(name) {
+    if (!name) return 'U';
+    return name
+        .split(' ')
+        .map(word => word.charAt(0))
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+}
+
+// Function to load user profile data for the header
+async function loadUserProfile() {
+    try {
+        // Get username from localStorage (same as in profile page)
+        const username = localStorage.getItem('username') || 
+                        sessionStorage.getItem('username') || 
+                        'admin';
+        
+        console.log('Loading profile for:', username);
+        
+        // Fetch user data from the same API endpoint used in profile page
+        const response = await fetch(`/api/get-profile?username=${encodeURIComponent(username)}`);
+        
+        if (response.ok) {
+            const userData = await response.json();
+            console.log('User data loaded for header:', userData);
+            
+            if (userData.success) {
+                updateProfileCircle(userData);
+            } else {
+                console.error('API returned error:', userData.message);
+                setDefaultProfile();
+            }
+        } else {
+            console.error('HTTP error loading profile:', response.status);
+            setDefaultProfile();
+        }
+    } catch (error) {
+        console.error('Error loading user profile for header:', error);
+        setDefaultProfile();
+    }
+}
+
+// Function to update the profile circle with user data
+function updateProfileCircle(userData) {
+    const profileCircle = document.getElementById('profileCircle');
+    const profileInitials = document.getElementById('profileInitials');
+    
+    if (!profileCircle) return;
+    
+    // Get display name
+    const displayName = userData.full_name || userData.username || 'User';
+    
+    // Check if user has an avatar
+    if (userData.avatar_url) {
+        console.log('User has avatar:', userData.avatar_url);
+        
+        // Create image element
+        const profileImg = document.createElement('img');
+        profileImg.src = userData.avatar_url;
+        profileImg.alt = displayName;
+        profileImg.onload = function() {
+            console.log('Avatar image loaded successfully');
+        };
+        profileImg.onerror = function() {
+            console.log('Avatar image failed to load, showing initials');
+            // If image fails to load, show initials
+            showInitialsFallback(displayName);
+        };
+        
+        // Clear existing content and add image
+        profileCircle.innerHTML = '';
+        profileCircle.appendChild(profileImg);
+        profileInitials.style.display = 'none';
+        
+    } else {
+        console.log('No avatar URL, showing initials');
+        // No avatar, show initials
+        showInitialsFallback(displayName);
+    }
+}
+
+// Function to show initials as fallback
+function showInitialsFallback(displayName) {
+    const profileCircle = document.getElementById('profileCircle');
+    const profileInitials = document.getElementById('profileInitials');
+    
+    profileCircle.innerHTML = '';
+    profileInitials.textContent = getUserInitials(displayName);
+    profileInitials.style.display = 'flex';
+    profileCircle.appendChild(profileInitials);
+}
+
+// Function to set default profile when data can't be loaded
+function setDefaultProfile() {
+    const username = localStorage.getItem('username') || 'User';
+    showInitialsFallback(username);
+}
+
+// Load user profile when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadUserProfile();
+    
+    // Also set up click event for profile circle
+    const profileCircle = document.getElementById('profileCircle');
+    if (profileCircle) {
+        profileCircle.addEventListener('click', redirectToProfile);
+    }
+});
+
+// Optional: Add function to refresh profile picture when returning to dashboard
+window.addEventListener('focus', function() {
+    // Refresh profile data when user returns to this tab
+    loadUserProfile();
+});
+
+// Logout function
+function logout() {
+    window.location.href = 'index.html';
+}
+

@@ -303,6 +303,128 @@ function filterCards(query) {
   });
 }
 
+function redirectToProfile() {
+  window.location.href = 'response-profile.html';
+}
+
+// Function to get user initials from name
+function getUserInitials(name) {
+  if (!name) return 'U';
+  return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+}
+
+// Function to load user profile data for the header
+async function loadUserProfile() {
+  try {
+      // Get username from localStorage (same as in profile page)
+      const username = localStorage.getItem('username') || 
+                      sessionStorage.getItem('username') || 
+                      'admin';
+      
+      console.log('Loading profile for:', username);
+      
+      // Fetch user data from the same API endpoint used in profile page
+      const response = await fetch(`/api/get-profile?username=${encodeURIComponent(username)}`);
+      
+      if (response.ok) {
+          const userData = await response.json();
+          console.log('User data loaded for header:', userData);
+          
+          if (userData.success) {
+              updateProfileCircle(userData);
+          } else {
+              console.error('API returned error:', userData.message);
+              setDefaultProfile();
+          }
+      } else {
+          console.error('HTTP error loading profile:', response.status);
+          setDefaultProfile();
+      }
+  } catch (error) {
+      console.error('Error loading user profile for header:', error);
+      setDefaultProfile();
+  }
+}
+
+// Function to update the profile circle with user data
+function updateProfileCircle(userData) {
+  const profileCircle = document.getElementById('profileCircle');
+  const profileInitials = document.getElementById('profileInitials');
+  
+  if (!profileCircle) return;
+  
+  // Get display name
+  const displayName = userData.full_name || userData.username || 'User';
+  
+  // Check if user has an avatar
+  if (userData.avatar_url) {
+      console.log('User has avatar:', userData.avatar_url);
+      
+      // Create image element
+      const profileImg = document.createElement('img');
+      profileImg.src = userData.avatar_url;
+      profileImg.alt = displayName;
+      profileImg.onload = function() {
+          console.log('Avatar image loaded successfully');
+      };
+      profileImg.onerror = function() {
+          console.log('Avatar image failed to load, showing initials');
+          // If image fails to load, show initials
+          showInitialsFallback(displayName);
+      };
+      
+      // Clear existing content and add image
+      profileCircle.innerHTML = '';
+      profileCircle.appendChild(profileImg);
+      profileInitials.style.display = 'none';
+      
+  } else {
+      console.log('No avatar URL, showing initials');
+      // No avatar, show initials
+      showInitialsFallback(displayName);
+  }
+}
+
+// Function to show initials as fallback
+function showInitialsFallback(displayName) {
+  const profileCircle = document.getElementById('profileCircle');
+  const profileInitials = document.getElementById('profileInitials');
+  
+  profileCircle.innerHTML = '';
+  profileInitials.textContent = getUserInitials(displayName);
+  profileInitials.style.display = 'flex';
+  profileCircle.appendChild(profileInitials);
+}
+
+// Function to set default profile when data can't be loaded
+function setDefaultProfile() {
+  const username = localStorage.getItem('username') || 'User';
+  showInitialsFallback(username);
+}
+
+// Load user profile when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  loadUserProfile();
+  
+  // Also set up click event for profile circle
+  const profileCircle = document.getElementById('profileCircle');
+  if (profileCircle) {
+      profileCircle.addEventListener('click', redirectToProfile);
+  }
+});
+
+// Optional: Add function to refresh profile picture when returning to dashboard
+window.addEventListener('focus', function() {
+  // Refresh profile data when user returns to this tab
+  loadUserProfile();
+});
+
+
 function logout() {
   localStorage.removeItem('auth_token');
   window.location.href = "index.html";

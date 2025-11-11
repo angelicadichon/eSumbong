@@ -18,6 +18,7 @@
               <li data-link="user-dashboard.html" class="nav-item active">
                 <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
               </li>
+              <li class="nav-item"><a href="user-profile.html"><i data-lucide="user"></i> Profile</a></li>
               <li data-link="admin-reports.html" class="nav-item ">
                 <a href="myreports.html"><i data-lucide="file-text" ></i> My Reports</a>
               </li>
@@ -39,12 +40,16 @@
 
     <main class="main-content">
         <header class="top-header">
-            <h1>Reports Overview</h1>
-            
+            <h1> Resident Reports Overview</h1>
+            <div class="user-profile-header">
+                
+                <div class="profile-circle" id="profileCircle" onclick="redirectToProfile()">
+                    <div class="initials" id="profileInitials">U</div>
+                </div>
+            </div>
         </header>
 
         <section class="page-content">
-            <!-- Quick Stats -->
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-number" id="totalReports">0</div>
@@ -66,7 +71,6 @@
 
             <!-- Charts Container -->
             <div class="charts-container">
-                <!-- Category Distribution Chart -->
                 <div class="chart-card">
                     <div class="chart-header">
                         <h3>Reports by Category</h3>
@@ -97,7 +101,6 @@
                 </div>
             </div>
 
-            <!-- Additional Charts Row -->
             <div class="charts-container">
                 <!-- Status Distribution -->
                 <div class="chart-card">
@@ -133,5 +136,8 @@
     </main>
 
     <script src="js/user.js"></script>
+    <script>
+        lucide.createIcons();        
+    </script>
 </body>
 </html>

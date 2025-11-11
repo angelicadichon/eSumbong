@@ -310,6 +310,213 @@ app.get("/api/team/:teamname", async (req, res) => {
   }
 });
 
+// Get user profile endpoint - FOR PREDEFINED USERS
+app.get("/api/get-profile", async (req, res) => {
+  try {
+    const { username } = req.query;
+    
+    if (!username) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Username is required" 
+      });
+    }
+
+    console.log("Fetching profile for username:", username);
+
+    // First, check if this is a valid predefined user
+    const predefinedUser = users.find(u => u.username === username);
+    if (!predefinedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Try to fetch additional data from database if it exists
+    const { data: dbUser, error } = await supabase
+      .from("users")
+      .select("full_name, phone, email, address, avatar_url, updated_at")
+      .eq("username", username)
+      .single();
+
+    // If database user exists, merge with predefined data
+    if (dbUser && !error) {
+      return res.json({
+        success: true,
+        username: predefinedUser.username,
+        full_name: dbUser.full_name || predefinedUser.full_name || "",
+        phone: dbUser.phone || predefinedUser.phone || "",
+        email: dbUser.email || predefinedUser.email || "",
+        address: dbUser.address || predefinedUser.address || "",
+        avatar_url: dbUser.avatar_url || predefinedUser.avatar_url || null,
+        role: predefinedUser.role,
+        updated_at: dbUser.updated_at
+      });
+    }
+
+    // Return only predefined user data
+    res.json({
+      success: true,
+      username: predefinedUser.username,
+      full_name: predefinedUser.full_name || "",
+      phone: predefinedUser.phone || "",
+      email: predefinedUser.email || "",
+      address: predefinedUser.address || "",
+      avatar_url: predefinedUser.avatar_url || null,
+      role: predefinedUser.role,
+      updated_at: null
+    });
+
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error" 
+    });
+  }
+});
+
+// Update profile endpoint - FOR PREDEFINED USERS
+app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
+  try {
+    const { username, full_name, phone, email, address, currentPassword, newPassword } = req.body;
+    const avatarFile = req.file;
+
+    if (!username) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Username is required" 
+      });
+    }
+
+    console.log("Updating profile for username:", username);
+
+    // Verify it's a valid predefined user
+    const predefinedUser = users.find(u => u.username === username);
+    if (!predefinedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not authorized"
+      });
+    }
+
+    // Handle password verification if changing password
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is required to set new password"
+        });
+      }
+      
+      // Verify current password matches predefined user
+      if (currentPassword !== predefinedUser.password) {
+        return res.status(401).json({
+          success: false,
+          message: "Current password is incorrect"
+        });
+      }
+      
+      console.log("Password verification successful for user:", username);
+    }
+
+    let avatar_url = null;
+
+    // Handle avatar upload to Supabase Storage (WITHOUT AUTH)
+    if (avatarFile) {
+      try {
+        // Use service role client for storage operations to bypass RLS
+        const serviceRoleClient = createClient(
+          process.env.SUPABASE_URL,
+          process.env.SUPABASE_SERVICE_ROLE_KEY
+        );
+
+        const fileExt = avatarFile.originalname.split('.').pop();
+        const fileName = `${username}-${Date.now()}.${fileExt}`;
+
+        // Upload using service role client
+        const { data: uploadData, error: uploadError } = await serviceRoleClient.storage
+          .from("avatars")
+          .upload(fileName, avatarFile.buffer, {
+            contentType: avatarFile.mimetype,
+            upsert: true
+          });
+
+        if (uploadError) {
+          console.error("Avatar upload error:", uploadError);
+        } else {
+          // Get public URL
+          const { data: { publicUrl } } = serviceRoleClient.storage
+            .from("avatars")
+            .getPublicUrl(fileName);
+          
+          avatar_url = publicUrl;
+          console.log("Avatar uploaded successfully:", avatar_url);
+        }
+      } catch (uploadError) {
+        console.error("Avatar upload failed:", uploadError);
+        // Continue without avatar
+      }
+    }
+
+    // Prepare update data
+    const updateData = {
+      username: username,
+      full_name: full_name || "",
+      phone: phone || "",
+      email: email || "",
+      address: address || "",
+      avatar_url: avatar_url,
+      role: predefinedUser.role,
+      updated_at: new Date().toISOString()
+    };
+
+    // Use service role client for database operations to bypass RLS
+    const serviceRoleClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+
+    const { data, error: dbError } = await serviceRoleClient
+      .from("users")
+      .upsert(updateData, {
+        onConflict: 'username'
+      })
+      .select();
+
+    if (dbError) {
+      console.error("Database error:", dbError);
+      return res.status(500).json({
+        success: false,
+        message: "Database error: " + dbError.message
+      });
+    }
+
+    // Success response
+    const responseData = {
+      success: true,
+      message: "Profile updated successfully",
+      data: {
+        username,
+        full_name: updateData.full_name,
+        phone: updateData.phone,
+        email: updateData.email,
+        address: updateData.address,
+        avatar_url: updateData.avatar_url
+      }
+    };
+
+    res.json(responseData);
+
+  } catch (error) {
+    console.error("Update failed:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Update failed: " + (error.message || "Internal server error")
+    });
+  }
+});
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });

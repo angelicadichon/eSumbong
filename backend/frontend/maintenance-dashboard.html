@@ -11,12 +11,12 @@
 <body>
   <aside class="sidebar">
     <div class="sidebar-header">
-      <i data-lucide="wrench"></i>
       <h2>Maintenance</h2>
     </div>
     <nav>
       <ul>
         <li class="nav-item active"><a href="maintenance-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+        <li class="nav-item"><a href="m-profile.html"><i data-lucide="user"></i> Profile</a></li>
         <li class="nav-item logout-btn"><a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a></li>
       </ul>
     </nav>
@@ -25,11 +25,14 @@
   <main class="main-content">
     <header class="top-header">
       <h1>Maintenance Dashboard</h1>
+      <div class="profile-circle" id="profileCircle" onclick="redirectToProfile()">
+        <div class="initials" id="profileInitials">U</div>
+    </div>
     </header>
 
     <div class="card complaints-card">
       <div class="card-header">
-        <h3>🧾 My Assigned Complaints</h3>
+        <h3>My Assigned Complaints</h3>
         <input type="text" id="tableSearch" placeholder="Search complaints..." class="search-box" />
       </div>
 
@@ -60,7 +63,6 @@
             <div class="original-file-display">
               <label><strong>Original Complaint File:</strong></label>
               <div id="modalOriginalFile" class="file-container">
-                <!-- Original file will be displayed here -->
               </div>
             </div>
           </div>

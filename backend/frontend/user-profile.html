@@ -12,18 +12,32 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">
+      <i data-lucide="home"></i>
       <h2>eSumbong</h2>
     </div>
     <nav>
-      <ul>
-        <li><a href="admin-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
-        <li class="nav-item active"><a href="profile.html"><i data-lucide="user"></i> Profile</a></li>
-        <li><a href="reports.html"><i data-lucide="file-text"></i> All Reports</a></li>
-        <li><a href="admin-residents.html"><i data-lucide="users"></i> Residents</a></li>
-        <li><a href="admin-settings.html"><i data-lucide="settings"></i> Settings</a></li>
-        <li class="logout-btn"><a href="#" id="logoutBtn"><i data-lucide="log-out"></i> Logout</a></li>
-      </ul>
-    </nav>
+        <ul>
+          <li data-link="user-dashboard.html" class="nav-item ">
+            <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li class="nav-item active"><a href="user-profile.html"><i data-lucide="user"></i> Profile</a></li>
+          <li data-link="admin-reports.html" class="nav-item ">
+            <a href="myreports.html"><i data-lucide="file-text" ></i> My Reports</a>
+          </li>
+          <li data-link="submit-report.html" class="nav-item">
+            <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
+          </li>
+          <li data-link="notifications.html" class="nav-item">
+            <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
+          </li>
+          <li data-link="feedbacks.html" class="nav-item">
+            <a href="feedbacks.html"><i data-lucide="star"></i> Feedback</a>
+          </li>
+          <li class="nav-item logout-btn">
+            <a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
   </aside>
 
   <!-- MAIN CONTENT -->
