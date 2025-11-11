@@ -61,7 +61,6 @@ function populateCards(complaints) {
     return `
     <div class="complaint-card ${hasUpdate ? 'completed' : ''}" onclick="${clickHandler}" data-complaint-id="${complaint.id}">
       <div class="card-header">
-        <span class="complaint-id">#${complaint.id}</span>
         <span class="status ${complaint.status}">${complaint.status}</span>
       </div>
       <div class="card-body">
@@ -107,7 +106,6 @@ function openUpdateModal(id) {
   // Fetch fresh complaint data to get file details
   fetchComplaintDetails(id).then(complaint => {
     if (complaint) {
-      document.getElementById("modalComplaintId").textContent = complaint.id;
       document.getElementById("modalCategory").textContent = complaint.category;
       document.getElementById("modalDescription").textContent = complaint.description;
       document.getElementById("modalLocation").textContent = complaint.location;
@@ -130,13 +128,11 @@ async function viewComplaint(id) {
     const modal = document.getElementById("viewModal");
     
     // Populate complaint details
-    document.getElementById("viewComplaintId").textContent = complaint.id;
     document.getElementById("viewCategory").textContent = complaint.category;
     document.getElementById("viewDescription").textContent = complaint.description;
     document.getElementById("viewLocation").textContent = complaint.location;
     document.getElementById("viewStatus").textContent = complaint.status;
     
-    // Display original file
     displayFile(complaint.file, 'viewOriginalFile');
     
     // Populate update details
@@ -153,7 +149,7 @@ async function viewComplaint(id) {
     lucide.createIcons();
   } catch (err) {
     console.error("Error viewing complaint:", err);
-    alert("❌ Failed to load complaint details");
+    alert("Failed to load complaint details");
   }
 }
 
@@ -169,7 +165,7 @@ async function fetchComplaintDetails(id) {
     return complaint;
   } catch (err) {
     console.error("Error fetching complaint details:", err);
-    alert("❌ Failed to load complaint details");
+    alert(" Failed to load complaint details");
     return null;
   }
 }
@@ -229,7 +225,7 @@ function displayFile(fileUrl, containerId, type = 'original') {
     `;
   }
   
-  // Refresh icons if needed
+  // Refresh icons 
   if (container.querySelector('[data-lucide]')) {
     lucide.createIcons();
   }
@@ -296,7 +292,7 @@ async function handleUpdateSubmit(e) {
     loadAssignedComplaints();
   } catch (err) {
     console.error("Upload error:", err);
-    alert("❌ " + err.message);
+    alert("Error " + err.message);
   }
 }
 

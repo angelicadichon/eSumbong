@@ -1,4 +1,3 @@
-// Initialize Supabase client
 const supabaseUrl = 'https://iyyusjkkdpkklyhjuofn.supabase.co'; 
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5eXVzamtrZHBra2x5aGp1b2ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2MzgyOTgsImV4cCI6MjA3NzIxNDI5OH0.PcsYavAti6YpZN2yqpIrEC9N2-FBBqPcexazFpJxpnI'; 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -16,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("closeViewModal").addEventListener("click", closeViewModal);
   document.getElementById("closeViewModalBtn").addEventListener("click", closeViewModal);
 
-  // Close modals when clicking outside
+  // Close modals 
   document.getElementById("updateModal").addEventListener("click", (e) => {
     if (e.target.id === "updateModal") closeUpdateModal();
   });
@@ -61,7 +60,6 @@ function populateCards(complaints) {
     return `
     <div class="complaint-card ${hasUpdate ? 'completed' : ''}" onclick="${clickHandler}" data-complaint-id="${complaint.id}">
       <div class="card-header">
-        <span class="complaint-id">#${complaint.id}</span>
         <span class="status ${complaint.status}">${complaint.status}</span>
       </div>
       <div class="card-body">
@@ -104,10 +102,9 @@ function openUpdateModal(id) {
   selectedComplaintId = id;
   const modal = document.getElementById("updateModal");
   
-  // Fetch fresh complaint data to get file details
+  // Fetching fcomplaint data to get report details
   fetchComplaintDetails(id).then(complaint => {
     if (complaint) {
-      document.getElementById("modalComplaintId").textContent = complaint.id;
       document.getElementById("modalCategory").textContent = complaint.category;
       document.getElementById("modalDescription").textContent = complaint.description;
       document.getElementById("modalLocation").textContent = complaint.location;
@@ -153,7 +150,7 @@ async function viewComplaint(id) {
     lucide.createIcons();
   } catch (err) {
     console.error("Error viewing complaint:", err);
-    alert("❌ Failed to load complaint details");
+    alert("Failed to load complaint details");
   }
 }
 
@@ -169,7 +166,7 @@ async function fetchComplaintDetails(id) {
     return complaint;
   } catch (err) {
     console.error("Error fetching complaint details:", err);
-    alert("❌ Failed to load complaint details");
+    alert("Failed to load complaint details");
     return null;
   }
 }
@@ -291,12 +288,12 @@ async function handleUpdateSubmit(e) {
 
     if (error) throw error;
 
-    alert("✅ Update saved successfully!");
+    alert("Update saved successfully!");
     closeUpdateModal();
     loadAssignedComplaints();
   } catch (err) {
     console.error("Upload error:", err);
-    alert("❌ " + err.message);
+    alert("Error" + err.message);
   }
 }
 
