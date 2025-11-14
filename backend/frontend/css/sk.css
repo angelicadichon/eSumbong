@@ -63,6 +63,8 @@ body {
   padding: 12px 20px;
   transition: all 0.3s ease;
   border-left: 3px solid transparent;
+  gap: 10px;
+
 }
 
 .nav-item a:hover, .nav-item.active a {

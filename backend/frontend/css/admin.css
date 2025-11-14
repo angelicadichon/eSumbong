@@ -62,6 +62,8 @@
     transition: all 0.3s ease;
     font-weight: 500;
     border-left: 3px solid transparent;
+    gap: 10px;
+
   }
   
   .sidebar nav a:hover {
@@ -313,4 +315,169 @@
     .chart-card {
         padding: 20px;
     }
+}
+
+/* --- Profile Header --- */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.8rem;
+  border-bottom: 1px solid #eae5f4;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.profile-pic-container {
+  position: relative;
+}
+
+.profile-pic-container img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #c8b4e3;
+  box-shadow: 0 4px 10px rgba(169, 139, 216, 0.2);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.profile-pic-container img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 14px rgba(169, 139, 216, 0.3);
+}
+
+.upload-btn {
+  position: absolute;
+  bottom: -15px;
+  right: 12%;
+  transform: translateX(-50%);
+  background: #b499e0;
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(154, 132, 187, 0.3);
+  transition: background 0.3s;
+  display: none;
+}
+
+/* show change button sa edit ra*/
+.profile-form:not(.view-mode) ~ .profile-header .upload-btn {
+  display: block;
+}
+
+.profile-card.edit-mode .upload-btn {
+  display: block;
+}
+
+
+.upload-btn:hover {
+  background: #a283da;
+}
+
+.profile-info h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #3d345c;
+  font-weight: 600;
+}
+
+.profile-info p {
+  color: #7b7193;
+  font-size: 0.95rem;
+}
+
+/* --- Form --- */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #5c527a;
+}
+
+.form-group input,
+.form-group select {
+  border: 1px solid #d9d3ec;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 15px;
+  background: #faf8ff;
+  transition: border 0.3s, background 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #b499e0;
+  background: #fff;
+}
+
+.address-placeholder {
+  font-size: 0.8rem;
+  color: #9b93b7;
+  margin-top: 4px;
+}
+
+.subheader {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #5a5a5a;
+  border-bottom: 1px solid #dcdcdc;
+  padding-bottom: 0.5rem;
+}
+
+/* Removed old border from password-fields */
+.password-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  margin-top: 0;
+  border: none;
+}
+
+
+/* --- Save Button --- */
+.primary-btn {
+  background: linear-gradient(135deg, #b499e0, #9bbce0);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-end;
+}
+
+.primary-btn:hover {
+  background: linear-gradient(135deg, #a183da, #86aed6);
+  transform: translateY(-1px);
+}
+
+/* --- View Mode --- */
+.view-mode input,
+.view-mode select {
+  background: transparent;
+  border: none;
+  color: #4a4268;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.view-mode .password-fields {
+  display: none;
 }

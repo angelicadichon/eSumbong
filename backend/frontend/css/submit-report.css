@@ -16,7 +16,7 @@
   html,body{height:100%}
   body{
     margin:0;
-    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(180deg,var(--bg-start),var(--bg-end));
     color:#0f1724;
     -webkit-font-smoothing:antialiased;
@@ -74,6 +74,8 @@
     transition: all 0.3s ease;
     font-weight: 500;
     border-left: 3px solid transparent;
+    gap: 10px;
+
   }
   
   .sidebar nav a:hover {

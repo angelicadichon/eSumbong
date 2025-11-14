@@ -14,7 +14,6 @@
     min-height: 100vh;
   }
   
-  /* Sidebar Styles */
   .sidebar {
     position: fixed;        
     top: 0;                 
@@ -30,52 +29,61 @@
   .sidebar-header {
     display: flex;
     align-items: center;
-    gap: 10px;
     padding: 0 20px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #4a6278;
+    margin-bottom: 20px;
   }
   
   .sidebar-header i {
-    width: 24px;
-    height: 24px;
+    margin-right: 12px;
+    color: #3498db;
   }
   
   .sidebar-header h2 {
-    font-size: 1.4rem;
     margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
   }
   
   .sidebar nav ul {
     list-style: none;
-    padding: 20px 0;
+    padding: 0;
+    margin: 0;
   }
   
-  .nav-item {
+  .sidebar nav li {
     margin-bottom: 5px;
   }
   
-  .nav-item a {
+  .sidebar nav a {
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: #b0b7c3;
+    padding: 14px 20px;
+    color: #bdc3c7;
     text-decoration: none;
-    padding: 12px 20px;
     transition: all 0.3s ease;
+    font-weight: 500;
     border-left: 3px solid transparent;
   }
   
-  .nav-item a:hover, .nav-item.active a {
-    background-color: rgba(255, 255, 255, 0.1);
+  .sidebar nav a:hover {
+    background-color: #34495e;
     color: white;
-    border-left: 3px solid #3498db;
+    border-left-color: #3498db;
   }
   
-  .nav-item i {
-    width: 18px;
-    height: 18px;
+  .sidebar nav a i {
+    margin-right: 12px;
+    width: 20px;
+    height: 20px;
   }
-
+  
+  .nav-item.active a {
+    background-color: #3498db;
+    color: white;
+    border-left-color: #2980b9;
+  }
+  
   .logout-btn {
     margin-top: 30px;
     border-top: 1px solid #4a6278;
@@ -90,7 +98,6 @@
     background-color: #c0392b !important;
     color: white !important;
   }
-
   .profile-circle {
     width: 80px;
     height: 80px;
