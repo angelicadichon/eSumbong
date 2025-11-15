@@ -17,7 +17,7 @@ const REQUIRED_ENV = [
 
 REQUIRED_ENV.forEach((key) => {
   if (!process.env[key]) {
-    console.error(`❌ ERROR: Missing required environment variable: ${key}`);
+    console.error(`ERROR: Missing required environment variable: ${key}`);
     process.exit(1); // STOP server execution
   }
 });
