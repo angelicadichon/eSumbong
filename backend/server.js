@@ -3,28 +3,41 @@ import cors from "cors";
 import path from "path";
 import multer from "multer";
 import { fileURLToPath } from "url";
-import { supabase } from "./supabase.js";
+import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
-dotenv.config();
+
+
+
+dotenv.config(); 
+
+
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://iyyusjkkdpkklyhjuofn.supabase.co";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5eXVzamtrZHBra2x5aGp1b2ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2MzgyOTgsImV4cCI6MjA3NzIxNDI5OH0.PcsYavAti6YpZN2yqpIrEC9N2-FBBqPcexazFpJxpnI";
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5eXVzamtrZHBra2x5aGp1b2ZuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTYzODI5OCwiZXhwIjoyMDc3MjE0Mjk4fQ._U0uB_BVHKZqV7lhildC_RkolQXJLoWbxnnMv_9RvTM";
+
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const app = express();
 const PORT = process.env.PORT || 5200;
 const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
 
-// Directory setup
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static frontend files
+
 const frontendPath = path.join(__dirname, "frontend");
 app.use(express.static(frontendPath));
 
-// Memory Storage for uploading of pictures/files
+
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
@@ -42,7 +55,7 @@ const upload = multer({
   },
 });
 
-// Predefined users 
+
 const users = [
   { username: "admin", password: "xamarinadmin123", role: "admin" },
   { username: "resident1", password: "xamarinuser123", role: "resident" },
@@ -52,7 +65,6 @@ const users = [
   { username: "maintenance", password: "xamarinmaintenance123", role: "maintenance" },
 ];
 
-// routing login
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -69,7 +81,7 @@ app.post("/api/login", async (req, res) => {
     return;
   }
 
-  // Checking existing Supabase users
+ 
   try {
     const { data, error } = await supabase
       .from("users")
@@ -92,19 +104,19 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// handling complaints submission from the resident report form to the database
+
 app.post("/api/complaints", upload.single("file"), async (req, res) => {
   console.log("Received complaint submission");
 
   try {
-    // getting all the data inputted in the fields from resident report form
+    
     const { name, contact, category, description, location, username } = req.body;
 
     console.log("Extracted form data:", {
       name, contact, category, description, location, username
     });
 
-    // Validating required fields
+
     if (!name || !contact || !category || !description || !location || !username) {
       return res.status(400).json({ 
         success: false, 
@@ -122,11 +134,11 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
 
     let fileUrl = null;
 
-    // Upload file to Supabase storage bucket (complaint-files) that stores files and photos uploaded
+    
     if (req.file) {
       console.log("Processing file upload:", req.file.originalname);
       const fileName = `complaint-${Date.now()}-${req.file.originalname}`;
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabaseAdmin.storage
         .from("complaint-files")
         .upload(fileName, req.file.buffer, { contentType: req.file.mimetype });
 
@@ -135,14 +147,14 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
         throw uploadError;
       }
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = supabaseAdmin.storage
         .from("complaint-files")
         .getPublicUrl(fileName);
       fileUrl = urlData.publicUrl;
       console.log("File uploaded successfully:", fileUrl);
     }
 
-    // saving complaint data for the supabase database
+    
     const complaintData = {
       name: name,
       contact: contact,
@@ -157,22 +169,10 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
 
     console.log("Complaint data to save:", complaintData);
 
-    // Insert into the database 
-    const { data, error } = await supabase
+    
+    const { data, error } = await supabaseAdmin
       .from("complaints")
-      .insert([
-        {
-          name: complaintData.name,
-          contact: complaintData.contact,
-          category: complaintData.category,
-          description: complaintData.description,
-          location: complaintData.location,
-          file: complaintData.file,
-          status: complaintData.status,
-          username: complaintData.username, 
-          created_at: complaintData.created_at
-        }
-      ])
+      .insert([ complaintData ])
       .select();
 
     if (error) {
@@ -200,7 +200,7 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
   }
 });
 
-// get the complaints when the user login ensuring the user logged in can only access his own records
+
 app.get("/api/complaints", async (req, res) => {
   try {
     const { username, role } = req.query; 
@@ -222,14 +222,13 @@ app.get("/api/complaints", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
-// updating status changes of the report 
+ 
 app.put("/api/complaints/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    const { error } = await supabase.from("complaints").update({ status }).eq("id", id);
+    const { error } = await supabaseAdmin.from("complaints").update({ status }).eq("id", id);
 
     if (error) throw error;
     res.json({ success: true, message: "Status updated" });
@@ -238,13 +237,13 @@ app.put("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// this part handles where the admin assign a report to its designated team
+
 app.put("/api/complaints/:id/assign", async (req, res) => {
   const { id } = req.params;
   const { assigned_team } = req.body;
 
   try {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("complaints")
       .update({
         assigned_team,
@@ -259,8 +258,7 @@ app.put("/api/complaints/:id/assign", async (req, res) => {
   }
 });
 
-// this handles the sumbission of the team update to the reports assigned to them where they submit
-// their teams response including photo and notes
+
 app.put("/api/complaints/:id/team-update", upload.single("after_photo"), async (req, res) => {
   const { id } = req.params;
   const { team_notes } = req.body;
@@ -269,12 +267,12 @@ app.put("/api/complaints/:id/team-update", upload.single("after_photo"), async (
   try {
     if (req.file) {
       const fileName = `after-${Date.now()}-${req.file.originalname}`;
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabaseAdmin.storage
         .from("complaint-files")
         .upload(fileName, req.file.buffer, { contentType: req.file.mimetype });
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = supabaseAdmin.storage
         .from("complaint-files")
         .getPublicUrl(fileName);
       afterPhotoUrl = urlData.publicUrl;
@@ -285,7 +283,7 @@ app.put("/api/complaints/:id/team-update", upload.single("after_photo"), async (
       ...(afterPhotoUrl && { after_photo: afterPhotoUrl }),
     };
 
-    const { error } = await supabase.from("complaints").update(updateFields).eq("id", id);
+    const { error } = await supabaseAdmin.from("complaints").update(updateFields).eq("id", id);
     if (error) throw error;
 
     res.json({ success: true, message: "Team update saved successfully" });
@@ -294,7 +292,7 @@ app.put("/api/complaints/:id/team-update", upload.single("after_photo"), async (
   }
 });
 
-// this handles the part where the team can access the assigned reports to them by the admin 
+
 app.get("/api/team/:teamname", async (req, res) => {
   const { teamname } = req.params;
   try {
@@ -310,7 +308,7 @@ app.get("/api/team/:teamname", async (req, res) => {
   }
 });
 
-// Get user profile endpoint - FOR PREDEFINED USERS
+
 app.get("/api/get-profile", async (req, res) => {
   try {
     const { username } = req.query;
@@ -324,7 +322,7 @@ app.get("/api/get-profile", async (req, res) => {
 
     console.log("Fetching profile for username:", username);
 
-    // First, check if this is a valid predefined user
+   
     const predefinedUser = users.find(u => u.username === username);
     if (!predefinedUser) {
       return res.status(404).json({
@@ -333,14 +331,13 @@ app.get("/api/get-profile", async (req, res) => {
       });
     }
 
-    // Try to fetch additional data from database if it exists
+    
     const { data: dbUser, error } = await supabase
       .from("users")
       .select("full_name, phone, email, address, avatar_url, updated_at")
       .eq("username", username)
       .single();
 
-    // If database user exists, merge with predefined data
     if (dbUser && !error) {
       return res.json({
         success: true,
@@ -355,7 +352,7 @@ app.get("/api/get-profile", async (req, res) => {
       });
     }
 
-    // Return only predefined user data
+    
     res.json({
       success: true,
       username: predefinedUser.username,
@@ -377,7 +374,7 @@ app.get("/api/get-profile", async (req, res) => {
   }
 });
 
-// Update profile endpoint - FOR PREDEFINED USERS
+
 app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
   try {
     const { username, full_name, phone, email, address, currentPassword, newPassword } = req.body;
@@ -392,7 +389,7 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
 
     console.log("Updating profile for username:", username);
 
-    // Verify it's a valid predefined user
+    
     const predefinedUser = users.find(u => u.username === username);
     if (!predefinedUser) {
       return res.status(404).json({
@@ -401,7 +398,7 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
       });
     }
 
-    // Handle password verification if changing password
+    
     if (newPassword) {
       if (!currentPassword) {
         return res.status(400).json({
@@ -410,7 +407,6 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
         });
       }
       
-      // Verify current password matches predefined user
       if (currentPassword !== predefinedUser.password) {
         return res.status(401).json({
           success: false,
@@ -423,20 +419,13 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
 
     let avatar_url = null;
 
-    // Handle avatar upload to Supabase Storage (WITHOUT AUTH)
+
     if (avatarFile) {
       try {
-        // Use service role client for storage operations to bypass RLS
-        const serviceRoleClient = createClient(
-          process.env.SUPABASE_URL,
-          process.env.SUPABASE_SERVICE_ROLE_KEY
-        );
-
         const fileExt = avatarFile.originalname.split('.').pop();
         const fileName = `${username}-${Date.now()}.${fileExt}`;
 
-        // Upload using service role client
-        const { data: uploadData, error: uploadError } = await serviceRoleClient.storage
+        const { error: uploadError } = await supabaseAdmin.storage
           .from("avatars")
           .upload(fileName, avatarFile.buffer, {
             contentType: avatarFile.mimetype,
@@ -446,39 +435,31 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
         if (uploadError) {
           console.error("Avatar upload error:", uploadError);
         } else {
-          // Get public URL
-          const { data: { publicUrl } } = serviceRoleClient.storage
+          const { data: urlData } = supabaseAdmin.storage
             .from("avatars")
             .getPublicUrl(fileName);
-          
-          avatar_url = publicUrl;
+          avatar_url = urlData.publicUrl;
           console.log("Avatar uploaded successfully:", avatar_url);
         }
       } catch (uploadError) {
         console.error("Avatar upload failed:", uploadError);
-        // Continue without avatar
       }
     }
 
-    // Prepare update data
-    const updateData = {
-      username: username,
-      full_name: full_name || "",
-      phone: phone || "",
-      email: email || "",
-      address: address || "",
-      avatar_url: avatar_url,
-      role: predefinedUser.role,
-      updated_at: new Date().toISOString()
-    };
+ const updateData = {
+  username: username,
+  full_name: full_name || "",
+  phone: phone || "",
+  email: email || "",
+  address: address || "",
+  avatar_url: avatar_url,
+  role: predefinedUser.role,
+  password: predefinedUser.password, 
+  updated_at: new Date().toISOString()
+};
 
-    // Use service role client for database operations to bypass RLS
-    const serviceRoleClient = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
 
-    const { data, error: dbError } = await serviceRoleClient
+    const { data, error: dbError } = await supabaseAdmin
       .from("users")
       .upsert(updateData, {
         onConflict: 'username'
@@ -517,6 +498,7 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
     });
   }
 });
+
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
