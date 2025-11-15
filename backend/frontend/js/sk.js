@@ -287,7 +287,7 @@ async function handleUpdateSubmit(e) {
 
     if (error) throw error;
 
-    alert("✅ Update saved successfully!");
+    alert("Update saved successfully!");
     closeUpdateModal();
     loadAssignedComplaints();
   } catch (err) {
@@ -305,7 +305,7 @@ function filterCards(query) {
 }
 
 function redirectToProfile() {
-  window.location.href = 'm-profile.html';
+  window.location.href = 'sk-profile.html';
 }
 
 // Function to get user initials from name
