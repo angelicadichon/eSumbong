@@ -6,23 +6,39 @@ import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 
+dotenv.config();
 
 
-dotenv.config(); 
+const REQUIRED_ENV = [
+  "SUPABASE_URL",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+];
 
+REQUIRED_ENV.forEach((key) => {
+  if (!process.env[key]) {
+    console.error(`❌ ERROR: Missing required environment variable: ${key}`);
+    process.exit(1); // STOP server execution
+  }
+});
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://iyyusjkkdpkklyhjuofn.supabase.co";
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5eXVzamtrZHBra2x5aGp1b2ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2MzgyOTgsImV4cCI6MjA3NzIxNDI5OH0.PcsYavAti6YpZN2yqpIrEC9N2-FBBqPcexazFpJxpnI";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5eXVzamtrZHBra2x5aGp1b2ZuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTYzODI5OCwiZXhwIjoyMDc3MjE0Mjk4fQ._U0uB_BVHKZqV7lhildC_RkolQXJLoWbxnnMv_9RvTM";
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
+// -------------------------------
+// EXPRESS APP SETUP
+// -------------------------------
 const app = express();
 const PORT = process.env.PORT || 5200;
 const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
+
 
 
 const __filename = fileURLToPath(import.meta.url);
