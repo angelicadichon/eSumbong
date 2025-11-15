@@ -41,20 +41,27 @@
 
       <section class="page-content feedback-page">
         <div class="card feedback-card">
-          <h3>⭐ How satisfied are you with our service?</h3>
-          <div class="stars" id="starRow" aria-label="feedback stars">
-            <button class="star-btn" data-value="1" aria-label="1 star">☆</button>
-            <button class="star-btn" data-value="2" aria-label="2 stars">☆</button>
-            <button class="star-btn" data-value="3" aria-label="3 stars">☆</button>
-            <button class="star-btn" data-value="4" aria-label="4 stars">☆</button>
-            <button class="star-btn" data-value="5" aria-label="5 stars">☆</button>
+          <h2 class="feedback-title"> Share your Feedback</h2>
+          <p class="feedback-subtitle">We'd love to hear your thoughts and improve our service.</p>
+          
+          <div class="feedback-stars">
+            <div class="stars" id="starRow" aria-label="feedback-stars">
+              <button class="star-btn" data-value="1" aria-label="1 star">⭐</button>
+              <button class="star-btn" data-value="2" aria-label="2 stars">⭐</button>
+              <button class="star-btn" data-value="3" aria-label="3 stars">⭐</button>
+              <button class="star-btn" data-value="4" aria-label="4 stars">⭐</button>
+              <button class="star-btn" data-value="5" aria-label="5 stars">⭐</button>
+            </div>
           </div>
-          <textarea id="feedbackText" placeholder="Optional comments"></textarea>
-          <div class="form-actions">
-            <button class="primary-btn" onclick="submitFeedback()">Send Feedback</button>
-            <a class="secondary-btn" href="user-dashboard.html">Back to Dashboard</a>
-          </div>
-          <p id="fbResponse" class="response-text"></p>
+
+          <textarea id="feedbackText" placeholder="Write your comments here (optional)..."></textarea>
+
+            <div class="form-actions">
+              <button class="primary-btn" onclick="submitFeedback()">Send Feedback</button>
+              <a class="secondary-btn" href="user-dashboard.html">Back to Dashboard</a>
+            </div>
+
+            <p id="fbResponse" class="response-text"></p>
         </div>
       </section>
     </main>
