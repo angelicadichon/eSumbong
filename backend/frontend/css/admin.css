@@ -65,7 +65,12 @@
     gap: 10px;
 
   }
-  
+  .sidebar-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px; 
+    gap: 16px;
+  }
   .sidebar nav a:hover {
     background-color: #34495e;
     color: white;

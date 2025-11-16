@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="image/favicon.png">
   <title>Profile | eSumbong</title>
   <link rel="stylesheet" href="css/admin.css" />
   <link rel="stylesheet" href="css/profilestyle.css" />
@@ -12,6 +13,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">
+      <img src="image/favicon.png" alt="Logo" class="sidebar-logo">
       <h2>eSumbong</h2>
     </div>
     <nav>
@@ -19,7 +21,10 @@
         <li><a href="admin-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
         <li class="nav-item active"><a href="profile.html"><i data-lucide="user"></i> Profile</a></li>
         <li><a href="reports.html"><i data-lucide="file-text"></i> All Reports</a></li>
-        <li><a href="admin-residents.html"><i data-lucide="users"></i> Residents</a></li>
+        <li><a href="residents.html"><i data-lucide="users"></i> Residents</a></li>
+        <li data-link="admin-settings.html" class="nav-item">
+          <a href="admin-settings.html"><i data-lucide="bell"></i> Notifications</a>
+        </li>
         <li><a href="admin-settings.html"><i data-lucide="settings"></i> Settings</a></li>
         <li class="logout-btn"><a href="#" id="logoutBtn"><i data-lucide="log-out"></i> Logout</a></li>
       </ul>

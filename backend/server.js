@@ -18,7 +18,7 @@ const REQUIRED_ENV = [
 REQUIRED_ENV.forEach((key) => {
   if (!process.env[key]) {
     console.error(`ERROR: Missing required environment variable: ${key}`);
-    process.exit(1); // STOP server execution
+    process.exit(1); 
   }
 });
 
@@ -32,9 +32,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// -------------------------------
-// EXPRESS APP SETUP
-// -------------------------------
+
 const app = express();
 const PORT = process.env.PORT || 5200;
 const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
@@ -514,6 +512,57 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
     });
   }
 });
+
+// ... (rest of your server.js remains unchanged)
+
+// Updated GET /api/residents (removed status)
+app.get("/api/residents", async (req, res) => {
+  try {
+    // Fetch residents with basic info (removed status)
+    const { data: residents, error: residentsError } = await supabase
+      .from("users")
+      .select("id, username, full_name, phone, email, address, avatar_url, updated_at")
+      .eq("role", "resident")
+      .order("full_name", { ascending: true });
+
+    if (residentsError) throw residentsError;
+
+    // For each resident, aggregate report count and last active from complaints
+    const residentsWithReports = await Promise.all(
+      residents.map(async (resident) => {
+        const { data: complaints, error: complaintsError } = await supabase
+          .from("complaints")
+          .select("created_at")
+          .eq("username", resident.username)
+          .order("created_at", { ascending: false });
+
+        if (complaintsError) {
+          console.error(`Error fetching complaints for ${resident.username}:`, complaintsError);
+          return { ...resident, reportCount: 0, lastActive: resident.updated_at };
+        }
+
+        const reportCount = complaints.length;
+        const lastActive = complaints.length > 0 ? complaints[0].created_at : resident.updated_at;
+
+        return { ...resident, reportCount, lastActive };
+      })
+    );
+
+    res.json({ 
+      success: true, 
+      residents: residentsWithReports,
+      total: residentsWithReports.length
+    });
+  } catch (error) {
+    console.error("Error fetching residents:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to fetch residents" 
+    });
+  }
+});
+
+// ... (rest of your server.js remains unchanged)
 
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));

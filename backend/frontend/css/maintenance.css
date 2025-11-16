@@ -66,7 +66,12 @@ body {
   gap: 10px;
 
 }
-
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px; 
+  gap: 16px;
+}
 .nav-item a:hover, .nav-item.active a {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;

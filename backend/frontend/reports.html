@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="image/favicon.png">
     <title>All Reports | eSumbong</title>
     <link rel="stylesheet" href="css/reports.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -10,6 +11,7 @@
   <body>
     <aside class="sidebar">
       <div class="sidebar-header">
+        <img src="image/favicon.png" alt="Logo" class="sidebar-logo">
         <h2>eSumbong</h2>
       </div>
       <nav>
@@ -25,7 +27,10 @@
             <a href="residents.html"><i data-lucide="users" ></i> Residents</a>
           </li>
           <li data-link="admin-settings.html" class="nav-item">
-            <a href="profile.html"><i data-lucide="settings" ></i> Profile</a>
+            <a href="admin-settings.html"><i data-lucide="bell"></i> Notifications</a>
+          </li>
+            <li data-link="admin-settings.html" class="nav-item">
+            <a href="admin-settings.html"><i data-lucide="settings"></i> Settings</a>
           </li>
           <li class="nav-item logout-btn">
             <a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>

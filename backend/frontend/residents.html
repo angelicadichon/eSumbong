@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="image/favicon.png">
+    <title>Residents | eSumbong</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/resident.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="image/favicon.png" alt="Logo" class="sidebar-logo">
+        <h2>eSumbong</h2>
+      </div>
+      <nav>
+        <ul>
+          <li class="nav-item"><a href="admin-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+          <li class="nav-item"><a href="profile.html"><i data-lucide="user"></i> Profile</a></li>
+          <li class="nav-item"><a href="reports.html"><i data-lucide="file-text"></i> All Reports</a></li>
+          <li class="nav-item active"><a href="resident.html"><i data-lucide="users"></i> Residents</a></li>
+          <li class="nav-item"><a href="admin-settings.html"><i data-lucide="bell"></i> Notifications</a></li>
+          <li class="nav-item"><a href="admin-settings.html"><i data-lucide="settings"></i> Settings</a></li>
+          <li class="nav-item logout-btn">
+            <a href="#" id="logoutBtn"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="top-header">
+            <h1>Residents Management</h1>
+            <div class="header-actions">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search residents...">
+                    <i data-lucide="search"></i>
+                </div>
+                <button class="btn btn-primary" id="addResidentBtn">
+                    <i data-lucide="user-plus"></i> Add Resident
+                </button>
+            </div>
+        </header>
+
+        <section class="page-content">
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i data-lucide="users"></i>
+                    </div>
+                    <div class="summary-info">
+                        <div class="summary-number" id="totalResidents">0</div>
+                        <div class="summary-label">Total Residents</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon active">
+                        <i data-lucide="user-check"></i>
+                    </div>
+                    <div class="summary-info">
+                        <div class="summary-number" id="activeResidents">0</div>
+                        <div class="summary-label">Active Residents</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon reports">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <div class="summary-info">
+                        <div class="summary-number" id="totalReports">0</div>
+                        <div class="summary-label">Total Reports</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label for="statusFilter">Status:</label>
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sortBy">Sort By:</label>
+                    <select id="sortBy">
+                        <option value="name">Name</option>
+                        <option value="recent">Most Recent</option>
+                        <option value="reports">Most Reports</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary" id="exportBtn">
+                    <i data-lucide="download"></i> Export List
+                </button>
+            </div>
+
+            <!-- Residents Grid -->
+            <div class="table-container">
+                <table class="residents-table">
+                    <thead>
+                        <tr>
+                            <th>Resident</th>
+                            <th>Contact Information</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Reports</th>
+                            <th>Last Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="residentsTableBody">
+                        <!-- Residents will be populated here -->
+                    </tbody>
+                </table>
+                
+                <!-- Loading State -->
+                <div id="loadingState" class="loading-state">
+                    <i data-lucide="loader-2" class="loading-spinner"></i>
+                    <p>Loading residents...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state hidden">
+                    <i data-lucide="users"></i>
+                    <h3>No Residents Found</h3>
+                    <p>There are no residents matching your criteria.</p>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="pagination-btn" id="prevPage" disabled>
+                        <i data-lucide="chevron-left"></i> Previous
+                    </button>
+                    <div class="page-numbers" id="pageNumbers"></div>
+                    <button class="pagination-btn" id="nextPage">
+                        Next <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Resident Details Modal -->
+    <div id="residentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Resident Details</h2>
+                <button class="close-btn" id="closeModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="resident-profile">
+                    <div class="profile-image-section">
+                        <img id="modalAvatar" src="images/default-avatar.png" alt="Resident Avatar">
+                    </div>
+                    <div class="profile-details">
+                        <h3 id="modalName">Loading...</h3>
+                        <p id="modalUsername" class="text-muted">@username</p>
+                        
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <i data-lucide="mail"></i>
+                                <div>
+                                    <label>Email</label>
+                                    <span id="modalEmail">No email</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i data-lucide="phone"></i>
+                                <div>
+                                    <label>Phone</label>
+                                    <span id="modalPhone">No phone</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i data-lucide="map-pin"></i>
+                                <div>
+                                    <label>Address</label>
+                                    <span id="modalAddress">No address</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i data-lucide="calendar"></i>
+                                <div>
+                                    <label>Joined</label>
+                                    <span id="modalJoined">Unknown</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i data-lucide="file-text"></i>
+                                <div>
+                                    <label>Total Reports</label>
+                                    <span id="modalReports">0</span>
+                                </div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Reports Section -->
+                <div class="reports-section">
+                    <h4>Recent Reports</h4>
+                    <div id="recentReports" class="reports-list">
+                        <!-- Recent reports will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="closeModalBtn">Close</button>
+                <button class="btn btn-primary" id="editResidentBtn">Edit Resident</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Element -->
+    <div id="notification" class="notification hidden"></div>
+
+    <script src="js/residents.js" type="module"></script>
+    <script>
+        lucide.createIcons();
+      </script>
+</body>
+</html>

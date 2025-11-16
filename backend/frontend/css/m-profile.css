@@ -23,6 +23,12 @@
     overflow-y: auto;       
     z-index: 1000;         
   }
+  .sidebar-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px; 
+    gap: 16px;
+  }
   
   .sidebar-header {
     display: flex;
