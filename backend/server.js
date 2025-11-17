@@ -513,40 +513,63 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
   }
 });
 
-// ... (rest of your server.js remains unchanged)
-
-// Updated GET /api/residents (removed status)
 app.get("/api/residents", async (req, res) => {
   try {
-    // Fetch residents with basic info (removed status)
     const { data: residents, error: residentsError } = await supabase
       .from("users")
-      .select("id, username, full_name, phone, email, address, avatar_url, updated_at")
+      .select("id, username, full_name, phone, email, address, avatar_url, created_at, updated_at")
       .eq("role", "resident")
       .order("full_name", { ascending: true });
 
     if (residentsError) throw residentsError;
 
-    // For each resident, aggregate report count and last active from complaints
-    const residentsWithReports = await Promise.all(
-      residents.map(async (resident) => {
-        const { data: complaints, error: complaintsError } = await supabase
-          .from("complaints")
-          .select("created_at")
-          .eq("username", resident.username)
-          .order("created_at", { ascending: false });
+    const { data: allComplaints, error: complaintsError } = await supabase
+      .from("complaints")
+      .select("username, created_at")
+      .order("created_at", { ascending: false });
 
-        if (complaintsError) {
-          console.error(`Error fetching complaints for ${resident.username}:`, complaintsError);
-          return { ...resident, reportCount: 0, lastActive: resident.updated_at };
+    if (complaintsError) {
+      console.error("Error fetching complaints:", complaintsError);
+    }
+
+    const complaintCounts = {};
+    const lastComplaintDates = {};
+    
+    if (allComplaints && allComplaints.length > 0) {
+      allComplaints.forEach(complaint => {
+        const username = complaint.username;
+        
+        if (!username) return; 
+        
+        if (!complaintCounts[username]) {
+          complaintCounts[username] = 0;
         }
+        complaintCounts[username]++;
+        
+        if (!lastComplaintDates[username] || new Date(complaint.created_at) > new Date(lastComplaintDates[username])) {
+          lastComplaintDates[username] = complaint.created_at;
+        }
+      });
+    }
 
-        const reportCount = complaints.length;
-        const lastActive = complaints.length > 0 ? complaints[0].created_at : resident.updated_at;
+    const residentsWithReports = residents.map(resident => {
+      const username = resident.username;
+      const reportsCount = complaintCounts[username] || 0;
+      
+      let lastActive = resident.updated_at;
+      if (lastComplaintDates[username]) {
+        lastActive = lastComplaintDates[username];
+      }
 
-        return { ...resident, reportCount, lastActive };
-      })
-    );
+      const status = reportsCount > 0 ? 'active' : 'inactive';
+
+      return { 
+        ...resident, 
+        reports_count: reportsCount, 
+        last_active: lastActive,
+        status: status
+      };
+    });
 
     res.json({ 
       success: true, 
@@ -562,7 +585,136 @@ app.get("/api/residents", async (req, res) => {
   }
 });
 
-// ... (rest of your server.js remains unchanged)
+// Get resident by username
+app.get("/api/residents/username/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    // Get resident details
+    const { data: resident, error: residentError } = await supabase
+      .from("users")
+      .select("id, username, full_name, phone, email, address, avatar_url, created_at, updated_at")
+      .eq("username", username)
+      .eq("role", "resident")
+      .single();
+
+    if (residentError) throw residentError;
+    if (!resident) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Resident not found" 
+      });
+    }
+
+    // Get resident's complaints
+    const { data: complaints, error: complaintsError } = await supabase
+      .from("complaints")
+      .select("id, category, description, status, created_at")
+      .eq("username", username)
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    if (complaintsError) {
+      console.error("Error fetching complaints:", complaintsError);
+    }
+
+    // Get total reports count
+    const { count: reportsCount, error: countError } = await supabase
+      .from("complaints")
+      .select('*', { count: 'exact', head: true })
+      .eq("username", username);
+
+    if (countError) {
+      console.error("Error counting complaints:", countError);
+    }
+
+    const residentWithDetails = {
+      ...resident,
+      reports_count: reportsCount || 0,
+      recent_complaints: complaints || []
+    };
+
+    res.json({ 
+      success: true, 
+      resident: residentWithDetails
+    });
+  } catch (error) {
+    console.error("Error fetching resident by username:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to fetch resident details" 
+    });
+  }
+});
+
+// Delete resident by username
+app.delete("/api/residents/username/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const { error } = await supabaseAdmin
+      .from("users")
+      .delete()
+      .eq("username", username)
+      .eq("role", "resident");
+
+    if (error) throw error;
+
+    res.json({ 
+      success: true, 
+      message: "Resident deleted successfully" 
+    });
+  } catch (error) {
+    console.error("Error deleting resident by username:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete resident" 
+    });
+  }
+});
+
+// Update resident by username
+app.put("/api/residents/username/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const updateData = req.body;
+
+    // Remove fields that shouldn't be updated
+    const { id, created_at, role, ...safeUpdateData } = updateData;
+
+    const { data: resident, error } = await supabaseAdmin
+      .from("users")
+      .update({
+        ...safeUpdateData,
+        updated_at: new Date().toISOString()
+      })
+      .eq("username", username)
+      .eq("role", "resident")
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (!resident) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Resident not found" 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: "Resident updated successfully",
+      resident: resident
+    });
+  } catch (error) {
+    console.error("Error updating resident by username:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to update resident" 
+    });
+  }
+});
 
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
