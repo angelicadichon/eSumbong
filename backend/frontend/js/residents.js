@@ -1,515 +1,569 @@
-// API configuration
-const API_BASE_URL = 'http://localhost:5200/api';
+ // API configuration - Using relative path for deployed environment
+ const API_BASE_URL = '/api';
 
-// State management
-let residents = [];
-let filteredResidents = [];
-let currentSearchTerm = '';
-let currentStatusFilter = 'all';
-let currentSortBy = 'name';
+ // Mock data for fallback
+ const MOCK_RESIDENTS = [
+     {
+         id: 1,
+         username: "john_doe",
+         full_name: "John Doe",
+         email: "john.doe@example.com",
+         phone: "+1 (555) 123-4567",
+         address: "123 Main Street, Barangay 1, Quezon City",
+         status: "active",
+         avatar_url: "https://ui-avatars.com/api/?name=John+Doe&background=3498db&color=fff",
+         reports_count: 3,
+         last_active: new Date().toISOString(),
+         created_at: "2024-01-15T00:00:00Z",
+         recent_complaints: [
+             {
+                 category: "sanitation",
+                 description: "Garbage collection delayed in our area",
+                 status: "resolved",
+                 created_at: "2024-11-20T10:30:00Z"
+             },
+             {
+                 category: "infrastructure",
+                 description: "Street light not working near the park",
+                 status: "in-progress",
+                 created_at: "2024-11-18T14:20:00Z"
+             }
+         ]
+     },
+     {
+         id: 2,
+         username: "maria_santos",
+         full_name: "Maria Santos",
+         email: "maria.santos@example.com",
+         phone: "+1 (555) 234-5678",
+         address: "456 Oak Avenue, Barangay 2, Manila",
+         status: "active",
+         avatar_url: "https://ui-avatars.com/api/?name=Maria+Santos&background=00b894&color=fff",
+         reports_count: 1,
+         last_active: new Date().toISOString(),
+         created_at: "2024-02-20T00:00:00Z",
+         recent_complaints: [
+             {
+                 category: "noise",
+                 description: "Loud construction noise during night time",
+                 status: "pending",
+                 created_at: "2024-11-22T08:15:00Z"
+             }
+         ]
+     }
+ ];
 
-// DOM Elements
-let residentsTableBody, loadingState, emptyState;
-let searchInput, statusFilter, sortBy;
+ // State management
+ let residents = [];
+ let filteredResidents = [];
+ let currentSearchTerm = '';
+ let currentStatusFilter = 'all';
+ let currentSortBy = 'name';
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
-    initializeDOMElements();
-    loadResidents();
-    setupEventListeners();
-});
+ // DOM Elements
+ let residentsTableBody, loadingState, emptyState;
+ let searchInput, statusFilter, sortBy;
 
-// Initialize DOM element references
-function initializeDOMElements() {
-    residentsTableBody = document.getElementById('residentsTableBody');
-    loadingState = document.getElementById('loadingState');
-    emptyState = document.getElementById('emptyState');
-    searchInput = document.getElementById('searchInput');
-    
-    createFilterElements();
-}
+ // Initialize the application
+ document.addEventListener('DOMContentLoaded', function() {
+     initializeDOMElements();
+     loadResidents();
+     setupEventListeners();
+     lucide.createIcons();
+ });
 
-// Create filter elements dynamically
-function createFilterElements() {
-    const tableContainer = document.querySelector('.table-container');
-    if (!tableContainer) return;
+ // Initialize DOM element references
+ function initializeDOMElements() {
+     residentsTableBody = document.getElementById('residentsTableBody');
+     loadingState = document.getElementById('loadingState');
+     emptyState = document.getElementById('emptyState');
+     searchInput = document.getElementById('searchInput');
+     
+     createFilterElements();
+ }
 
-    const filtersSection = document.createElement('div');
-    filtersSection.className = 'filters-section';
-    filtersSection.innerHTML = `
-        <div class="filter-group">
-            <label for="statusFilter">Status:</label>
-            <select id="statusFilter">
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="sortBy">Sort By:</label>
-            <select id="sortBy">
-                <option value="name">Name</option>
-                <option value="recent">Most Recent</option>
-                <option value="reports">Most Reports</option>
-            </select>
-        </div>
-    `;
+ // Create filter elements dynamically
+ function createFilterElements() {
+     const tableContainer = document.querySelector('.table-container');
+     if (!tableContainer) return;
 
-    const table = tableContainer.querySelector('table');
-    tableContainer.insertBefore(filtersSection, table);
+     const filtersSection = document.createElement('div');
+     filtersSection.className = 'filters-section';
+     filtersSection.innerHTML = `
+         <div class="filter-group">
+             <label for="statusFilter">Status:</label>
+             <select id="statusFilter">
+                 <option value="all">All Status</option>
+                 <option value="active">Active</option>
+                 <option value="inactive">Inactive</option>
+             </select>
+         </div>
+         <div class="filter-group">
+             <label for="sortBy">Sort By:</label>
+             <select id="sortBy">
+                 <option value="name">Name</option>
+                 <option value="recent">Most Recent</option>
+                 <option value="reports">Most Reports</option>
+             </select>
+         </div>
+     `;
 
-    statusFilter = document.getElementById('statusFilter');
-    sortBy = document.getElementById('sortBy');
-}
+     const table = tableContainer.querySelector('table');
+     tableContainer.insertBefore(filtersSection, table);
 
-// Set up event listeners
-function setupEventListeners() {
-    if (searchInput) {
-        searchInput.addEventListener('input', handleSearch);
-    }
-    
-    if (statusFilter) {
-        statusFilter.addEventListener('change', handleFilterChange);
-    }
-    
-    if (sortBy) {
-        sortBy.addEventListener('change', handleSortChange);
-    }
+     statusFilter = document.getElementById('statusFilter');
+     sortBy = document.getElementById('sortBy');
+ }
 
-    setupModalListeners();
-}
+ // Set up event listeners
+ function setupEventListeners() {
+     if (searchInput) {
+         searchInput.addEventListener('input', handleSearch);
+     }
+     
+     if (statusFilter) {
+         statusFilter.addEventListener('change', handleFilterChange);
+     }
+     
+     if (sortBy) {
+         sortBy.addEventListener('change', handleSortChange);
+     }
 
-// Setup modal event listeners
-function setupModalListeners() {
-    const modal = document.getElementById('residentModal');
-    const closeModal = document.getElementById('closeModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const editResidentBtn = document.getElementById('editResidentBtn');
+     setupModalListeners();
+ }
 
-    if (closeModal) closeModal.addEventListener('click', () => closeResidentModal());
-    if (closeModalBtn) closeModalBtn.addEventListener('click', () => closeResidentModal());
-    if (editResidentBtn) editResidentBtn.addEventListener('click', handleEditResident);
+ // Setup modal event listeners
+ function setupModalListeners() {
+     const modal = document.getElementById('residentModal');
+     const closeModal = document.getElementById('closeModal');
+     const closeModalBtn = document.getElementById('closeModalBtn');
+     const editResidentBtn = document.getElementById('editResidentBtn');
 
-    if (modal) {
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) closeResidentModal();
-        });
-    }
-}
+     if (closeModal) closeModal.addEventListener('click', () => closeResidentModal());
+     if (closeModalBtn) closeModalBtn.addEventListener('click', () => closeResidentModal());
+     if (editResidentBtn) editResidentBtn.addEventListener('click', handleEditResident);
 
-// Load residents from API
-async function loadResidents() {
-    try {
-        showLoadingState();
-        
-        const response = await fetch(`${API_BASE_URL}/residents`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            residents = data.residents || [];
-            applyFiltersAndSort();
-            renderResidents();
-        } else {
-            throw new Error(data.message || 'Failed to load residents');
-        }
-    } catch (error) {
-        console.error('Error loading residents:', error);
-        showErrorState('Failed to load residents. Please try again later.');
-    }
-}
+     if (modal) {
+         modal.addEventListener('click', (event) => {
+             if (event.target === modal) closeResidentModal();
+         });
+     }
+ }
 
-// Apply filters and sorting
-function applyFiltersAndSort() {
-    filteredResidents = [...residents];
+ // Load residents from API with fallback to mock data
+ async function loadResidents() {
+     try {
+         showLoadingState();
+         
+         // Try to fetch from API with timeout
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 5000);
+         
+         try {
+             const response = await fetch(`${API_BASE_URL}/residents`, {
+                 signal: controller.signal
+             });
+             clearTimeout(timeoutId);
+             
+             if (!response.ok) {
+                 throw new Error(`HTTP error! status: ${response.status}`);
+             }
+             
+             const data = await response.json();
+             
+             if (data.success) {
+                 residents = data.residents || [];
+                 showNotification('Residents loaded successfully', 'success');
+             } else {
+                 throw new Error(data.message || 'Failed to load residents');
+             }
+         } catch (apiError) {
+             // If API fails, use mock data
+             console.log('API unavailable, using mock data:', apiError.message);
+             residents = MOCK_RESIDENTS;
+             showNotification('Using demo data', 'info');
+         }
+         
+         applyFiltersAndSort();
+         renderResidents();
+         
+     } catch (error) {
+         console.error('Error loading residents:', error);
+         // Fallback to mock data
+         residents = MOCK_RESIDENTS;
+         applyFiltersAndSort();
+         renderResidents();
+         showNotification('Using demo data', 'info');
+     }
+ }
 
-    // Apply status filter
-    if (currentStatusFilter !== 'all') {
-        filteredResidents = filteredResidents.filter(resident => 
-            resident.status === currentStatusFilter
-        );
-    }
+ // Apply filters and sorting
+ function applyFiltersAndSort() {
+     filteredResidents = [...residents];
 
-    // Apply search filter
-    if (currentSearchTerm) {
-        const searchTerm = currentSearchTerm.toLowerCase();
-        filteredResidents = filteredResidents.filter(resident => 
-            (resident.full_name || '').toLowerCase().includes(searchTerm) ||
-            (resident.email || '').toLowerCase().includes(searchTerm) ||
-            (resident.phone || '').toLowerCase().includes(searchTerm) ||
-            (resident.address || '').toLowerCase().includes(searchTerm) ||
-            (resident.username || '').toLowerCase().includes(searchTerm)
-        );
-    }
+     // Apply status filter
+     if (currentStatusFilter !== 'all') {
+         filteredResidents = filteredResidents.filter(resident => 
+             resident.status === currentStatusFilter
+         );
+     }
 
-    // Apply sorting
-    sortResidents();
-}
+     // Apply search filter
+     if (currentSearchTerm) {
+         const searchTerm = currentSearchTerm.toLowerCase();
+         filteredResidents = filteredResidents.filter(resident => 
+             (resident.full_name || '').toLowerCase().includes(searchTerm) ||
+             (resident.email || '').toLowerCase().includes(searchTerm) ||
+             (resident.phone || '').toLowerCase().includes(searchTerm) ||
+             (resident.address || '').toLowerCase().includes(searchTerm) ||
+             (resident.username || '').toLowerCase().includes(searchTerm)
+         );
+     }
 
-// Sort residents
-function sortResidents() {
-    switch(currentSortBy) {
-        case 'name':
-            filteredResidents.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
-            break;
-        case 'recent':
-            filteredResidents.sort((a, b) => new Date(b.last_active || b.updated_at) - new Date(a.last_active || a.updated_at));
-            break;
-        case 'reports':
-            filteredResidents.sort((a, b) => (b.reports_count || 0) - (a.reports_count || 0));
-            break;
-    }
-}
+     // Apply sorting
+     sortResidents();
+ }
 
-// Render residents to table
-function renderResidents() {
-    if (!residentsTableBody) return;
+ // Sort residents
+ function sortResidents() {
+     switch(currentSortBy) {
+         case 'name':
+             filteredResidents.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+             break;
+         case 'recent':
+             filteredResidents.sort((a, b) => new Date(b.last_active || b.updated_at) - new Date(a.last_active || a.updated_at));
+             break;
+         case 'reports':
+             filteredResidents.sort((a, b) => (b.reports_count || 0) - (a.reports_count || 0));
+             break;
+     }
+ }
 
-    hideLoadingState();
+ // Render residents to table
+ function renderResidents() {
+     if (!residentsTableBody) return;
 
-    if (filteredResidents.length === 0) {
-        showEmptyState();
-        return;
-    }
+     hideLoadingState();
 
-    hideEmptyState();
+     if (filteredResidents.length === 0) {
+         showEmptyState();
+         return;
+     }
 
-    residentsTableBody.innerHTML = filteredResidents.map(resident => `
-        <tr>
-            <td>
-                <div class="resident-info">
-                    <img src="${resident.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(resident.full_name || 'Resident')}&background=3498db&color=fff`}" 
-                         alt="${resident.full_name}" class="resident-avatar">
-                    <div>
-                        <div class="resident-name">${resident.full_name || 'N/A'}</div>
-                        <div class="resident-username">@${resident.username || 'N/A'}</div>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div class="contact-info">
-                    <div class="contact-email">${resident.email || 'No email'}</div>
-                    <div class="contact-phone">${resident.phone || 'No phone'}</div>
-                </div>
-            </td>
-            <td class="address-cell">${resident.address || 'No address'}</td>
-            <td>
-                <span class="status-badge status-${resident.status || 'active'}">
-                    ${(resident.status || 'active').charAt(0).toUpperCase() + (resident.status || 'active').slice(1)}
-                </span>
-            </td>
-            <td class="last-active">${formatDate(resident.last_active || resident.updated_at)}</td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn-icon view-btn" onclick="viewResident(${resident.id})" title="View Details">
-                        <i data-lucide="eye"></i>
-                    </button>
-                    <button class="btn-icon delete-btn" onclick="deleteResident(${resident.id}, '${resident.full_name}')" title="Delete Resident">
-                        <i data-lucide="trash-2"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
+     hideEmptyState();
 
-    // Refresh Lucide icons
-    if (window.lucide) lucide.createIcons();
-}
+     residentsTableBody.innerHTML = filteredResidents.map(resident => {
+         const safeName = resident.full_name || 'N/A';
+         const safeUsername = resident.username || 'N/A';
+         
+         return `
+         <tr>
+             <td>
+                 <div class="resident-info">
+                     <img src="${resident.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(safeName)}&background=3498db&color=fff`}" 
+                          alt="${safeName}" class="resident-avatar">
+                     <div>
+                         <div class="resident-name">${safeName}</div>
+                         <div class="resident-username">@${safeUsername}</div>
+                     </div>
+                 </div>
+             </td>
+             <td>
+                 <div class="contact-info">
+                     <div class="contact-email">${resident.email || 'No email'}</div>
+                     <div class="contact-phone">${resident.phone || 'No phone'}</div>
+                 </div>
+             </td>
+             <td class="address-cell">${resident.address || 'No address'}</td>
+             <td>
+                 <span class="status-badge status-${resident.status || 'active'}">
+                     ${(resident.status || 'active').charAt(0).toUpperCase() + (resident.status || 'active').slice(1)}
+                 </span>
+             </td>
+             <td class="last-active">${formatDate(resident.last_active || resident.updated_at)}</td>
+             <td>
+                 <div class="action-buttons">
+                     <button class="btn-icon view-btn" onclick="viewResident('${resident.username}')" title="View Details">
+                         <i data-lucide="eye"></i>
+                     </button>
+                     <button class="btn-icon delete-btn" onclick="deleteResident('${resident.username}', '${safeName.replace(/'/g, "\\'")}')" title="Delete Resident">
+                         <i data-lucide="trash-2"></i>
+                     </button>
+                 </div>
+             </td>
+         </tr>
+         `;
+     }).join('');
 
-// Format date
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    try {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'N/A';
-        const today = new Date();
-        if (date.toDateString() === today.toDateString()) {
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        } else {
-            return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-        }
-    } catch (error) {
-        return 'N/A';
-    }
-}
+     // Refresh Lucide icons
+     if (window.lucide) {
+         lucide.createIcons();
+     }
+ }
 
-// Delete resident function
-async function deleteResident(id, residentName) {
-    const confirmed = confirm(`Are you sure you want to delete resident "${residentName}"? This action cannot be undone and will remove the resident from the entire database.`);
-    
-    if (!confirmed) {
-        return;
-    }
+ // Format date
+ function formatDate(dateString) {
+     if (!dateString) return 'N/A';
+     try {
+         const date = new Date(dateString);
+         if (isNaN(date.getTime())) return 'N/A';
+         const today = new Date();
+         if (date.toDateString() === today.toDateString()) {
+             return 'Today';
+         } else {
+             return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+         }
+     } catch (error) {
+         return 'N/A';
+     }
+ }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/residents/${id}`, {
-            method: 'DELETE'
-        });
+ // Delete resident function
+ async function deleteResident(username, residentName) {
+     const confirmed = confirm(`Are you sure you want to delete resident "${residentName}"? This action cannot be undone and will remove the resident from the entire database.`);
+     
+     if (!confirmed) {
+         return;
+     }
 
-        const data = await response.json();
-        
-        if (data.success) {
-            showNotification('Resident deleted successfully', 'success');
-            // Reload residents to reflect the deletion
-            loadResidents();
-        } else {
-            throw new Error(data.message || 'Failed to delete resident');
-        }
-    } catch (error) {
-        console.error('Error deleting resident:', error);
-        showNotification('Error deleting resident', 'error');
-    }
-}
+     try {
+         const response = await fetch(`${API_BASE_URL}/residents/username/${username}`, {
+             method: 'DELETE'
+         });
 
-// Event handlers
-function handleSearch(event) {
-    currentSearchTerm = event.target.value;
-    applyFiltersAndSort();
-    renderResidents();
-}
+         const data = await response.json();
+         
+         if (data.success) {
+             showNotification('Resident deleted successfully', 'success');
+             // Reload residents to reflect the deletion
+             loadResidents();
+         } else {
+             throw new Error(data.message || 'Failed to delete resident');
+         }
+     } catch (error) {
+         console.error('Error deleting resident:', error);
+         showNotification('Error deleting resident', 'error');
+     }
+ }
 
-function handleFilterChange(event) {
-    currentStatusFilter = event.target.value;
-    applyFiltersAndSort();
-    renderResidents();
-}
+ // Event handlers
+ function handleSearch(event) {
+     currentSearchTerm = event.target.value;
+     applyFiltersAndSort();
+     renderResidents();
+ }
 
-function handleSortChange(event) {
-    currentSortBy = event.target.value;
-    applyFiltersAndSort();
-    renderResidents();
-}
+ function handleFilterChange(event) {
+     currentStatusFilter = event.target.value;
+     applyFiltersAndSort();
+     renderResidents();
+ }
 
-// View resident details
-async function viewResident(id) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/residents/${id}`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch resident details');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showResidentModal(data.resident);
-        } else {
-            throw new Error(data.message || 'Failed to load resident details');
-        }
-    } catch (error) {
-        console.error('Error fetching resident details:', error);
-        showNotification('Error loading resident details. Please try again.', 'error');
-    }
-}
+ function handleSortChange(event) {
+     currentSortBy = event.target.value;
+     applyFiltersAndSort();
+     renderResidents();
+ }
 
-// Show resident modal
-function showResidentModal(resident) {
-    const modal = document.getElementById('residentModal');
-    if (!modal) return;
+ // View resident details
+ async function viewResident(username) {
+     try {
+         const response = await fetch(`${API_BASE_URL}/residents/username/${username}`);
+         
+         if (!response.ok) {
+             throw new Error('Failed to fetch resident details');
+         }
+         
+         const data = await response.json();
+         
+         if (data.success) {
+             showResidentModal(data.resident);
+         } else {
+             throw new Error(data.message || 'Failed to load resident details');
+         }
+     } catch (error) {
+         console.error('Error fetching resident details:', error);
+         showNotification('Error loading resident details. Please try again.', 'error');
+     }
+ }
 
-    // Populate modal with resident data
-    document.getElementById('modalName').textContent = resident.full_name || 'N/A';
-    document.getElementById('modalUsername').textContent = `@${resident.username || 'N/A'}`;
-    document.getElementById('modalEmail').textContent = resident.email || 'No email';
-    document.getElementById('modalPhone').textContent = resident.phone || 'No phone';
-    document.getElementById('modalAddress').textContent = resident.address || 'No address';
-    document.getElementById('modalJoined').textContent = formatDate(resident.created_at);
-    document.getElementById('modalReports').textContent = `${resident.reports_count || 0} reports`;
+ // Show resident modal
+ function showResidentModal(resident) {
+     const modal = document.getElementById('residentModal');
+     if (!modal) return;
 
-    // Set avatar
-    const avatar = document.getElementById('modalAvatar');
-    if (avatar) {
-        avatar.src = resident.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(resident.full_name || 'Resident')}&background=3498db&color=fff`;
-        avatar.alt = resident.full_name || 'Resident';
-    }
+     // Populate modal with resident data
+     document.getElementById('modalName').textContent = resident.full_name || 'N/A';
+     document.getElementById('modalUsername').textContent = `@${resident.username || 'N/A'}`;
+     document.getElementById('modalEmail').textContent = resident.email || 'No email';
+     document.getElementById('modalPhone').textContent = resident.phone || 'No phone';
+     document.getElementById('modalAddress').textContent = resident.address || 'No address';
+     document.getElementById('modalJoined').textContent = formatDate(resident.created_at);
+     document.getElementById('modalReports').textContent = `${resident.reports_count || 0} reports`;
 
-    // Populate recent reports
-    const recentReports = document.getElementById('recentReports');
-    if (recentReports) {
-        if (resident.recent_complaints && resident.recent_complaints.length > 0) {
-            recentReports.innerHTML = resident.recent_complaints.map(complaint => `
-                <div class="report-item">
-                    <div class="report-category">${complaint.category || 'General'}</div>
-                    <div class="report-description">${complaint.description || 'No description'}</div>
-                    <div class="report-meta">
-                        <span class="report-status status-${complaint.status}">${complaint.status}</span>
-                        <span class="report-date">${formatDate(complaint.created_at)}</span>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            recentReports.innerHTML = '<p class="no-reports">No recent reports</p>';
-        }
-    }
+     // Set avatar
+     const avatar = document.getElementById('modalAvatar');
+     if (avatar) {
+         avatar.src = resident.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(resident.full_name || 'Resident')}&background=3498db&color=fff`;
+         avatar.alt = resident.full_name || 'Resident';
+     }
 
-    // Set edit button data
-    const editBtn = document.getElementById('editResidentBtn');
-    if (editBtn) {
-        editBtn.setAttribute('data-resident-id', resident.id);
-    }
+     // Populate recent reports
+     const recentReports = document.getElementById('recentReports');
+     if (recentReports) {
+         if (resident.recent_complaints && resident.recent_complaints.length > 0) {
+             recentReports.innerHTML = resident.recent_complaints.map(complaint => `
+                 <div class="report-item">
+                     <div class="report-category">${complaint.category || 'General'}</div>
+                     <div class="report-description">${complaint.description || 'No description'}</div>
+                     <div class="report-meta">
+                         <span class="report-status status-${complaint.status}">${complaint.status}</span>
+                         <span class="report-date">${formatDate(complaint.created_at)}</span>
+                     </div>
+                 </div>
+             `).join('');
+         } else {
+             recentReports.innerHTML = '<p class="no-reports">No recent reports</p>';
+         }
+     }
 
-    // Show modal
-    modal.style.display = 'block';
-    
-    // Refresh Lucide icons
-    if (window.lucide) {
-        lucide.createIcons();
-    }
-}
+     // Set edit button data
+     const editBtn = document.getElementById('editResidentBtn');
+     if (editBtn) {
+         editBtn.setAttribute('data-resident-username', resident.username);
+     }
 
-// Close resident modal
-function closeResidentModal() {
-    const modal = document.getElementById('residentModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
+     // Show modal
+     modal.style.display = 'block';
+     
+     // Refresh Lucide icons
+     if (window.lucide) {
+         lucide.createIcons();
+     }
+ }
 
-// Handle edit resident
-function handleEditResident() {
-    const editBtn = document.getElementById('editResidentBtn');
-    const residentId = editBtn?.getAttribute('data-resident-id');
-    
-    if (residentId) {
-        editResident(residentId);
-    }
-}
+ // Close resident modal
+ function closeResidentModal() {
+     const modal = document.getElementById('residentModal');
+     if (modal) {
+         modal.style.display = 'none';
+     }
+ }
 
-// Edit resident (opens edit form)
-function editResident(id) {
-    const resident = residents.find(r => r.id == id);
-    if (!resident) {
-        showNotification('Resident not found', 'error');
-        return;
-    }
+ // Handle edit resident
+ function handleEditResident() {
+     const editBtn = document.getElementById('editResidentBtn');
+     const residentUsername = editBtn?.getAttribute('data-resident-username');
+     
+     if (residentUsername) {
+         editResident(residentUsername);
+     }
+ }
 
-    // Close modal first
-    closeResidentModal();
+ // Edit resident (opens edit form)
+ function editResident(username) {
+     const resident = residents.find(r => r.username === username);
+     if (!resident) {
+         showNotification('Resident not found', 'error');
+         return;
+     }
 
-    // For now, just show a simple edit form
-    const newName = prompt('Edit resident name:', resident.full_name);
-    if (newName !== null && newName !== resident.full_name) {
-        updateResident(id, { full_name: newName });
-    }
-}
+     // Close modal first
+     closeResidentModal();
 
-// Update resident information
-async function updateResident(id, updateData) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/residents/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updateData)
-        });
+     // For now, just show a simple edit form
+     const newName = prompt('Edit resident name:', resident.full_name);
+     if (newName !== null && newName !== resident.full_name) {
+         updateResident(username, { full_name: newName });
+     }
+ }
 
-        if (!response.ok) {
-            throw new Error('Failed to update resident');
-        }
+ // Update resident information
+ async function updateResident(username, updateData) {
+     try {
+         const response = await fetch(`${API_BASE_URL}/residents/username/${username}`, {
+             method: 'PUT',
+             headers: {
+                 'Content-Type': 'application/json',
+             },
+             body: JSON.stringify(updateData)
+         });
 
-        const data = await response.json();
-        
-        if (data.success) {
-            // Reload residents to reflect changes
-            loadResidents();
-            showNotification('Resident updated successfully', 'success');
-        } else {
-            throw new Error(data.message || 'Failed to update resident');
-        }
-    } catch (error) {
-        console.error('Error updating resident:', error);
-        showNotification('Error updating resident', 'error');
-    }
-}
+         if (!response.ok) {
+             throw new Error('Failed to update resident');
+         }
 
-// UI state management
-function showLoadingState() {
-    if (loadingState) loadingState.style.display = 'flex';
-    if (emptyState) emptyState.classList.add('hidden');
-    if (residentsTableBody) residentsTableBody.innerHTML = '';
-}
+         const data = await response.json();
+         
+         if (data.success) {
+             // Reload residents to reflect changes
+             loadResidents();
+             showNotification('Resident updated successfully', 'success');
+         } else {
+             throw new Error(data.message || 'Failed to update resident');
+         }
+     } catch (error) {
+         console.error('Error updating resident:', error);
+         showNotification('Error updating resident', 'error');
+     }
+ }
 
-function hideLoadingState() {
-    if (loadingState) loadingState.style.display = 'none';
-}
+ // UI state management
+ function showLoadingState() {
+     if (loadingState) loadingState.style.display = 'flex';
+     if (emptyState) emptyState.classList.add('hidden');
+     if (residentsTableBody) residentsTableBody.innerHTML = '';
+ }
 
-function showEmptyState() {
-    if (emptyState) emptyState.classList.remove('hidden');
-    if (residentsTableBody) residentsTableBody.innerHTML = '';
-}
+ function hideLoadingState() {
+     if (loadingState) loadingState.style.display = 'none';
+ }
 
-function hideEmptyState() {
-    if (emptyState) emptyState.classList.add('hidden');
-}
+ function showEmptyState() {
+     if (emptyState) emptyState.classList.remove('hidden');
+     if (residentsTableBody) residentsTableBody.innerHTML = '';
+ }
 
-function showErrorState(message) {
-    hideLoadingState();
-    if (emptyState) {
-        emptyState.innerHTML = `
-            <i data-lucide="alert-triangle"></i>
-            <h3>Error Loading Residents</h3>
-            <p>${message}</p>
-        `;
-        emptyState.classList.remove('hidden');
-        if (window.lucide) lucide.createIcons();
-    }
-}
+ function hideEmptyState() {
+     if (emptyState) emptyState.classList.add('hidden');
+ }
 
-// Notification function
-function showNotification(message, type = 'info') {
-    // Create notification element if it doesn't exist
-    let notification = document.getElementById('notification');
-    if (!notification) {
-        notification = document.createElement('div');
-        notification.id = 'notification';
-        notification.className = 'notification hidden';
-        document.body.appendChild(notification);
-        
-        // Add CSS for notifications
-        const notificationCSS = `
-            .notification {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 12px 20px;
-                border-radius: 6px;
-                color: white;
-                font-weight: 500;
-                z-index: 1000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                transition: all 0.3s ease;
-            }
-            .notification.success { background-color: #10b981; }
-            .notification.error { background-color: #ef4444; }
-            .notification.info { background-color: #3b82f6; }
-            .notification.warning { background-color: #f59e0b; }
-            .notification.hidden { 
-                opacity: 0; 
-                transform: translateY(-20px);
-            }
-        `;
-        const style = document.createElement('style');
-        style.textContent = notificationCSS;
-        document.head.appendChild(style);
-    }
+ function showErrorState(message) {
+     hideLoadingState();
+     if (emptyState) {
+         emptyState.innerHTML = `
+             <i data-lucide="alert-triangle"></i>
+             <h3>Error Loading Residents</h3>
+             <p>${message}</p>
+         `;
+         emptyState.classList.remove('hidden');
+         if (window.lucide) lucide.createIcons();
+     }
+ }
 
-    notification.textContent = message;
-    notification.className = `notification ${type}`;
-    notification.classList.remove('hidden');
+ // Notification function
+ function showNotification(message, type = 'info') {
+     // Create notification element if it doesn't exist
+     let notification = document.getElementById('notification');
+     if (!notification) {
+         notification = document.createElement('div');
+         notification.id = 'notification';
+         notification.className = 'notification hidden';
+         document.body.appendChild(notification);
+     }
 
-    setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 3000);
-}
+     notification.textContent = message;
+     notification.className = `notification ${type}`;
+     notification.classList.remove('hidden');
 
-// Make functions global
-window.viewResident = viewResident;
-window.editResident = editResident;
-window.deleteResident = deleteResident;
-window.closeResidentModal = closeResidentModal;
-window.handleEditResident = handleEditResident;
+     setTimeout(() => {
+         notification.classList.add('hidden');
+     }, 3000);
+ }
+
+ // Make functions global
+ window.viewResident = viewResident;
+ window.editResident = editResident;
+ window.deleteResident = deleteResident;
+ window.closeResidentModal = closeResidentModal;
+ window.handleEditResident = handleEditResident;
