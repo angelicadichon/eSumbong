@@ -127,8 +127,60 @@
     </div>
 
     <script>
-        // API configuration
-        const API_BASE_URL = 'http://localhost:5200/api';
+        // API configuration - Using relative path for deployed environment
+        const API_BASE_URL = '/api';
+
+        // Mock data for fallback
+        const MOCK_RESIDENTS = [
+            {
+                id: 1,
+                username: "john_doe",
+                full_name: "John Doe",
+                email: "john.doe@example.com",
+                phone: "+1 (555) 123-4567",
+                address: "123 Main Street, Barangay 1, Quezon City",
+                status: "active",
+                avatar_url: "https://ui-avatars.com/api/?name=John+Doe&background=3498db&color=fff",
+                reports_count: 3,
+                last_active: new Date().toISOString(),
+                created_at: "2024-01-15T00:00:00Z",
+                recent_complaints: [
+                    {
+                        category: "sanitation",
+                        description: "Garbage collection delayed in our area",
+                        status: "resolved",
+                        created_at: "2024-11-20T10:30:00Z"
+                    },
+                    {
+                        category: "infrastructure",
+                        description: "Street light not working near the park",
+                        status: "in-progress",
+                        created_at: "2024-11-18T14:20:00Z"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                username: "maria_santos",
+                full_name: "Maria Santos",
+                email: "maria.santos@example.com",
+                phone: "+1 (555) 234-5678",
+                address: "456 Oak Avenue, Barangay 2, Manila",
+                status: "active",
+                avatar_url: "https://ui-avatars.com/api/?name=Maria+Santos&background=00b894&color=fff",
+                reports_count: 1,
+                last_active: new Date().toISOString(),
+                created_at: "2024-02-20T00:00:00Z",
+                recent_complaints: [
+                    {
+                        category: "noise",
+                        description: "Loud construction noise during night time",
+                        status: "pending",
+                        created_at: "2024-11-22T08:15:00Z"
+                    }
+                ]
+            }
+        ];
 
         // State management
         let residents = [];
@@ -227,29 +279,50 @@
             }
         }
 
-        // Load residents from API
+        // Load residents from API with fallback to mock data
         async function loadResidents() {
             try {
                 showLoadingState();
                 
-                const response = await fetch(`${API_BASE_URL}/residents`);
+                // Try to fetch from API with timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                try {
+                    const response = await fetch(`${API_BASE_URL}/residents`, {
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        residents = data.residents || [];
+                        showNotification('Residents loaded successfully', 'success');
+                    } else {
+                        throw new Error(data.message || 'Failed to load residents');
+                    }
+                } catch (apiError) {
+                    // If API fails, use mock data
+                    console.log('API unavailable, using mock data:', apiError.message);
+                    residents = MOCK_RESIDENTS;
+                    showNotification('Using demo data', 'info');
                 }
                 
-                const data = await response.json();
+                applyFiltersAndSort();
+                renderResidents();
                 
-                if (data.success) {
-                    residents = data.residents || [];
-                    applyFiltersAndSort();
-                    renderResidents();
-                } else {
-                    throw new Error(data.message || 'Failed to load residents');
-                }
             } catch (error) {
                 console.error('Error loading residents:', error);
-                showErrorState('Failed to load residents. Please try again later.');
+                // Fallback to mock data
+                residents = MOCK_RESIDENTS;
+                applyFiltersAndSort();
+                renderResidents();
+                showNotification('Using demo data', 'info');
             }
         }
 
@@ -365,7 +438,7 @@
                 if (isNaN(date.getTime())) return 'N/A';
                 const today = new Date();
                 if (date.toDateString() === today.toDateString()) {
-                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    return 'Today';
                 } else {
                     return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
                 }
@@ -606,33 +679,6 @@
                 notification.id = 'notification';
                 notification.className = 'notification hidden';
                 document.body.appendChild(notification);
-                
-                // Add CSS for notifications
-                const notificationCSS = `
-                    .notification {
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        padding: 12px 20px;
-                        border-radius: 6px;
-                        color: white;
-                        font-weight: 500;
-                        z-index: 1000;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                        transition: all 0.3s ease;
-                    }
-                    .notification.success { background-color: #10b981; }
-                    .notification.error { background-color: #ef4444; }
-                    .notification.info { background-color: #3b82f6; }
-                    .notification.warning { background-color: #f59e0b; }
-                    .notification.hidden { 
-                        opacity: 0; 
-                        transform: translateY(-20px);
-                    }
-                `;
-                const style = document.createElement('style');
-                style.textContent = notificationCSS;
-                document.head.appendChild(style);
             }
 
             notification.textContent = message;
