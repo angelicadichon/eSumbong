@@ -127,8 +127,123 @@
     </div>
 
     <script>
-        // API configuration
+        // API configuration - with fallback to mock data
         const API_BASE_URL = 'http://localhost:5200/api';
+        const USE_MOCK_DATA = true; // Set to false when you have a real backend
+
+        // Mock data for demonstration
+        const MOCK_RESIDENTS = [
+            {
+                id: 1,
+                username: "john_doe",
+                full_name: "John Doe",
+                email: "john.doe@example.com",
+                phone: "+1 (555) 123-4567",
+                address: "123 Main Street, Barangay 1, Quezon City",
+                status: "active",
+                avatar_url: "https://ui-avatars.com/api/?name=John+Doe&background=3498db&color=fff",
+                reports_count: 3,
+                last_active: new Date().toISOString(),
+                created_at: "2024-01-15T00:00:00Z",
+                recent_complaints: [
+                    {
+                        category: "sanitation",
+                        description: "Garbage collection delayed in our area",
+                        status: "resolved",
+                        created_at: "2024-11-20T10:30:00Z"
+                    },
+                    {
+                        category: "infrastructure",
+                        description: "Street light not working near the park",
+                        status: "in-progress",
+                        created_at: "2024-11-18T14:20:00Z"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                username: "maria_santos",
+                full_name: "Maria Santos",
+                email: "maria.santos@example.com",
+                phone: "+1 (555) 234-5678",
+                address: "456 Oak Avenue, Barangay 2, Manila",
+                status: "active",
+                avatar_url: "https://ui-avatars.com/api/?name=Maria+Santos&background=00b894&color=fff",
+                reports_count: 1,
+                last_active: new Date().toISOString(),
+                created_at: "2024-02-20T00:00:00Z",
+                recent_complaints: [
+                    {
+                        category: "noise",
+                        description: "Loud construction noise during night time",
+                        status: "pending",
+                        created_at: "2024-11-22T08:15:00Z"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                username: "robert_garcia",
+                full_name: "Robert Garcia",
+                email: "robert.garcia@example.com",
+                phone: "+1 (555) 345-6789",
+                address: "789 Pine Road, Barangay 3, Makati",
+                status: "active",
+                avatar_url: "https://ui-avatars.com/api/?name=Robert+Garcia&background=e17055&color=fff",
+                reports_count: 5,
+                last_active: new Date().toISOString(),
+                created_at: "2024-03-10T00:00:00Z",
+                recent_complaints: [
+                    {
+                        category: "safety",
+                        description: "Suspicious individuals loitering in the neighborhood",
+                        status: "resolved",
+                        created_at: "2024-11-21T16:45:00Z"
+                    },
+                    {
+                        category: "infrastructure",
+                        description: "Potholes on the main road causing traffic",
+                        status: "in-progress",
+                        created_at: "2024-11-19T09:30:00Z"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                username: "liza_lim",
+                full_name: "Liza Lim",
+                email: "liza.lim@example.com",
+                phone: "+1 (555) 456-7890",
+                address: "321 Elm Street, Barangay 4, Taguig",
+                status: "inactive",
+                avatar_url: "https://ui-avatars.com/api/?name=Liza+Lim&background=a29bfe&color=fff",
+                reports_count: 0,
+                last_active: "2024-10-15T00:00:00Z",
+                created_at: "2024-04-05T00:00:00Z",
+                recent_complaints: []
+            },
+            {
+                id: 5,
+                username: "carlos_reyes",
+                full_name: "Carlos Reyes",
+                email: "carlos.reyes@example.com",
+                phone: "+1 (555) 567-8901",
+                address: "654 Maple Lane, Barangay 5, Pasig",
+                status: "active",
+                avatar_url: "https://ui-avatars.com/api/?name=Carlos+Reyes&background=fd79a8&color=fff",
+                reports_count: 2,
+                last_active: new Date().toISOString(),
+                created_at: "2024-05-12T00:00:00Z",
+                recent_complaints: [
+                    {
+                        category: "water",
+                        description: "Low water pressure in the morning",
+                        status: "pending",
+                        created_at: "2024-11-23T07:20:00Z"
+                    }
+                ]
+            }
+        ];
 
         // State management
         let residents = [];
@@ -227,29 +342,50 @@
             }
         }
 
-        // Load residents from API
+        // Load residents - tries API first, falls back to mock data
         async function loadResidents() {
             try {
                 showLoadingState();
                 
-                const response = await fetch(`${API_BASE_URL}/residents`);
+                // Try to fetch from API with timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                try {
+                    const response = await fetch(`${API_BASE_URL}/residents`, {
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        residents = data.residents || [];
+                        showNotification('Connected to live server', 'success');
+                    } else {
+                        throw new Error(data.message || 'Failed to load residents');
+                    }
+                } catch (apiError) {
+                    // If API fails, use mock data
+                    console.log('API unavailable, using mock data:', apiError.message);
+                    residents = MOCK_RESIDENTS;
+                    showNotification('Using demo data - Backend server not running', 'info');
                 }
                 
-                const data = await response.json();
+                applyFiltersAndSort();
+                renderResidents();
                 
-                if (data.success) {
-                    residents = data.residents || [];
-                    applyFiltersAndSort();
-                    renderResidents();
-                } else {
-                    throw new Error(data.message || 'Failed to load residents');
-                }
             } catch (error) {
                 console.error('Error loading residents:', error);
-                showErrorState('Failed to load residents. Please try again later.');
+                // Fallback to mock data
+                residents = MOCK_RESIDENTS;
+                applyFiltersAndSort();
+                renderResidents();
+                showNotification('Using demo data', 'info');
             }
         }
 
@@ -365,7 +501,7 @@
                 if (isNaN(date.getTime())) return 'N/A';
                 const today = new Date();
                 if (date.toDateString() === today.toDateString()) {
-                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    return 'Today';
                 } else {
                     return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
                 }
@@ -383,19 +519,35 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/residents/username/${username}`, {
-                    method: 'DELETE'
-                });
-
-                const data = await response.json();
+                // Try real API first
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
                 
-                if (data.success) {
-                    showNotification('Resident deleted successfully', 'success');
-                    // Reload residents to reflect the deletion
-                    loadResidents();
-                } else {
-                    throw new Error(data.message || 'Failed to delete resident');
+                try {
+                    const response = await fetch(`${API_BASE_URL}/residents/username/${username}`, {
+                        method: 'DELETE',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showNotification('Resident deleted successfully', 'success');
+                        loadResidents();
+                        return;
+                    } else {
+                        throw new Error(data.message || 'Failed to delete resident');
+                    }
+                } catch (apiError) {
+                    // If API fails, simulate deletion with mock data
+                    console.log('API unavailable, simulating deletion');
+                    residents = residents.filter(resident => resident.username !== username);
+                    applyFiltersAndSort();
+                    renderResidents();
+                    showNotification('Resident removed from demo data', 'info');
                 }
+                
             } catch (error) {
                 console.error('Error deleting resident:', error);
                 showNotification('Error deleting resident', 'error');
@@ -424,19 +576,39 @@
         // View resident details
         async function viewResident(username) {
             try {
-                const response = await fetch(`${API_BASE_URL}/residents/username/${username}`);
+                // Try real API first
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
                 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch resident details');
+                try {
+                    const response = await fetch(`${API_BASE_URL}/residents/username/${username}`, {
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch resident details');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showResidentModal(data.resident);
+                        return;
+                    } else {
+                        throw new Error(data.message || 'Failed to load resident details');
+                    }
+                } catch (apiError) {
+                    // If API fails, use mock data
+                    console.log('API unavailable, using mock resident data');
+                    const resident = residents.find(r => r.username === username) || MOCK_RESIDENTS.find(r => r.username === username);
+                    if (resident) {
+                        showResidentModal(resident);
+                    } else {
+                        throw new Error('Resident not found');
+                    }
                 }
                 
-                const data = await response.json();
-                
-                if (data.success) {
-                    showResidentModal(data.resident);
-                } else {
-                    throw new Error(data.message || 'Failed to load resident details');
-                }
             } catch (error) {
                 console.error('Error fetching resident details:', error);
                 showNotification('Error loading resident details. Please try again.', 'error');
@@ -537,27 +709,46 @@
         // Update resident information
         async function updateResident(username, updateData) {
             try {
-                const response = await fetch(`${API_BASE_URL}/residents/username/${username}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updateData)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to update resident');
-                }
-
-                const data = await response.json();
+                // Try real API first
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
                 
-                if (data.success) {
-                    // Reload residents to reflect changes
-                    loadResidents();
-                    showNotification('Resident updated successfully', 'success');
-                } else {
-                    throw new Error(data.message || 'Failed to update resident');
+                try {
+                    const response = await fetch(`${API_BASE_URL}/residents/username/${username}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updateData),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        throw new Error('Failed to update resident');
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        loadResidents();
+                        showNotification('Resident updated successfully', 'success');
+                        return;
+                    } else {
+                        throw new Error(data.message || 'Failed to update resident');
+                    }
+                } catch (apiError) {
+                    // If API fails, simulate update with mock data
+                    console.log('API unavailable, simulating update');
+                    const residentIndex = residents.findIndex(r => r.username === username);
+                    if (residentIndex !== -1) {
+                        residents[residentIndex] = { ...residents[residentIndex], ...updateData };
+                        applyFiltersAndSort();
+                        renderResidents();
+                        showNotification('Resident updated in demo data', 'info');
+                    }
                 }
+                
             } catch (error) {
                 console.error('Error updating resident:', error);
                 showNotification('Error updating resident', 'error');
@@ -606,33 +797,6 @@
                 notification.id = 'notification';
                 notification.className = 'notification hidden';
                 document.body.appendChild(notification);
-                
-                // Add CSS for notifications
-                const notificationCSS = `
-                    .notification {
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        padding: 12px 20px;
-                        border-radius: 6px;
-                        color: white;
-                        font-weight: 500;
-                        z-index: 1000;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                        transition: all 0.3s ease;
-                    }
-                    .notification.success { background-color: #10b981; }
-                    .notification.error { background-color: #ef4444; }
-                    .notification.info { background-color: #3b82f6; }
-                    .notification.warning { background-color: #f59e0b; }
-                    .notification.hidden { 
-                        opacity: 0; 
-                        transform: translateY(-20px);
-                    }
-                `;
-                const style = document.createElement('style');
-                style.textContent = notificationCSS;
-                document.head.appendChild(style);
             }
 
             notification.textContent = message;
