@@ -230,11 +230,11 @@ function openComplaintModal(id) {
   const starRatingHTML = complaint.rating ? 
     `<p><strong>User Rating:</strong> ${generateStarRating(complaint.rating)}</p>` : 
     '<p><strong>User Rating:</strong> Not rated yet</p>';
-    
+
   const feedbackMessage = complaint.feedback_message ? `
     <p><strong>User Feedback:</strong> ${complaint.feedback_message}</p>
   ` : '';
-
+ 
   details.innerHTML = `
     <p><strong>Category:</strong> ${complaint.category}</p>
     <p><strong>Description:</strong> ${complaint.description}</p>
