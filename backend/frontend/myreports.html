@@ -5,6 +5,50 @@
     <link rel="icon" type="image/png" href="image/favicon.png">
     <title>My Reports | eSumbong</title>
     <link rel="stylesheet" href="css/myreports.css" />
+    <style>
+      /* Pagination Styles - Added to existing CSS */
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        padding: 20px;
+        width: 100%;
+      }
+
+      .pagination-btn {
+        padding: 8px 16px;
+        border: 1px solid #e5e7eb;
+        background-color: white;
+        color: #374151;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+
+      .pagination-btn:hover:not(.disabled) {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+      }
+
+      .pagination-btn.active {
+        background-color: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+
+      .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .pagination-ellipsis {
+        padding: 8px 12px;
+        color: #6b7280;
+      }
+    </style>
     <script src="https://unpkg.com/lucide@latest"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
   </head>
@@ -41,7 +85,7 @@
 
     <main class="main-content">
       <header class="top-header">
-        <h1>Resident Dashboard</h1>
+        <h1>My Complaints</h1>
         <div class="header-actions">
         </div>
       </header>
@@ -93,14 +137,18 @@
         </div>
 
         <section class="complaints-section">
-        <div class="card-header">
-          <h3>My Submitted Complaints</h3>
-          <input type="text" id="cardSearch" placeholder="Search complaints..." class="search-box" />
-        </div>
+          <div class="card-header">
+            <input type="text" id="cardSearch" placeholder="Search complaints..." class="search-box" />
+          </div>
 
-        <div class="complaint-cards" id="complaintsContainer">
-          <p class="loading-text">Loading complaints...</p>
-        </div>
+          <!-- Complaint cards container -->
+          <div class="complaint-cards" id="complaintsContainer">
+            <p class="loading-text">Loading complaints...</p>
+          </div>
+          
+          <!-- Pagination container - placed below the cards -->
+          <div id="paginationContainer"></div>
+        </section>
       </section>
     </main>
 

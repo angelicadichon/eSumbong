@@ -1,4 +1,7 @@
 let allComplaints = [];
+let currentPage = 1;
+const itemsPerPage = 10; // Changed to 6 cards per page
+let filteredComplaints = [];
 
 // filter user dashboard information during login
 async function loadDashboardData() {
@@ -17,6 +20,7 @@ async function loadDashboardData() {
         
         if (result.success) {
             allComplaints = result.complaints;
+            filteredComplaints = [...allComplaints]; // Initialize filtered complaints
             console.log("All complaints fetched:", allComplaints);
             
             // Filter complaints by username to display only those complaint the logged in user submitted
@@ -25,18 +29,44 @@ async function loadDashboardData() {
                     console.log("Comparing:", complaint.username, "with:", username);
                     return complaint.username === username;
                 });
+                filteredComplaints = [...allComplaints]; // Update filtered complaints
                 console.log("Filtered complaints for resident:", allComplaints);
             }
             
             updateAnalytics(allComplaints);
-            populateComplaintCards(allComplaints);
+            populateComplaintCards(filteredComplaints);
+            renderPagination(filteredComplaints.length);
             setupModal();
+            setupSearch();
         } else {
             showError('Failed to load complaints');
         }
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showError('Failed to load dashboard data');
+    }
+}
+
+// Setup search functionality
+function setupSearch() {
+    const searchInput = document.getElementById('cardSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (query === '') {
+                filteredComplaints = [...allComplaints];
+            } else {
+                filteredComplaints = allComplaints.filter(complaint => 
+                    complaint.category?.toLowerCase().includes(query) ||
+                    complaint.description?.toLowerCase().includes(query) ||
+                    complaint.location?.toLowerCase().includes(query) ||
+                    complaint.status?.toLowerCase().includes(query)
+                );
+            }
+            currentPage = 1; // Reset to first page when searching
+            populateComplaintCards(filteredComplaints);
+            renderPagination(filteredComplaints.length);
+        });
     }
 }
 
@@ -53,7 +83,69 @@ function updateAnalytics(complaints) {
     document.getElementById('resolvedReports').textContent = resolved;
 }
 
-// Populate complaint cards
+// Get current page items
+function getCurrentPageItems(complaints) {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return complaints.slice(startIndex, endIndex);
+}
+
+// Render pagination controls
+function renderPagination(totalItems) {
+    const container = document.getElementById('paginationContainer');
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let paginationHTML = `
+        <div class="pagination">
+            <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
+                    onclick="changePage(${currentPage - 1})" 
+                    ${currentPage === 1 ? 'disabled' : ''}>
+                Previous
+            </button>
+    `;
+    
+    // Show page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            paginationHTML += `
+                <button class="pagination-btn ${currentPage === i ? 'active' : ''}" 
+                        onclick="changePage(${i})">
+                    ${i}
+                </button>
+            `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+            paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+        }
+    }
+    
+    paginationHTML += `
+            <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
+                    onclick="changePage(${currentPage + 1})" 
+                    ${currentPage === totalPages ? 'disabled' : ''}>
+                Next
+            </button>
+        </div>
+    `;
+    
+    container.innerHTML = paginationHTML;
+}
+
+// Change page function
+function changePage(page) {
+    const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
+    if (page < 1 || page > totalPages) return;
+    
+    currentPage = page;
+    populateComplaintCards(filteredComplaints);
+    renderPagination(filteredComplaints.length);
+}
+
+// Populate complaint cards with pagination
 function populateComplaintCards(complaints) {
     const container = document.getElementById('complaintsContainer');
 
@@ -62,7 +154,11 @@ function populateComplaintCards(complaints) {
         return;
     }
 
-    container.innerHTML = complaints.map(complaint => `
+    // Get current page items
+    const currentPageItems = getCurrentPageItems(complaints);
+    
+    // Render complaint cards
+    container.innerHTML = currentPageItems.map(complaint => `
     <div class="complaint-card ${complaint.status || 'pending'}" data-id="${complaint.id}">
         <div class="card-category">${complaint.category || 'General'}</div>
         <div class="card-description">${complaint.description || 'No description'}</div>
