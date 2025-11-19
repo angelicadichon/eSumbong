@@ -1,0 +1,140 @@
+/* =============================
+   BASIC PAGE STYLE
+============================= */
+body {
+    background: #f1f5f9;
+    font-family: "Inter", sans-serif;
+  }
+  
+  /* Section Titles */
+  .section-title {
+    margin: 35px 0 15px 0;
+    font-size: 22px;
+    color: #1f3344;
+    font-weight: 700;
+  }
+  
+  /* Container */
+  .notif-section {
+    padding: 20px 35px;
+  }
+  
+  /* =============================
+     GRID LISTS
+  ============================= */
+  #pendingList, 
+  #resolvedList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 16px;
+  }
+  
+  /* =============================
+     NOTIFICATION ITEM CARD
+  ============================= */
+  .notif-item {
+    background: #ffffff;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid #dce3eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: .2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .notif-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+  }
+  
+  /* Unread highlight */
+  .unread {
+    border-left: 5px solid #2563eb;
+    background: #eef4ff;
+  }
+  
+  /* Text left */
+  .notif-text {
+    font-size: 15px;
+    color: #1f3344;
+    line-height: 1.5;
+    font-weight: 500;
+    width: 75%;
+  }
+  
+  /* Right side (date + delete) */
+  .notif-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  
+  /* Date style */
+  .notif-date {
+    font-size: 13px;
+    color: #7b8a9c;
+  }
+  
+  /* =============================
+     DELETE BUTTON
+  ============================= */
+  .notif-delete {
+    background: #ff4d4d;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+  
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+  
+    cursor: pointer;
+    transition: .15s ease;
+  }
+  
+  .notif-delete:hover {
+    background: #d93636;
+  }
+  
+  /* =============================
+     POPUP TOAST
+  ============================= */
+  .live-popup {
+    position: fixed;
+    right: 25px;
+    top: -80px;
+  
+    background: #1f3344;
+    color: white;
+    padding: 14px 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  
+    opacity: 0;
+    transform: translateY(0);
+    transition: .35s ease;
+    z-index: 5000;
+  }
+  
+  .live-popup.show {
+    top: 25px;
+    opacity: 1;
+  }
+  
+  /* Popup icon */
+  .live-popup i {
+    width: 20px;
+    height: 20px;
+    color: #ffd369;
+  }

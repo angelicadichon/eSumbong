@@ -1,0 +1,134 @@
+body {
+    background: #f1f5f9;
+    font-family: "Inter", sans-serif;
+  }
+  
+  .top-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f3344;
+    margin-bottom: 10px;
+  }
+  
+  .section-title {
+    margin: 40px 0 15px 0;
+    font-size: 22px;
+    color: #1f3344;
+  }
+  
+  .notif-section {
+    padding: 20px 30px;
+  }
+  
+  .notif-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 18px;
+  }
+  
+  /* Notification Card */
+  .notif-card {
+    background: #ffffff;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid #dce3eb;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    transition: 0.2s ease;
+    position: relative;
+  }
+  
+  .notif-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  .notif-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .notif-header i {
+    width: 22px;
+    height: 22px;
+    color: #1f3344;
+  }
+  
+  .notif-msg {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #333;
+  }
+  
+  .notif-footer {
+    margin-top: 18px;
+    font-size: 13px;
+    color: #798da3;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* DELETE BUTTON */
+  .delete-btn {
+    background: #ff4d4d;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  
+  .delete-btn i {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+  
+  .delete-btn:hover {
+    background: #d93636;
+  }
+  
+  /* Highlight new notifications */
+  .highlight {
+    animation: glow 1.8s ease-out;
+  }
+  
+  
+  .profile-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid #34495e;
+    overflow: hidden;
+  }
+  
+  .profile-circle:hover {
+    transform: scale(1.05);
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  .profile-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .profile-circle .initials {
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  
+  @keyframes glow {
+    0% { background: #fff5e0; }
+    100% { background: white; }
+  }

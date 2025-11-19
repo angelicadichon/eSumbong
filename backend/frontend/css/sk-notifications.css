@@ -1,0 +1,151 @@
+body {
+    background: #f1f5f9;
+    font-family: "Inter", sans-serif;
+  }
+  
+  .top-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f3344;
+    margin-bottom: 10px;
+  }
+  
+  .section-title {
+    margin: 40px 0 15px 0;
+    font-size: 22px;
+    color: #1f3344;
+  }
+  
+  .notif-section {
+    padding: 20px 30px;
+  }
+  
+  .notif-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 18px;
+  }
+  
+  /* Notification Card */
+  .notif-card {
+    background: #ffffff;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid #dce3eb;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    transition: 0.2s ease;
+    position: relative;
+  }
+  
+  .notif-card:hover {
+  transform: translateY(-3px);
+  }
+  
+  .notif-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .notif-header i {
+    width: 22px;
+    height: 22px;
+    color: #1f3344;
+  }
+  
+  .notif-category {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1f3344;
+  }
+  
+  .notif-body {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #444;
+  }
+  
+  .notif-footer {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #798da3;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* Status badges */
+  .badge {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 8px;
+     font-weight: 600;
+  }
+  .notif-delete-btn {
+     background: #ff4d4d;
+    border: none;
+    height: 28px;        
+    width: 28px;          
+    border-radius: 8px;   
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  
+  .notif-delete-btn:hover {
+    background: #d93636;
+  }
+  
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .notif-delete-btn i {
+    width: 18px;
+    height: 18px;
+    color:  black;
+  }
+  
+  .badge-pending { background: #f7b731; }
+  .badge-resolved { background: #2ecc71; }
+  
+  /* Realtime highlight animation */
+  .highlight {
+    animation: glow 2s ease-out;
+  }
+  .notif-msg {
+     margin-top: 10px;
+    font-size: 15px;
+    color: #333;
+  }
+  .delete-btn {
+    background: #ff4d4d;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  
+  .delete-btn:hover {
+    background: #d93636;
+  }
+  
+  .delete-btn i {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+  
+  @keyframes glow {
+    0% { background: #f1ffe0; }
+    100% { background: white; }
+  }
