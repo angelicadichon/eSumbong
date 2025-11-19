@@ -1,3 +1,4 @@
+// server.js
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -7,7 +8,6 @@ import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 
 dotenv.config();
-
 
 const REQUIRED_ENV = [
   "SUPABASE_URL",
@@ -32,25 +32,19 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-
 const app = express();
 const PORT = process.env.PORT || 5200;
 const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
 
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 const frontendPath = path.join(__dirname, "frontend");
 app.use(express.static(frontendPath));
-
 
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -69,7 +63,6 @@ const upload = multer({
   },
 });
 
-
 const users = [
   { username: "admin", password: "xamarinadmin123", role: "admin" },
   { username: "resident1", password: "xamarinuser123", role: "resident" },
@@ -79,6 +72,7 @@ const users = [
   { username: "maintenance", password: "xamarinmaintenance123", role: "maintenance" },
 ];
 
+// --- AUTH (login) ---
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -95,7 +89,6 @@ app.post("/api/login", async (req, res) => {
     return;
   }
 
- 
   try {
     const { data, error } = await supabase
       .from("users")
@@ -114,26 +107,23 @@ app.post("/api/login", async (req, res) => {
       username: data.username,
     });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-
+// --- SUBMIT COMPLAINT ---
 app.post("/api/complaints", upload.single("file"), async (req, res) => {
   console.log("Received complaint submission");
 
   try {
-    
     const { name, contact, category, description, location, username } = req.body;
 
-    console.log("Extracted form data:", {
-      name, contact, category, description, location, username
-    });
-
+    console.log("Extracted form data:", { name, contact, category, description, location, username });
 
     if (!name || !contact || !category || !description || !location || !username) {
-      return res.status(400).json({ 
-        success: false, 
+      return res.status(400).json({
+        success: false,
         message: "All fields are required.",
         received: {
           name: !!name,
@@ -148,7 +138,7 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
 
     let fileUrl = null;
 
-    
+    // Upload file to Supabase storage if provided
     if (req.file) {
       console.log("Processing file upload:", req.file.originalname);
       const fileName = `complaint-${Date.now()}-${req.file.originalname}`;
@@ -168,175 +158,309 @@ app.post("/api/complaints", upload.single("file"), async (req, res) => {
       console.log("File uploaded successfully:", fileUrl);
     }
 
-    
     const complaintData = {
-      name: name,
-      contact: contact,
-      category: category,
-      description: description,
-      location: location,
+      name,
+      contact,
+      category,
+      description,
+      location,
       file: fileUrl,
       status: "pending",
-      username: username, 
+      username,
       created_at: new Date().toISOString(),
     };
 
     console.log("Complaint data to save:", complaintData);
 
-    
+    // Insert complaint record
     const { data, error } = await supabaseAdmin
       .from("complaints")
-      .insert([ complaintData ])
+      .insert([complaintData])
       .select();
 
     if (error) {
       console.error("Database insert error:", error);
-      console.error("Error details:", error.details, error.hint, error.message);
       throw error;
     }
 
-    console.log("Complaint submitted successfully!");
-    console.log("Inserted complaint:", data);
+    const inserted = data && data[0] ? data[0] : null;
+    console.log("Complaint submitted successfully!", inserted);
 
-    res.json({ 
-      success: true, 
+    // --- NOTIFICATION: Notify admin of new complaint ---
+    try {
+      const timestamp = new Date().toLocaleString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+      });
+
+      await supabaseAdmin
+        .from("notifications")
+        .insert([
+          {
+            username: "admin",
+            message: `You have a new complaint from "${name}" about "${category}" at "${location}" — received on ${timestamp}`,
+            status: "unread",
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      console.log("Admin notified of new complaint.");
+    } catch (notifyErr) {
+      console.error("Failed to insert admin notification:", notifyErr);
+    }
+
+    res.json({
+      success: true,
       message: "Complaint submitted successfully!",
-      complaint: data[0]
+      complaint: inserted
     });
 
   } catch (error) {
     console.error("Complaint Error:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message,
-      details: error.details || 'No additional details'
+    res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+      details: error.details || null
     });
   }
 });
 
-
+// --- LIST COMPLAINTS ---
 app.get("/api/complaints", async (req, res) => {
   try {
-    const { username, role } = req.query; 
-    
+    const { username, role } = req.query;
+
     let query = supabase
       .from("complaints")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (role === 'resident' && username) {
-      query = query.eq('username', username);
+    // Residents see ONLY their submitted reports
+    if (role === "resident" && username) {
+      query = query.eq("username", username);
     }
 
     const { data, error } = await query;
 
     if (error) throw error;
+
     res.json({ success: true, complaints: data });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
- 
-app.put("/api/complaints/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const { error } = await supabaseAdmin.from("complaints").update({ status }).eq("id", id);
-
-    if (error) throw error;
-    res.json({ success: true, message: "Status updated" });
-  } catch (error) {
+    console.error("Fetch complaints error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-
+// --- ASSIGN TEAM (admin action) ---
 app.put("/api/complaints/:id/assign", async (req, res) => {
   const { id } = req.params;
   const { assigned_team } = req.body;
 
   try {
-    const { error } = await supabaseAdmin
+    // 1. Update complaint assignment + keep status = pending
+    const { data: updatedComplaint, error } = await supabaseAdmin
       .from("complaints")
       .update({
         assigned_team,
-        status: "in-progress",
+        status: "pending",
       })
-      .eq("id", id);
+      .eq("id", id)
+      .select();
 
     if (error) throw error;
-    res.json({ success: true, message: "Complaint assigned successfully" });
+
+    const complaint = updatedComplaint[0];
+
+    // 2. Prepare timestamp
+    const timestamp = new Date().toLocaleString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true
+    });
+
+    // 3. NOTIFICATION: Notify TEAM
+    await supabaseAdmin
+      .from("notifications")
+      .insert([{
+        username: assigned_team,
+        message: `You have a new task assigned: "${complaint.category}" — assigned on ${timestamp}`,
+        status: "unread",
+        created_at: new Date().toISOString()
+      }]);
+
+    // 4. NOTIFICATION: Notify RESIDENT
+    await supabaseAdmin
+      .from("notifications")
+      .insert([{
+        username: complaint.username,
+        message: `Your complaint about "${complaint.category}" has been assigned to the ${assigned_team} team and is now under review (PENDING).`,
+        status: "unread",
+        created_at: new Date().toISOString()
+      }]);
+
+    // 5. NOTIFICATION: Notify ADMIN
+    await supabaseAdmin
+      .from("notifications")
+      .insert([{
+        username: "admin",
+        message: `Complaint "${complaint.category}" was assigned to ${assigned_team} on ${timestamp}.`,
+        status: "unread",
+        created_at: new Date().toISOString()
+      }]);
+
+    console.log("Team assigned and notifications sent (resident + team + admin)");
+
+    res.json({ success: true, message: "Team assigned successfully" });
+
   } catch (error) {
+    console.error("Assign error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-
-app.put("/api/complaints/:id/team-update", upload.single("after_photo"), async (req, res) => {
+// --- RESOLVE COMPLAINT (Maintenance Action) ---
+app.put("/api/complaints/:id/resolve", async (req, res) => {
   const { id } = req.params;
   const { team_notes } = req.body;
-  let afterPhotoUrl = null;
 
   try {
-    if (req.file) {
-      const fileName = `after-${Date.now()}-${req.file.originalname}`;
-      const { error: uploadError } = await supabaseAdmin.storage
-        .from("complaint-files")
-        .upload(fileName, req.file.buffer, { contentType: req.file.mimetype });
-      if (uploadError) throw uploadError;
+    // 1. Update complaint status to resolved
+    const { data: updatedComplaint, error } = await supabaseAdmin
+      .from("complaints")
+      .update({
+        status: "resolved",
+        team_notes,
+        resolved_at: new Date().toISOString()
+      })
+      .eq("id", id)
+      .select();
 
-      const { data: urlData } = supabaseAdmin.storage
-        .from("complaint-files")
-        .getPublicUrl(fileName);
-      afterPhotoUrl = urlData.publicUrl;
-    }
-
-    const updateFields = {
-      team_notes,
-      ...(afterPhotoUrl && { after_photo: afterPhotoUrl }),
-    };
-
-    const { error } = await supabaseAdmin.from("complaints").update(updateFields).eq("id", id);
     if (error) throw error;
 
-    res.json({ success: true, message: "Team update saved successfully" });
+    const complaint = updatedComplaint[0];
+
+    // 2. Prepare timestamp
+    const timestamp = new Date().toLocaleString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true
+    });
+
+    // 3. NOTIFICATION: Notify ADMIN
+    await supabaseAdmin
+      .from("notifications")
+      .insert([{
+        username: "admin",
+        message: `Complaint "${complaint.category}" has been RESOLVED by maintenance on ${timestamp}.`,
+        status: "unread",
+        created_at: new Date().toISOString()
+      }]);
+
+    // 4. NOTIFICATION: Notify RESIDENT
+    await supabaseAdmin
+      .from("notifications")
+      .insert([{
+        username: complaint.username,
+        message: `Your complaint about "${complaint.category}" was RESOLVED on ${timestamp}.`,
+        status: "unread",
+        created_at: new Date().toISOString()
+      }]);
+
+    res.json({ success: true, message: "Complaint resolved successfully" });
+
   } catch (error) {
+    console.error("Resolve error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
+// --- NOTIFICATION ENDPOINTS ---
 
-app.get("/api/team/:teamname", async (req, res) => {
-  const { teamname } = req.params;
-  try {
-    const { data, error } = await supabase
-      .from("complaints")
-      .select("*")
-      .eq("assigned_team", teamname);
+// --- FETCH NOTIFICATIONS ---
+app.get("/api/notifications", async (req, res) => {
+  const { username } = req.query;
 
-    if (error) throw error;
-    res.json({ success: true, complaints: data });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to fetch complaints" });
+  if (!username) {
+    return res.json({ success: true, notifications: [] });
   }
+
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("username", username)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Fetch notifications error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+
+  res.json({ success: true, notifications: data });
 });
 
+// --- MARK ALL NOTIFICATIONS AS READ ---
+app.put("/api/notifications/mark-read", async (req, res) => {
+  const { username } = req.body;
 
+  const { error } = await supabaseAdmin
+    .from("notifications")
+    .update({ status: "read" })
+    .eq("username", username)
+    .eq("status", "unread");
+
+  if (error) {
+    console.error("Mark read error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+
+  res.json({ success: true, message: "Notifications marked as read" });
+});
+
+// --- SOFT DELETE NOTIFICATION ---
+app.put("/api/notifications/delete", async (req, res) => {
+  const { id, username } = req.body;
+
+  if (!id || !username) {
+    return res.status(400).json({ success: false, message: "Missing fields" });
+  }
+
+  const { error } = await supabaseAdmin
+    .from("notifications")
+    .update({ status: "deleted" })
+    .eq("id", id)
+    .eq("username", username);
+
+  if (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+
+  res.json({ success: true, message: "Notification deleted" });
+});
+
+// --- GET PROFILE ---
 app.get("/api/get-profile", async (req, res) => {
   try {
     const { username } = req.query;
-    
+
     if (!username) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Username is required" 
+      return res.status(400).json({
+        success: false,
+        message: "Username is required"
       });
     }
 
     console.log("Fetching profile for username:", username);
 
-   
     const predefinedUser = users.find(u => u.username === username);
     if (!predefinedUser) {
       return res.status(404).json({
@@ -345,7 +469,6 @@ app.get("/api/get-profile", async (req, res) => {
       });
     }
 
-    
     const { data: dbUser, error } = await supabase
       .from("users")
       .select("full_name, phone, email, address, avatar_url, updated_at")
@@ -366,7 +489,6 @@ app.get("/api/get-profile", async (req, res) => {
       });
     }
 
-    
     res.json({
       success: true,
       username: predefinedUser.username,
@@ -381,29 +503,28 @@ app.get("/api/get-profile", async (req, res) => {
 
   } catch (error) {
     console.error("Error fetching profile:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Internal server error" 
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
     });
   }
 });
 
-
+// --- UPDATE PROFILE ---
 app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
   try {
     const { username, full_name, phone, email, address, currentPassword, newPassword } = req.body;
     const avatarFile = req.file;
 
     if (!username) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Username is required" 
+      return res.status(400).json({
+        success: false,
+        message: "Username is required"
       });
     }
 
     console.log("Updating profile for username:", username);
 
-    
     const predefinedUser = users.find(u => u.username === username);
     if (!predefinedUser) {
       return res.status(404).json({
@@ -412,7 +533,6 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
       });
     }
 
-    
     if (newPassword) {
       if (!currentPassword) {
         return res.status(400).json({
@@ -420,19 +540,18 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
           message: "Current password is required to set new password"
         });
       }
-      
+
       if (currentPassword !== predefinedUser.password) {
         return res.status(401).json({
           success: false,
           message: "Current password is incorrect"
         });
       }
-      
+
       console.log("Password verification successful for user:", username);
     }
 
     let avatar_url = null;
-
 
     if (avatarFile) {
       try {
@@ -460,24 +579,21 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
       }
     }
 
- const updateData = {
-  username: username,
-  full_name: full_name || "",
-  phone: phone || "",
-  email: email || "",
-  address: address || "",
-  avatar_url: avatar_url,
-  role: predefinedUser.role,
-  password: predefinedUser.password, 
-  updated_at: new Date().toISOString()
-};
+    const updateData = {
+      username,
+      full_name: full_name || "",
+      phone: phone || "",
+      email: email || "",
+      address: address || "",
+      avatar_url: avatar_url,
+      role: predefinedUser.role,
+      password: predefinedUser.password,
+      updated_at: new Date().toISOString()
+    };
 
-
-    const { data, error: dbError } = await supabaseAdmin
+    const { data: upData, error: dbError } = await supabaseAdmin
       .from("users")
-      .upsert(updateData, {
-        onConflict: 'username'
-      })
+      .upsert(updateData, { onConflict: 'username' })
       .select();
 
     if (dbError) {
@@ -488,7 +604,6 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
       });
     }
 
-    // Success response
     const responseData = {
       success: true,
       message: "Profile updated successfully",
@@ -506,13 +621,85 @@ app.post("/api/update-profile", upload.single("avatar"), async (req, res) => {
 
   } catch (error) {
     console.error("Update failed:", error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: "Update failed: " + (error.message || "Internal server error")
     });
   }
 });
 
+// --- SOFT DELETE COMPLAINT ---
+app.put("/api/complaints/soft-delete", async (req, res) => {
+  const { id, username } = req.body;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("complaints")
+      .update({ status: "deleted" })
+      .eq("id", id);
+
+    if (error) throw error;
+
+    res.json({ success: true, message: "Soft deleted successfully" });
+
+  } catch (err) {
+    console.error("Soft delete error:", err);
+    res.json({ success: false, message: err.message });
+  }
+});
+
+// --- TEAM UPDATE WITH AFTER PHOTO ---
+app.put('/api/complaints/:id/team-update', upload.single('after_photo'), async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { team_notes } = req.body;
+
+    if (!team_notes) {
+      return res.status(400).json({ success: false, message: "Team notes required" });
+    }
+
+    let afterPhotoUrl = null;
+
+    if (req.file) {
+      const fileExt = req.file.originalname.split('.').pop();
+      const fileName = `complaints/after_${Date.now()}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('complaints')
+        .upload(fileName, req.file.buffer, {
+          contentType: req.file.mimetype,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrl } = supabase.storage
+        .from('complaints')
+        .getPublicUrl(fileName);
+
+      afterPhotoUrl = publicUrl.publicUrl;
+    }
+
+    const { data, error } = await supabase
+      .from('complaints')
+      .update({
+        team_notes,
+        after_photo: afterPhotoUrl,
+        status: 'RESOLVED',
+        updated_at: new Date()
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return res.json({ success: true, message: "Response Team update saved" });
+
+  } catch (err) {
+    console.error("Update error:", err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// --- RESIDENT MANAGEMENT ---
 app.get("/api/residents", async (req, res) => {
   try {
     const { data: residents, error: residentsError } = await supabase
@@ -590,7 +777,6 @@ app.get("/api/residents/username/:username", async (req, res) => {
   try {
     const { username } = req.params;
 
-    // Get resident details
     const { data: resident, error: residentError } = await supabase
       .from("users")
       .select("id, username, full_name, phone, email, address, avatar_url, created_at, updated_at")
@@ -606,7 +792,6 @@ app.get("/api/residents/username/:username", async (req, res) => {
       });
     }
 
-    // Get resident's complaints
     const { data: complaints, error: complaintsError } = await supabase
       .from("complaints")
       .select("id, category, description, status, created_at")
@@ -618,7 +803,6 @@ app.get("/api/residents/username/:username", async (req, res) => {
       console.error("Error fetching complaints:", complaintsError);
     }
 
-    // Get total reports count
     const { count: reportsCount, error: countError } = await supabase
       .from("complaints")
       .select('*', { count: 'exact', head: true })
@@ -679,7 +863,6 @@ app.put("/api/residents/username/:username", async (req, res) => {
     const { username } = req.params;
     const updateData = req.body;
 
-    // Remove fields that shouldn't be updated
     const { id, created_at, role, ...safeUpdateData } = updateData;
 
     const { data: resident, error } = await supabaseAdmin
