@@ -398,7 +398,7 @@ function getChartInstance(chartId) {
 }
 
 function redirectToProfile() {
-    window.location.href = 'user-profile.html';
+    window.location.href = 'profile.html';
 }
 
 // Function to get user initials from name
