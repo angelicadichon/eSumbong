@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Notifications | eSumbong</title>
+
+  <!-- Icons & Supabase -->
+ 
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
+
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/admin-notifications.css">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>eSumbong</h2>
+      </div>
+      <nav>
+        <ul>
+          <li data-link="admin-dashboard.html" class="nav-item">
+            <a href="admin-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li class="nav-item"><a href="profile.html"><i data-lucide="user"></i> Profile</a></li>
+          <li data-link="admin-reports.html" class="nav-item">
+            <a href="reports.html"><i data-lucide="file-text"></i> All Reports</a>
+          </li>
+          <li data-link="residents.html" class="nav-item">
+            <a href="residents.html"><i data-lucide="user"></i> Residents</a>
+          </li>
+          <li data-link="admin-notifications.html" class="nav-item ">
+            <a href="admin-notifications.html"><i data-lucide="user"></i> Notifications</a>
+          </li>
+          <li data-link="admin-settings.html" class="nav-item">
+            <a href="admin-settings.html"><i data-lucide="settings"></i> Settings</a>
+          </li>
+          <li class="nav-item logout-btn">
+            <a href="#" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+
+  <main class="main-content">
+
+    <!-- Top Header -->
+    <header class="top-header">
+        <h1>Admin Notifications</h1>
+    </header>
+
+    <section class="notif-section">
+
+        <!-- Pending Complaints -->
+        <h2 class="section-title">🟡 Pending Complaints</h2>
+        <ul id="pendingList" class="notif-grid"></ul>
+
+        <!-- Resolved Complaints -->
+        <h2 class="section-title">🟢 Resolved Complaints</h2>
+        <ul id="resolvedList" class="notif-grid"></ul>
+
+    </section>
+
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Get filename of the current page
+    const currentPage = window.location.pathname.split("/").pop();
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+        const link = item.getAttribute("data-link");
+        
+        if (link === currentPage) {
+            item.classList.add("active");
+        } else {
+            item.classList.remove("active");
+        }
+    });
+});
+</script>
+
+
+ 
+  <script src="js/admin-notifications.js"></script>
+ 
+
+</body>
+</html>

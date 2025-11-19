@@ -1,62 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="image/favicon.png">
     <title>Notifications | eSumbong</title>
     <link rel="stylesheet" href="css/notifications.css" />
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-  </head>
-  <body>
+    
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
     <aside class="sidebar">
-      <div class="sidebar-header">
-        <img src="image/favicon.png" alt="Logo" class="sidebar-logo">
-        <h2>eSumbong</h2>
-      </div>
-      <nav>
-        <ul>
-          <li data-link="user-dashboard.html" class="nav-item">
-            <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
-          </li>
-          <li class="nav-item"><a href="user-profile.html"><i data-lucide="user"></i> Profile</a></li>
-          <li data-link="admin-reports.html" class="nav-item ">
-            <a href="myreports.html"><i data-lucide="file-text" ></i> My Reports</a>
-          </li>
-          <li data-link="submit-report.html" class="nav-item">
-            <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
-          </li>
-          <li data-link="notifications.html" class="nav-item active">
-            <a href="notifications.html"><i data-lucide="bell"></i> Notifications</a>
-          </li>
-          <li data-link="feedbacks.html" class="nav-item">
-            <a href="feedbacks.html"><i data-lucide="star"></i> Feedback</a>
-          </li>
-          <li class="nav-item logout-btn">
-            <a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
-          </li>
-        </ul>
-      </nav>
+        <div class="sidebar-header">
+            <h2>eSumbong</h2>
+        </div>
+
+        <nav>
+            <ul>
+                <li data-link="user-dashboard.html" class="nav-item">
+                <a href="user-dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+
+                <li><a href="user-profile.html"><i data-lucide="user"></i> Profile</a></li>
+
+                
+              <li data-link="admin-reports.html" class="nav-item ">
+                <a href="myreports.html"><i data-lucide="file-text" ></i> My Reports</a>
+              </li>
+              <li data-link="submit-report.html" class="nav-item">
+                <a href="submit-report.html"><i data-lucide="file-plus"></i> Submit Report</a>
+              </li>
+              <li data-link="feedbacks.html" class="nav-item">
+                <a href="feedbacks.html"><i data-lucide="star"></i> Feedback</a>
+              </li>
+
+               
+
+                <!-- DO NOT REMOVE — this keeps your BELL NOTIFICATION COUNT -->
+              <li class="nav-item active">
+                 <a href="notifications.html" id="notifLink">
+                <i data-lucide="bell"></i>
+                Notifications
+              <span id="notifBadge" style="display:none;">0</span>
+               </a>
+              </li>
+
+
+                <li class="nav-item logout-btn">
+                <a href="index.html" onclick="logout(); return false;"><i data-lucide="log-out"></i> Logout</a>
+              </li>
+            </ul>
+        </nav>
     </aside>
 
+    <!-- MAIN CONTENT -->
     <main class="main-content">
-      <header class="top-header">
-        <h1>Notifications</h1>
-      </header>
 
-      <section class="page-content notifications-page">
-        <div class="card notifications-card">
-          <ul id="notifList" class="notif-list">
-            <li><strong>#0421</strong> — Your report has been reviewed. <span class="muted">2025-10-26</span></li>
-            <li><strong>#0410</strong> — Complaint marked as resolved. <span class="muted">2025-10-21</span></li>
-          </ul>
-        </div>
-      </section>
+        <!-- HEADER (same style as dashboard) -->
+        <header class="top-header">
+            <h1>Reports and Notifications</h1>
+
+        </header>
+
+        <!-- TITLE + DELETE ALL BUTTON INLINE -->
+      <div class="notif-header-row">
+       <h2>Pending Complaints</h2>
+       <button id="deleteAllBtn" class="delete-all-btn">Delete All</button>
+      </div>
+
+      <ul id="reviewedList"></ul>
+
+    <div class="notif-header-row">
+    <h2>Resolved Complaints</h2>
+    </div>
+
+      <ul id="resolvedList"></ul>
+
     </main>
 
-    <script src="js/user.js"></script>
-    <script>
-      lucide.createIcons();
-    </script>
-  </body>
+   <script src="https://unpkg.com/lucide@latest"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
+
+
+<script src="js/notifications.js"></script>
+</body>
 </html>

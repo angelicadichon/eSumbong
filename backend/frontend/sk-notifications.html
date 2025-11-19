@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SK Notifications | eSumbong</title>
+
+  <!-- Icons & Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/sk-notifications.css">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>eSumbong</h2>
+    </div>
+
+    <nav>
+      <ul>
+        <li class="nav-item">
+          <a href="sk-dashboard.html">
+            <i data-lucide="layout-dashboard"></i> Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="sk-profile.html">
+            <i data-lucide="user"></i> Profile
+          </a>
+        </li>
+
+        <li class="nav-item active">
+          <a href="sk-notification.html" id="notifBell">
+            <i data-lucide="bell"></i> Notifications
+          </a>
+        </li>
+
+        <li class="nav-item logout-btn">
+          <a href="index.html" onclick="logout(); return false;">
+            <i data-lucide="log-out"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <header class="top-header">
+      <h1>SK Notifications</h1>
+
+      <div class="user-profile-header">
+        <div class="profile-circle" id="profileCircle" onclick="redirectToProfile()">
+          <div class="initials" id="profileInitials">U</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- NOTIFICATION LIST -->
+    <section class="notif-section">
+      <h2 class="section-title">🔧 Assigned Tasks</h2>
+      <div id="notifList" class="notif-grid"></div>
+    </section>
+  </main>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/sk-notifications.js"></script>
+
+</body>
+</html>
