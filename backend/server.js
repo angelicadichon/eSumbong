@@ -899,6 +899,28 @@ app.put("/api/residents/username/:username", async (req, res) => {
   }
 });
 
+app.put('/api/complaints/:id/feedback', async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { rating, feedback_message, feedback_submitted_at } = req.body;
+      
+      const { data, error } = await supabase
+          .from('complaints')
+          .update({
+              rating: rating,
+              feedback_message: feedback_message,
+              feedback_submitted_at: feedback_submitted_at
+          })
+          .eq('id', id);
+          
+      if (error) throw error;
+      
+      res.json({ success: true, message: 'Feedback submitted successfully' });
+  } catch (error) {
+      console.error('Error submitting feedback:', error);
+      res.status(500).json({ success: false, message: error.message });
+  }
+});
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });

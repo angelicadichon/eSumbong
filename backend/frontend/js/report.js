@@ -1,14 +1,11 @@
 let complaintsData = [];
 let selectedComplaintId = null;
 
-// Pagination variables
 let currentPage = 1;
 const itemsPerPage = 9;
 
-// Store filtered data for pagination
 let filteredComplaintsData = [];
 
-// Search function
 function handleSearch(query) {
   const q = query.trim().toLowerCase();
   filteredComplaintsData = complaintsData.filter(c =>
@@ -28,7 +25,6 @@ function handleStatusFilter(status) {
   renderComplaintCards(filteredComplaintsData);
 }
 
-// Combined search and filter function
 function applySearchAndFilter(searchQuery, statusFilter) {
   let filtered = [...complaintsData];
   
@@ -156,6 +152,21 @@ function changePage(page) {
   renderComplaintCards(filteredComplaintsData);
 }
 
+// Generate star rating display
+function generateStarRating(rating) {
+  if (!rating || rating === 0) return '';
+  
+  let stars = '';
+  for (let i = 1; i <= 5; i++) {
+    if (i <= rating) {
+      stars += '★';
+    } else {
+      stars += '☆';
+    }
+  }
+  return `<div class="star-rating">${stars} <span class="rating-text">${rating}/5</span></div>`;
+}
+
 // Render complaint cards with pagination
 function renderComplaintCards(complaints) {
   const container = document.getElementById('complaintsContainer');
@@ -178,6 +189,7 @@ function renderComplaintCards(complaints) {
       <p><strong>Date:</strong> ${new Date(c.created_at).toLocaleDateString()}</p>
       <p><strong>Location:</strong> ${c.location || 'N/A'}</p>
       <p>${c.description?.slice(0, 60) || ''}...</p>
+      ${c.rating ? generateStarRating(c.rating) : ''}
     </div>
   `).join('');
 
@@ -188,18 +200,16 @@ function renderComplaintCards(complaints) {
   container.innerHTML = complaintsHTML + paginationHTML;
 }
 
-// View modal with full complaint details
+// view modal with full complaint details
 function openComplaintModal(id) {
   selectedComplaintId = id;
-  // Always search in the original complaintsData to ensure we find the complaint
   const complaint = complaintsData.find(c => c.id === id);
   const modal = document.getElementById('complaintModal');
   const details = document.getElementById('modalDetails');
 
-  if (!complaint) {
-    console.error('Complaint not found with id:', id);
-    return;
-  }
+  if (!complaint) return;
+
+  
 
   // Render file images if they exist
   const fileImage = complaint.file ? `
@@ -216,6 +226,15 @@ function openComplaintModal(id) {
     </div>
   ` : '<p><strong>After Photo:</strong> No File</p>';
 
+  // Generate star rating for modal
+  const starRatingHTML = complaint.rating ? 
+    `<p><strong>User Rating:</strong> ${generateStarRating(complaint.rating)}</p>` : 
+    '<p><strong>User Rating:</strong> Not rated yet</p>';
+    
+  const feedbackMessage = complaint.feedback_message ? `
+    <p><strong>User Feedback:</strong> ${complaint.feedback_message}</p>
+  ` : '';
+
   details.innerHTML = `
     <p><strong>Category:</strong> ${complaint.category}</p>
     <p><strong>Description:</strong> ${complaint.description}</p>
@@ -224,6 +243,8 @@ function openComplaintModal(id) {
     <p><strong>Location:</strong> ${complaint.location}</p>
     <p><strong>Status:</strong> ${complaint.status}</p>
     <p><strong>Assigned Team:</strong> ${complaint.assigned_team || 'Unassigned'}</p>
+    ${starRatingHTML}
+    ${feedbackMessage}
     ${fileImage}
     ${afterPhotoImage}
     <p><strong>Team Notes:</strong> ${complaint.team_notes || 'N/A'}</p>
@@ -253,7 +274,7 @@ function openComplaintModal(id) {
   modal.classList.remove('hidden');
 }
 
-// Admin assign team 
+// admin Assign team 
 async function assignTeam() {
   const team = document.getElementById('teamSelect').value;
   const assignBtn = document.getElementById('assignBtn');
@@ -278,23 +299,23 @@ async function assignTeam() {
     if (data.success) {
       alert('Team assigned successfully!');
       
-      // Update both datasets
-      const updateComplaintInArray = (arr) => {
-        const index = arr.findIndex(c => c.id === selectedComplaintId);
-        if (index !== -1) {
-          arr[index].assigned_team = team;
-          arr[index].status = 'in-progress';
-        }
-      };
+      // Update local data
+      const complaintIndex = complaintsData.findIndex(c => c.id === selectedComplaintId);
+      if (complaintIndex !== -1) {
+        complaintsData[complaintIndex].assigned_team = team;
+        complaintsData[complaintIndex].status = 'in-progress';
+      }
       
-      updateComplaintInArray(complaintsData);
-      updateComplaintInArray(filteredComplaintsData);
+      // Also update filtered data if it exists there
+      const filteredIndex = filteredComplaintsData.findIndex(c => c.id === selectedComplaintId);
+      if (filteredIndex !== -1) {
+        filteredComplaintsData[filteredIndex].assigned_team = team;
+        filteredComplaintsData[filteredIndex].status = 'in-progress';
+      }
       
       closeModal();
       renderComplaintCards(filteredComplaintsData);
       updateAdminAnalytics(complaintsData);
-    } else {
-      alert('Failed to assign team: ' + (data.message || 'Unknown error'));
     }
   } catch (err) {
     alert('Failed to assign: ' + err.message);
@@ -337,16 +358,8 @@ function updateAdminAnalytics(complaints) {
 document.addEventListener('DOMContentLoaded', () => {
   loadAdminDashboard();
 
-  const closeModalBtn = document.getElementById('closeModal');
-  const assignBtn = document.getElementById('assignBtn');
-  
-  if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', closeModal);
-  }
-  
-  if (assignBtn) {
-    assignBtn.addEventListener('click', assignTeam);
-  }
+  document.getElementById('closeModal').addEventListener('click', closeModal);
+  document.getElementById('assignBtn').addEventListener('click', assignTeam);
 
   // Close modal when clicking outside
   const modal = document.getElementById('complaintModal');
