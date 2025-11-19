@@ -5,6 +5,50 @@
     <link rel="icon" type="image/png" href="image/favicon.png">
     <title>All Reports | eSumbong</title>
     <link rel="stylesheet" href="css/reports.css" />
+    <style>
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        padding: 20px;
+        grid-column: 1 / -1;
+      }
+
+      .pagination-btn {
+        padding: 8px 16px;
+        border: 1px solid #333;
+        background-color: white;
+        color: #374151;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+
+      .pagination-btn:hover:not(.disabled) {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+        color: black;
+      }
+
+      .pagination-btn.active {
+        background-color: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+
+      .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .pagination-ellipsis {
+        padding: 8px 12px;
+        color: #6b7280;
+      }
+    </style>
     <script src="https://unpkg.com/lucide@latest"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
   </head>
@@ -46,40 +90,7 @@
       </header>
 
       <section class="page-content dashboard-page">
-        <!-- Analytics Cards -->
-        <div class="analytics-section">
-          <h2>Reports Overview</h2>
-          <div class="cards-row">
-            <div class="stat-card">
-              <div class="stat-icon total"><i data-lucide="file-text"></i></div>
-              <div class="stat-info">
-                <h3 id="totalReports">0</h3>
-                <p>Total Reports</p>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon pending"><i data-lucide="clock"></i></div>
-              <div class="stat-info">
-                <h3 id="pendingReports">0</h3>
-                <p>Pending</p>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon in-progress"><i data-lucide="refresh-cw"></i></div>
-              <div class="stat-info">
-                <h3 id="progressReports">0</h3>
-                <p>In Progress</p>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon resolved"><i data-lucide="check-circle"></i></div>
-              <div class="stat-info">
-                <h3 id="resolvedReports">0</h3>
-                <p>Resolved</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        
 
         <!-- Complaints Section (Cards layout) -->
         <div class="card complaints-card">
@@ -100,6 +111,7 @@
               </select>
             </div>
           </div>
+          
 
           <!-- Complaints displayed as cards -->
           <div id="complaintsContainer" class="complaints-grid">

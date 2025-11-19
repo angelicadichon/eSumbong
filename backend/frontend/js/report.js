@@ -1,35 +1,44 @@
 let complaintsData = [];
 let selectedComplaintId = null;
 
+// Pagination variables
+let currentPage = 1;
+const itemsPerPage = 9;
+
+// Store filtered data for pagination
+let filteredComplaintsData = [];
+
 // Search function
 function handleSearch(query) {
   const q = query.trim().toLowerCase();
-  const filtered = complaintsData.filter(c =>
+  filteredComplaintsData = complaintsData.filter(c =>
     c.description?.toLowerCase().includes(q) ||
     c.category?.toLowerCase().includes(q) ||
     c.location?.toLowerCase().includes(q) ||
     c.name?.toLowerCase().includes(q)
   );
-  renderComplaintCards(filtered);
+  currentPage = 1;
+  renderComplaintCards(filteredComplaintsData);
 }
 
 // Filter function
 function handleStatusFilter(status) {
-  const filtered = status ? complaintsData.filter(c => c.status === status) : complaintsData;
-  renderComplaintCards(filtered);
+  filteredComplaintsData = status ? complaintsData.filter(c => c.status === status) : [...complaintsData];
+  currentPage = 1;
+  renderComplaintCards(filteredComplaintsData);
 }
 
 // Combined search and filter function
 function applySearchAndFilter(searchQuery, statusFilter) {
   let filtered = [...complaintsData];
   
-  // Apply status filter 
+  // Apply status filter first
   if (statusFilter) {
     filtered = filtered.filter(c => c.status === statusFilter);
   }
   
   // Apply search filter
-  if (searchQuery) {
+  if (searchQuery.trim()) {
     const q = searchQuery.trim().toLowerCase();
     filtered = filtered.filter(c =>
       c.description?.toLowerCase().includes(q) ||
@@ -39,22 +48,23 @@ function applySearchAndFilter(searchQuery, statusFilter) {
     );
   }
   
-  renderComplaintCards(filtered);
+  filteredComplaintsData = filtered;
+  currentPage = 1;
+  renderComplaintCards(filteredComplaintsData);
 }
 
 function setupSearchAndFilterListeners() {
-  // Search functionality
   const searchInput = document.getElementById('tableSearch');
+  const statusFilter = document.getElementById('statusFilter');
+
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       const searchQuery = e.target.value;
-      const statusFilter = document.getElementById('statusFilter').value;
-      applySearchAndFilter(searchQuery, statusFilter);
+      const statusFilterValue = document.getElementById('statusFilter').value;
+      applySearchAndFilter(searchQuery, statusFilterValue);
     });
   }
 
-  // Status filter functionality
-  const statusFilter = document.getElementById('statusFilter');
   if (statusFilter) {
     statusFilter.addEventListener('change', (e) => {
       const statusFilterValue = e.target.value;
@@ -72,7 +82,8 @@ async function loadAdminDashboard() {
 
     if (result.success) {
       complaintsData = result.complaints;
-      renderComplaintCards(complaintsData);
+      filteredComplaintsData = [...complaintsData];
+      renderComplaintCards(filteredComplaintsData);
       updateAdminAnalytics(complaintsData);
       setupSearchAndFilterListeners();
     } else {
@@ -81,20 +92,71 @@ async function loadAdminDashboard() {
     }
   } catch (err) {
     console.error('Error loading complaints:', err);
+    document.getElementById('complaintsContainer').innerHTML =
+      `<p class="loading-text">Error loading complaints. Please try again.</p>`;
   }
 }
-function filterComplaintCards(query) {
-  const q = query.trim().toLowerCase();
-  const cards = document.querySelectorAll('.complaint-card');
-  
-  cards.forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(q) ? '' : 'none';
-  });
+
+// Get current page items
+function getCurrentPageItems(complaints) {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return complaints.slice(startIndex, endIndex);
 }
 
+// Render pagination controls
+function renderPagination(totalItems) {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+  if (totalPages <= 1) {
+    return '';
+  }
+  
+  let paginationHTML = `
+    <div class="pagination">
+      <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
+              onclick="changePage(${currentPage - 1})" 
+              ${currentPage === 1 ? 'disabled' : ''}>
+        Previous
+      </button>
+  `;
+  
+  // Show page numbers
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      paginationHTML += `
+        <button class="pagination-btn ${currentPage === i ? 'active' : ''}" 
+                onclick="changePage(${i})">
+          ${i}
+        </button>
+      `;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+    }
+  }
+  
+  paginationHTML += `
+      <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
+              onclick="changePage(${currentPage + 1})" 
+              ${currentPage === totalPages ? 'disabled' : ''}>
+        Next
+      </button>
+    </div>
+  `;
+  
+  return paginationHTML;
+}
 
-// Render complaint cards
+// Change page function
+function changePage(page) {
+  const totalPages = Math.ceil(filteredComplaintsData.length / itemsPerPage);
+  if (page < 1 || page > totalPages) return;
+  
+  currentPage = page;
+  renderComplaintCards(filteredComplaintsData);
+}
+
+// Render complaint cards with pagination
 function renderComplaintCards(complaints) {
   const container = document.getElementById('complaintsContainer');
   if (!container) return;
@@ -104,27 +166,40 @@ function renderComplaintCards(complaints) {
     return;
   }
 
-  // In your renderComplaintCards function, update the card HTML:
-container.innerHTML = complaints.map(c => `
-  <div class="complaint-card ${c.status}" onclick="openComplaintModal(${c.id})">
-    <span class="status-badge ${c.status}">${c.status}</span>
-    <h3>${c.category}</h3>
-    <p><strong>Submitted By:</strong> ${c.name || 'N/A'}</p>
-    <p><strong>Date:</strong> ${new Date(c.created_at).toLocaleDateString()}</p>
-    <p><strong>Location:</strong> ${c.location || 'N/A'}</p>
-    <p>${c.description?.slice(0, 60) || ''}...</p>
-  </div>
-`).join('');
+  // Get current page items
+  const currentPageItems = getCurrentPageItems(complaints);
+  
+  // Render complaint cards
+  const complaintsHTML = currentPageItems.map(c => `
+    <div class="complaint-card ${c.status}" onclick="openComplaintModal(${c.id})">
+      <span class="status-badge ${c.status}">${c.status}</span>
+      <h3>${c.category}</h3>
+      <p><strong>Submitted By:</strong> ${c.name || 'N/A'}</p>
+      <p><strong>Date:</strong> ${new Date(c.created_at).toLocaleDateString()}</p>
+      <p><strong>Location:</strong> ${c.location || 'N/A'}</p>
+      <p>${c.description?.slice(0, 60) || ''}...</p>
+    </div>
+  `).join('');
+
+  // Render pagination
+  const paginationHTML = renderPagination(complaints.length);
+  
+  // Combine complaints and pagination
+  container.innerHTML = complaintsHTML + paginationHTML;
 }
 
-// view modal with full complaint details
+// View modal with full complaint details
 function openComplaintModal(id) {
   selectedComplaintId = id;
+  // Always search in the original complaintsData to ensure we find the complaint
   const complaint = complaintsData.find(c => c.id === id);
   const modal = document.getElementById('complaintModal');
   const details = document.getElementById('modalDetails');
 
-  if (!complaint) return;
+  if (!complaint) {
+    console.error('Complaint not found with id:', id);
+    return;
+  }
 
   // Render file images if they exist
   const fileImage = complaint.file ? `
@@ -178,7 +253,7 @@ function openComplaintModal(id) {
   modal.classList.remove('hidden');
 }
 
-// admin Assign team 
+// Admin assign team 
 async function assignTeam() {
   const team = document.getElementById('teamSelect').value;
   const assignBtn = document.getElementById('assignBtn');
@@ -196,53 +271,33 @@ async function assignTeam() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         assigned_team: team,
-        status: 'in-progress' // Auto-update status when assigned
+        status: 'in-progress'
       })
     });
     const data = await res.json();
     if (data.success) {
       alert('Team assigned successfully!');
       
-      // Update local data
-      const complaintIndex = complaintsData.findIndex(c => c.id === selectedComplaintId);
-      if (complaintIndex !== -1) {
-        complaintsData[complaintIndex].assigned_team = team;
-        complaintsData[complaintIndex].status = 'in-progress';
-      }
+      // Update both datasets
+      const updateComplaintInArray = (arr) => {
+        const index = arr.findIndex(c => c.id === selectedComplaintId);
+        if (index !== -1) {
+          arr[index].assigned_team = team;
+          arr[index].status = 'in-progress';
+        }
+      };
+      
+      updateComplaintInArray(complaintsData);
+      updateComplaintInArray(filteredComplaintsData);
       
       closeModal();
-      renderComplaintCards(complaintsData);
+      renderComplaintCards(filteredComplaintsData);
       updateAdminAnalytics(complaintsData);
+    } else {
+      alert('Failed to assign team: ' + (data.message || 'Unknown error'));
     }
   } catch (err) {
     alert('Failed to assign: ' + err.message);
-  }
-}
-
-// Mark complaint as resolved
-async function markResolved() {
-  try {
-    const res = await fetch(`/api/complaints/${selectedComplaintId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'resolved' })
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert('Complaint marked as resolved!');
-      
-      // Update local data
-      const complaintIndex = complaintsData.findIndex(c => c.id === selectedComplaintId);
-      if (complaintIndex !== -1) {
-        complaintsData[complaintIndex].status = 'resolved';
-      }
-      
-      closeModal();
-      renderComplaintCards(complaintsData);
-      updateAdminAnalytics(complaintsData);
-    }
-  } catch (err) {
-    alert('Error updating status.');
   }
 }
 
@@ -266,34 +321,40 @@ function updateAdminAnalytics(complaints) {
   const inProgress = complaints.filter(c => c.status === 'in-progress').length;
   const resolved = complaints.filter(c => c.status === 'resolved').length;
 
-  document.getElementById('totalReports').textContent = total;
-  document.getElementById('pendingReports').textContent = pending;
-  document.getElementById('progressReports').textContent = inProgress;
-  document.getElementById('resolvedReports').textContent = resolved;
+  // Make sure these elements exist in your HTML
+  const totalEl = document.getElementById('totalReports');
+  const pendingEl = document.getElementById('pendingReports');
+  const progressEl = document.getElementById('progressReports');
+  const resolvedEl = document.getElementById('resolvedReports');
+  
+  if (totalEl) totalEl.textContent = total;
+  if (pendingEl) pendingEl.textContent = pending;
+  if (progressEl) progressEl.textContent = inProgress;
+  if (resolvedEl) resolvedEl.textContent = resolved;
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   loadAdminDashboard();
 
-  document.getElementById('closeModal').addEventListener('click', closeModal);
-  document.getElementById('assignBtn').addEventListener('click', assignTeam);
-  document.getElementById('markResolvedBtn').addEventListener('click', markResolved);
+  const closeModalBtn = document.getElementById('closeModal');
+  const assignBtn = document.getElementById('assignBtn');
+  
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeModal);
+  }
+  
+  if (assignBtn) {
+    assignBtn.addEventListener('click', assignTeam);
+  }
 
-  // Filters (keeping your original event listeners as backup)
-  document.getElementById('statusFilter').addEventListener('change', (e) => {
-    const filter = e.target.value;
-    const filtered = filter ? complaintsData.filter(c => c.status === filter) : complaintsData;
-    renderComplaintCards(filtered);
-  });
-
-  document.getElementById('tableSearch').addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase();
-    const filtered = complaintsData.filter(c =>
-      c.description?.toLowerCase().includes(q) ||
-      c.category?.toLowerCase().includes(q)
-    );
-    renderComplaintCards(filtered);
-  });
+  // Close modal when clicking outside
+  const modal = document.getElementById('complaintModal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
 });
-
