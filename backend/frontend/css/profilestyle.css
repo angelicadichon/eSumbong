@@ -6,15 +6,57 @@ body {
 
 /* Sidebar Styles */
 .sidebar {
-  position: fixed;        
-  top: 0;                 
-  left: 0;               
-  width: 250px;           
-  height: 100vh;         
+  width: 250px;
   background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-  color: #fff;
-  overflow-y: auto;       
-  z-index: 1000;         
+  color: white;
+  padding: 20px 0;
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 0 20px 20px;
+  border-bottom: 1px solid #4a6278;
+  margin-bottom: 20px;
+}
+
+.sidebar-header i {
+  margin-right: 12px;
+  color: #3498db;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav li {
+  margin-bottom: 5px;
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  color: #bdc3c7;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  gap: 10px;
+
 }
 .sidebar-logo {
   width: 28px;
@@ -22,55 +64,22 @@ body {
   border-radius: 6px; 
   gap: 16px;
 }
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 20px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-header i {
-  width: 24px;
-  height: 24px;
-}
-
-.sidebar-header h2 {
-  font-size: 1.4rem;
-  margin: 0;
-}
-
-.sidebar nav ul {
-  list-style: none;
-  padding: 20px 0;
-}
-
-.nav-item {
-  margin-bottom: 5px;
-}
-
-.nav-item a {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #b0b7c3;
-  text-decoration: none;
-  padding: 12px 20px;
-  transition: all 0.3s ease;
-  border-left: 3px solid transparent;
-    gap: 10px;
-
-}
-
-.nav-item a:hover, .nav-item.active a {
-  background-color: rgba(255, 255, 255, 0.1);
+.sidebar nav a:hover {
+  background-color: #34495e;
   color: white;
-  border-left: 3px solid #3498db;
+  border-left-color: #3498db;
 }
 
-.nav-item i {
-  width: 18px;
-  height: 18px;
+.sidebar nav a i {
+  margin-right: 12px;
+  width: 20px;
+  height: 20px;
+}
+
+.nav-item.active a {
+  background-color: #3498db;
+  color: white;
+  border-left-color: #2980b9;
 }
 
 .logout-btn {
