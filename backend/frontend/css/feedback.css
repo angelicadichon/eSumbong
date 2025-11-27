@@ -14,11 +14,11 @@
   --error: #e74c3c;
 }
 
+
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
-  line-height: 1.6;
+  background: linear-gradient(180deg, #d7f1ff, #e9fbff);
   display: flex;
   min-height: 100vh;
 }
