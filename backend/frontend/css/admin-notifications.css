@@ -102,6 +102,12 @@ body {
     color: #1f3344;
     font-weight: 700;
   }
+  .sidebar-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px; 
+    gap: 16px;
+  }
   
   /* Container */
   .notif-section {
@@ -245,6 +251,12 @@ body {
     margin: 0;
 }
 
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px; 
+  gap: 16px;
+}
 .pagination button {
     padding: 8px 12px;
     border: 1px solid #ddd;

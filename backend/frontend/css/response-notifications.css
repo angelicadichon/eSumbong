@@ -1,6 +1,12 @@
 body {
     background: #f1f5f9;
-    font-family: "Inter", sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .sidebar-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px; 
+    gap: 16px;
   }
   
   .top-header h1 {

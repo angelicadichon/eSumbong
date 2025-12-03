@@ -80,7 +80,12 @@ body {
   width: 20px;
   height: 20px;
 }
-
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px; 
+  gap: 16px;
+}
 .nav-item.active a {
   background-color: #3498db;
   color: white;
