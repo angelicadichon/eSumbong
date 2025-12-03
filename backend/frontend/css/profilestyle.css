@@ -1,15 +1,5 @@
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(180deg, #d7f1ff, #e9fbff); /* skyblue gradient */
-  color: #0f1724;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  display: flex;
-  min-height: 100vh;
-}
 
-/* if batiii ang change, ibalik lang ni ha -krystal
+
 body{
   margin:0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,7 +7,7 @@ body{
   color:#0f1724;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
-}*/
+}
 
 
 /* Sidebar Styles */
