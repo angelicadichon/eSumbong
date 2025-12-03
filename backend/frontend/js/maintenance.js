@@ -409,38 +409,33 @@ async function handleUpdateSubmit(e) {
       afterPhotoUrl = publicUrlData.publicUrl;
     }
 
-    // Update complaint & set status to resolved
-    const { data: updatedComplaint, error: updateError } = await supabase
-      .from('complaints')
-      .update({
-        team_notes: teamNotes,
-        after_photo: afterPhotoUrl,
-        status: 'resolved',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', selectedComplaintId)
-      .select() // important: to get the updated complaint data including resident_username
-      .single();
+    // After updating the complaint in handleUpdateSubmit
+const { data: complaintData, error: complaintError } = await supabase
+  .from('complaints')
+  .select('id, resident_username, description')
+  .eq('id', selectedComplaintId)
+  .single();
 
-    if (updateError) throw updateError;
+if (complaintError) throw complaintError;
 
-    const residentUsername = updatedComplaint.resident_username;
+const residentUsername = complaintData.resident_username;
+const complaintDescription = complaintData.description;
 
-    // Send notifications to both admin and resident
-    const { error: notifError } = await supabase.from("notifications").insert([
-      {
-        username: "admin",
-        message: `Complaint #${selectedComplaintId} has been resolved by the maintenance team.`,
-        status: "unread",
-        created_at: new Date().toISOString()
-      },
-      {
-        username: residentUsername,
-        message: `Your complaint #${selectedComplaintId} has been resolved by the maintenance team.`,
-        status: "unread",
-        created_at: new Date().toISOString()
-      }
-    ]);
+// SEND NOTIFICATION TO ADMIN
+await supabase.from("notifications").insert({
+  username: "admin",
+  message: `Complaint #${selectedComplaintId} has been resolved by the maintenance team.`,
+  status: "unread"
+});
+
+// SEND NOTIFICATION TO RESIDENT
+if (residentUsername) {
+  await supabase.from("notifications").insert({
+    username: residentUsername,
+    message: `Your complaint "${complaintDescription}" has been resolved by the maintenance team.`,
+    status: "unread"
+  });
+}
 
     if (notifError) throw notifError;
 
