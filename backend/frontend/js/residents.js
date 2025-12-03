@@ -561,9 +561,23 @@
      }, 3000);
  }
 
+ function logout() {
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    
+    if (confirmed) {
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+        
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        
+        window.location.href = 'index.html';
+    }
+}
  // Make functions global
  window.viewResident = viewResident;
  window.editResident = editResident;
  window.deleteResident = deleteResident;
  window.closeResidentModal = closeResidentModal;
  window.handleEditResident = handleEditResident;
+

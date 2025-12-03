@@ -110,3 +110,17 @@ document.addEventListener("DOMContentLoaded", function () {
       responseEl.className = "response-text error";
     }
   }
+
+  function logout() {
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    
+    if (confirmed) {
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+        
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        
+        window.location.href = 'index.html';
+    }
+}

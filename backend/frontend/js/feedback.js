@@ -227,13 +227,23 @@ function formatDate(dateString) {
     });
 }
 
-// Logout function
 function logout() {
-    localStorage.removeItem('username');
-    localStorage.removeItem('role');
-    window.location.href = 'index.html';
+    // Create custom modal for better UX
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    
+    if (confirmed) {
+        // Clear user session data
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+        
+        // Optional: Clear any other session-related items
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        
+        // Redirect to login page
+        window.location.href = 'index.html';
+    }
 }
-
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
     loadResolvedComplaints();

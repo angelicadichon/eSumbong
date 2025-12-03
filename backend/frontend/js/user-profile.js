@@ -168,7 +168,7 @@ async function handleFormSubmit(e) {
 
     const formData = new FormData();
     formData.append("username", currentUsername);
-    formData.append("full_name", document.getElementById("fullName").value); // Changed to full_name to match backend
+    formData.append("full_name", document.getElementById("fullName").value); 
     formData.append("phone", document.getElementById("phone").value);
     formData.append("email", document.getElementById("email").value);
     formData.append("address", document.getElementById("address").value);
