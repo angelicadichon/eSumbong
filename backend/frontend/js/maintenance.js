@@ -425,7 +425,7 @@ async function handleUpdateSubmit(e) {
     // ⭐⭐ SEND NOTIFICATION TO ADMIN ⭐⭐
     await supabase.from("notifications").insert({
       username: "admin",
-      message: `Complaint #${selectedComplaintId} has been resolved by the maintenance team.`,
+      message: `Complaint #${afterPhoto.name} has been resolved by the maintenance team.`,
       status: "unread"
     });
 
