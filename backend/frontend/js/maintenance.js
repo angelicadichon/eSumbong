@@ -394,7 +394,7 @@ async function handleUpdateSubmit(e) {
   let afterPhotoUrl = null;
 
   try {
-    // Upload after photo if provided
+    // ⬆ Upload after photo (if any)
     if (afterPhoto) {
       const fileName = `complaint-${selectedComplaintId}-after-${Date.now()}-${afterPhoto.name}`;
       const { data, error } = await supabase.storage
@@ -409,43 +409,32 @@ async function handleUpdateSubmit(e) {
       afterPhotoUrl = publicUrlData.publicUrl;
     }
 
-    // After updating the complaint in handleUpdateSubmit
-const { data: complaintData, error: complaintError } = await supabase
-  .from('complaints')
-  .select('id, resident_username, description')
-  .eq('id', selectedComplaintId)
-  .single();
+    // ⬆ Update complaint & set status to resolved
+    const { data, error } = await supabase
+      .from('complaints')
+      .update({
+        team_notes: teamNotes,
+        after_photo: afterPhotoUrl,
+        status: 'resolved',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', selectedComplaintId);
 
-if (complaintError) throw complaintError;
+    if (error) throw error;
 
-const residentUsername = complaintData.resident_username;
-const complaintDescription = complaintData.description;
-
-// SEND NOTIFICATION TO ADMIN
-await supabase.from("notifications").insert({
-  username: "admin",
-  message: `Complaint #${selectedComplaintId} has been resolved by the maintenance team.`,
-  status: "unread"
-});
-
-// SEND NOTIFICATION TO RESIDENT
-if (residentUsername) {
-  await supabase.from("notifications").insert({
-    username: residentUsername,
-    message: `Your complaint "${complaintDescription}" has been resolved by the maintenance team.`,
-    status: "unread"
-  });
-}
-
-    if (notifError) throw notifError;
+    // ⭐⭐ SEND NOTIFICATION TO ADMIN ⭐⭐
+    await supabase.from("notifications").insert({
+      username: "admin",
+      message: `Complaint #${afterPhoto.name} has been resolved by the maintenance team.`,
+      status: "unread"
+    });
 
     alert("Update saved successfully!");
     closeUpdateModal();
     loadAssignedComplaints();
-
   } catch (err) {
     console.error("Upload error:", err);
-    alert("Error: " + err.message);
+    alert("Error" + err.message);
   }
 }
 
