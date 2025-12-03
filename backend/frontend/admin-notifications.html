@@ -58,16 +58,28 @@
     </header>
 
     <section class="notif-section">
-
-        <!-- Pending Complaints -->
-        <h2 class="section-title">🟡 Pending Complaints</h2>
-        <ul id="pendingList" class="notif-grid"></ul>
-
-        <!-- Resolved Complaints -->
-        <h2 class="section-title">🟢 Resolved Complaints</h2>
-        <ul id="resolvedList" class="notif-grid"></ul>
-
-    </section>
+      <!-- Pending Complaints -->
+      <div class="pagination-section">
+          <h2 class="section-title">🟡 Pending Complaints</h2>
+          <ul id="pendingList" class="notif-grid"></ul>
+          <div id="pendingPagination" class="pagination-controls">
+              <button id="pendingPrevBtn" class="pagination-btn" disabled>Previous</button>
+              <span id="pendingPageInfo" class="page-info">Page 1 of 1</span>
+              <button id="pendingNextBtn" class="pagination-btn" disabled>Next</button>
+          </div>
+      </div>
+  
+      <!-- Resolved Complaints -->
+      <div class="pagination-section">
+          <h2 class="section-title">🟢 Resolved Complaints</h2>
+          <ul id="resolvedList" class="notif-grid"></ul>
+          <div id="resolvedPagination" class="pagination-controls">
+              <button id="resolvedPrevBtn" class="pagination-btn" disabled>Previous</button>
+              <span id="resolvedPageInfo" class="page-info">Page 1 of 1</span>
+              <button id="resolvedNextBtn" class="pagination-btn" disabled>Next</button>
+          </div>
+      </div>
+  </section>
 
 </main>
 

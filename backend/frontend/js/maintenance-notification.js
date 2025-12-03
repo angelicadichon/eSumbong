@@ -71,9 +71,18 @@ async function deleteNotif(id) {
 
 
 function logout() {
-    window.location.href = "index.html";
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    
+    if (confirmed) {
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+        
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        
+        window.location.href = 'index.html';
+    }
 }
-
 // Function to load user profile data for the header
 async function loadUserProfile() {
     try {
