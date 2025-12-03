@@ -407,14 +407,22 @@ async function handleUpdateSubmit(e) {
 
     if (error) throw error;
 
+    // 🔔 SEND NOTIFICATION TO ADMIN
+    await supabase.from("notifications").insert({
+      username: "admin",
+      message: `Complaint #${selectedComplaintId} has been resolved by the response team.`,
+      status: "unread"
+    });
+
     alert("Update saved successfully!");
     closeUpdateModal();
     loadAssignedComplaints();
   } catch (err) {
     console.error("Upload error:", err);
-    alert("Error " + err.message);
+    alert("Error" + err.message);
   }
 }
+
 
 function redirectToProfile() {
   window.location.href = 'response-profile.html';
