@@ -438,6 +438,13 @@ async function handleUpdateSubmit(e) {
   }
 }
 
+function filterCards(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll(".complaint-card").forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(q) ? "block" : "none";
+  });
+}
 
 
 function redirectToProfile() {
