@@ -394,7 +394,7 @@ async function handleUpdateSubmit(e) {
   let afterPhotoUrl = null;
 
   try {
-    // ⬆ Upload after photo (if any)
+    // Upload after photo if provided
     if (afterPhoto) {
       const fileName = `complaint-${selectedComplaintId}-after-${Date.now()}-${afterPhoto.name}`;
       const { data, error } = await supabase.storage
@@ -409,8 +409,8 @@ async function handleUpdateSubmit(e) {
       afterPhotoUrl = publicUrlData.publicUrl;
     }
 
-    // ⬆ Update complaint & set status to resolved
-    const { data, error } = await supabase
+    // Update complaint & set status to resolved
+    const { data: updatedComplaint, error: updateError } = await supabase
       .from('complaints')
       .update({
         team_notes: teamNotes,
@@ -418,42 +418,42 @@ async function handleUpdateSubmit(e) {
         status: 'resolved',
         updated_at: new Date().toISOString()
       })
-      .eq('id', selectedComplaintId);
-
-    if (error) throw error;
-
-    // ⭐⭐ SEND NOTIFICATION TO ADMIN ⭐⭐
-    await supabase.from("notifications").insert({
-      username: "admin",
-      message: `Complaint #${afterPhoto.name} has been resolved by the maintenance team.`,
-      status: "unread"
-    });
-    const { data: complaintData, error: complaintError } = await supabase
-      .from("complaints")
-      .select("resident_username")
-      .eq("id", selectedComplaintId)
+      .eq('id', selectedComplaintId)
+      .select() // important: to get the updated complaint data including resident_username
       .single();
 
-      if (complaintError) throw complaintError;
+    if (updateError) throw updateError;
 
-      const residentUsername = complaintData.resident_username;
+    const residentUsername = updatedComplaint.resident_username;
 
-      // 🔔 Notify the resident  
-      await supabase.from("notifications").insert({
-      username: residentUsername,
-      message: `Your complaint #${selectedComplaintId} has been resolved.`,
-      status: "unread"
-    });
+    // Send notifications to both admin and resident
+    const { error: notifError } = await supabase.from("notifications").insert([
+      {
+        username: "admin",
+        message: `Complaint #${selectedComplaintId} has been resolved by the maintenance team.`,
+        status: "unread",
+        created_at: new Date().toISOString()
+      },
+      {
+        username: residentUsername,
+        message: `Your complaint #${selectedComplaintId} has been resolved by the maintenance team.`,
+        status: "unread",
+        created_at: new Date().toISOString()
+      }
+    ]);
 
+    if (notifError) throw notifError;
 
     alert("Update saved successfully!");
     closeUpdateModal();
     loadAssignedComplaints();
+
   } catch (err) {
     console.error("Upload error:", err);
-    alert("Error" + err.message);
+    alert("Error: " + err.message);
   }
 }
+
 
 
 function redirectToProfile() {
