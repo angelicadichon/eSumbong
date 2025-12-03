@@ -428,6 +428,23 @@ async function handleUpdateSubmit(e) {
       message: `Complaint #${afterPhoto.name} has been resolved by the maintenance team.`,
       status: "unread"
     });
+    const { data: complaintData, error: complaintError } = await supabase
+      .from("complaints")
+      .select("resident_username")
+      .eq("id", selectedComplaintId)
+      .single();
+
+      if (complaintError) throw complaintError;
+
+      const residentUsername = complaintData.resident_username;
+
+      // 🔔 Notify the resident  
+      await supabase.from("notifications").insert({
+      username: residentUsername,
+      message: `Your complaint #${selectedComplaintId} has been resolved.`,
+      status: "unread"
+    });
+
 
     alert("Update saved successfully!");
     closeUpdateModal();
