@@ -394,7 +394,6 @@ async function handleUpdateSubmit(e) {
   let afterPhotoUrl = null;
 
   try {
-    // ⬆ Upload after photo (if any)
     if (afterPhoto) {
       const fileName = `complaint-${selectedComplaintId}-after-${Date.now()}-${afterPhoto.name}`;
       const { data, error } = await supabase.storage
@@ -409,7 +408,6 @@ async function handleUpdateSubmit(e) {
       afterPhotoUrl = publicUrlData.publicUrl;
     }
 
-    // ⬆ Update complaint & set status to resolved
     const { data, error } = await supabase
       .from('complaints')
       .update({
@@ -422,10 +420,10 @@ async function handleUpdateSubmit(e) {
 
     if (error) throw error;
 
-    // ⭐⭐ SEND NOTIFICATION TO ADMIN ⭐⭐
+    // 🔔 SEND NOTIFICATION TO ADMIN
     await supabase.from("notifications").insert({
       username: "admin",
-      message: `Complaint #${afterPhoto.name} has been resolved by the maintenance team.`,
+      message: `Complaint #${selectedComplaintId} has been resolved by the maintenance team.`,
       status: "unread"
     });
 
@@ -437,6 +435,7 @@ async function handleUpdateSubmit(e) {
     alert("Error" + err.message);
   }
 }
+
 
 function filterCards(query) {
   const q = query.toLowerCase();
