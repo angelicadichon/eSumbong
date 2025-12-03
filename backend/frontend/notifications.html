@@ -62,18 +62,37 @@
         </header>
 
         <!-- TITLE + DELETE ALL BUTTON INLINE -->
-      <div class="notif-header-row">
-       <h2>Pending Complaints</h2>
-       <button id="deleteAllBtn" class="delete-all-btn">Delete All</button>
-      </div>
+      <!-- Update your notification sections -->
+<!-- PENDING COMPLAINTS WITH PAGINATION -->
+<div class="pagination-section">
+  <div class="notif-header-row">
+    <h2>Pending Complaints</h2>
+    <button id="deleteAllBtn" class="delete-all-btn">Delete All</button>
+  </div>
+  
+  <ul id="reviewedList"></ul>
+  
+  <div id="pendingPagination" class="pagination-controls">
+    <button id="pendingPrevBtn" class="pagination-btn" disabled>Previous</button>
+    <span id="pendingPageInfo" class="page-info">Page 1 of 1</span>
+    <button id="pendingNextBtn" class="pagination-btn" disabled>Next</button>
+  </div>
+</div>
 
-      <ul id="reviewedList"></ul>
-
-    <div class="notif-header-row">
+<!-- RESOLVED COMPLAINTS WITH PAGINATION -->
+<div class="pagination-section">
+  <div class="notif-header-row">
     <h2>Resolved Complaints</h2>
-    </div>
-
-      <ul id="resolvedList"></ul>
+  </div>
+  
+  <ul id="resolvedList"></ul>
+  
+  <div id="resolvedPagination" class="pagination-controls">
+    <button id="resolvedPrevBtn" class="pagination-btn" disabled>Previous</button>
+    <span id="resolvedPageInfo" class="page-info">Page 1 of 1</span>
+    <button id="resolvedNextBtn" class="pagination-btn" disabled>Next</button>
+  </div>
+</div>
 
     </main>
 

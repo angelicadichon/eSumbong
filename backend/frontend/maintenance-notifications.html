@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="image/favicon.png">
-  <title>Admin Notifications | eSumbong</title>
+  <title>Maintenance Notifications | eSumbong</title>
 
   <!-- Icons & Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -67,10 +67,22 @@
     </header>
 
     <!-- NOTIFICATION LIST -->
-    <section class="notif-section">
+    <!-- NOTIFICATION LIST WITH PAGINATION -->
+<section class="notif-section">
+  <div class="notif-header-row">
       <h2 class="section-title">🔧 Assigned Tasks</h2>
-      <div id="notifList" class="notif-grid"></div>
-    </section>
+      <button id="deleteAllBtn" class="delete-all-btn">Delete All</button>
+  </div>
+  
+  <div id="notifList" class="notif-grid"></div>
+  
+  <!-- PAGINATION CONTROLS -->
+  <div id="paginationContainer" class="pagination-controls">
+      <button id="paginationPrevBtn" class="pagination-btn" disabled>Previous</button>
+      <span id="pageInfo" class="page-info">Page 1 of 1</span>
+      <button id="paginationNextBtn" class="pagination-btn" disabled>Next</button>
+  </div>
+</section>
   </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/maintenance-notification.js"></script>

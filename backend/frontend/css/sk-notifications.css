@@ -153,3 +153,97 @@ body{
     0% { background: #f1ffe0; }
     100% { background: white; }
   }
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 10px 0;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    gap: 5px;
+}
+
+.pagination li {
+    margin: 0;
+}
+
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px; 
+  gap: 16px;
+}
+.pagination button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.pagination button:hover {
+    background-color: #f5f5f5;
+}
+
+.pagination button.active {
+    background-color: #007bff;
+    color: black;
+    border-color: #007bff;
+}
+
+.pagination button:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    text-align: center;
+    margin-top: 10px;
+    color: rgb(50, 107, 212);
+    font-size: 14px;
+}
+.pagination-section {
+  margin-bottom: 2rem;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  background-color: skyblue;
+  color: black;
+  border: 1px solid black;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: rgb(117, 185, 241);
+}
+
+.pagination-btn:disabled {
+  background-color: #cbd5e0;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.page-info {
+  font-size: 0.875rem;
+  color: black;
+}

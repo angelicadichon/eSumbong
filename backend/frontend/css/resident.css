@@ -115,16 +115,16 @@ body {
     margin-top: 30px;
     border-top: 1px solid #4a6278;
     padding-top: 20px;
-  }
-  
-  .logout-btn a {
+}
+
+.logout-btn a {
     color: #e74c3c !important;
-  }
-  
-  .logout-btn a:hover {
+}
+
+.logout-btn a:hover {
     background-color: #c0392b !important;
     color: white !important;
-  }
+}
 
 /* Header Actions */
 .header-actions {
