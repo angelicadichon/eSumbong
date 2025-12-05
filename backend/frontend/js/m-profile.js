@@ -173,13 +173,7 @@ async function handleFormSubmit(e) {
     formData.append("email", document.getElementById("email").value);
     formData.append("address", document.getElementById("address").value);
     
-    // Only append password if provided
-    const newPassword = document.getElementById("newPassword").value;
-    const oldPassword = document.getElementById("oldPassword").value;
-    if (newPassword) {
-        formData.append("newPassword", newPassword);
-        formData.append("currentPassword", oldPassword); // Add current password for verification
-    }
+   
     
     // Append avatar file if selected
     const avatarFile = document.getElementById("profileUpload").files[0];
@@ -329,12 +323,6 @@ function logout() {
     }
 }
 
-// Additional helper function to clear password fields
-function clearPasswordFields() {
-    document.getElementById('oldPassword').value = '';
-    document.getElementById('newPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
-}
 
 // Add input validation for better UX
 function setupInputValidation() {

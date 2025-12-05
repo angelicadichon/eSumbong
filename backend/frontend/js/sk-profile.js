@@ -173,13 +173,7 @@ async function handleFormSubmit(e) {
     formData.append("email", document.getElementById("email").value);
     formData.append("address", document.getElementById("address").value);
     
-    // Only append password if provided
-    const newPassword = document.getElementById("newPassword").value;
-    const oldPassword = document.getElementById("oldPassword").value;
-    if (newPassword) {
-        formData.append("newPassword", newPassword);
-        formData.append("currentPassword", oldPassword); // Add current password for verification
-    }
+   
     
     // Append avatar file if selected
     const avatarFile = document.getElementById("profileUpload").files[0];
@@ -411,16 +405,3 @@ document.addEventListener('DOMContentLoaded', function() {
     setupInputValidation();
 });
 
-function logout() {
-    const confirmed = window.confirm("Are you sure you want to logout?");
-    
-    if (confirmed) {
-        localStorage.removeItem('username'); 
-        localStorage.removeItem('role');
-        
-        localStorage.removeItem('token');
-        localStorage.removeItem('userData');
-        
-        window.location.href = 'index.html';
-    }
-}
